@@ -1,0 +1,17 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e7]: /AI ASSISTANT
+      - generic [ref=e8]: / Дополнение к докладу об AI-агентах · для dev-команды
+      - heading "Дневник одной агентской сессии" [level=1] [ref=e9]:
+        - text: Дневник одной
+        - text: агентской сессии
+      - paragraph [ref=e11]: Реальная задача ES-3772, реальные артефакты, три пойманные регрессии. Как работают тулы, скиллы и рефлексия агента — по следам, а не по обещаниям.
+      - generic [ref=e12]: PDF export · ToC/ToF/ToT spacing · человек + агент
+    - text: / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+  - generic [ref=e38]:
+    - generic [ref=e39]:
+      - generic [ref=e40]: /
+      - text: AI ASSISTANT
+    - generic [ref=e41]: 01 / 24
+  - generic [ref=e42]: ← → · Space · Home/End · F — fullscreen · артефакты скроллятся

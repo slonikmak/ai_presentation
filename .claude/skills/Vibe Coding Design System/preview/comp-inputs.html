@@ -1,0 +1,23 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;background:var(--bg);}
+  .wrap{padding:24px 32px;display:flex;flex-direction:column;gap:14px;max-width:420px;}
+  label{font-family:var(--font-display);font-weight:700;font-size:11px;color:var(--slate-mut);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:7px;}
+  .inp{width:100%;box-sizing:border-box;background:#fff;border:1px solid var(--line-2);border-radius:var(--r-xs);padding:11px 14px;color:var(--slate-deep);font-family:var(--font-display);font-size:15px;}
+  .inp.focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-tint);}
+  .inp.ph{color:var(--slate-mut);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div><label>Repository</label><div class="inp">github.com/team/monorepo</div></div>
+  <div><label>Prompt — focused</label><div class="inp focus">Review this diff for race conditions</div></div>
+  <div><label>Placeholder</label><div class="inp ph">Describe what you want to build…</div></div>
+</div>
+</body>
+</html>

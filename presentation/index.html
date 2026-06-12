@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-агенты как ежедневный инструмент команды — /AI ASSISTANT</title>
+<!-- FONT NOTE: Hanken Grotesk (бренд) не покрывает кириллицу. Подставлен Manrope
+     (гуманистический гротеск, веса 300–800, кириллица) + JetBrains Mono для кода. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font-display:'Manrope',system-ui,-apple-system,sans-serif;
+  --font-body:'Manrope',system-ui,-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --bg:#FFFFFF; --bg-soft:#F4F5F7; --bg-tint:#EDEFF2; --bg-line:#E3E6EA;
+  --slate-deep:#2B3340; --slate:#3D4757; --slate-soft:#5C6675; --slate-mut:#8A93A1; --slate-faint:#C3C9D1;
+  --accent:#E6006B; --accent-deep:#C2005A; --accent-bright:#FF2D8B; --accent-tint:#FDE6F0;
+  --blue:#1F7FD6; --teal:#149E91; --amber:#E8920C;
+  --on-dark-1:#FFFFFF; --on-dark-2:rgba(255,255,255,0.78); --on-dark-3:rgba(255,255,255,0.55);
+  --line-1:var(--bg-line); --line-2:#D5D9DF;
+  --r-xs:2px; --r-sm:3px; --r-md:4px;
+  --s-1:4px;--s-2:8px;--s-3:12px;--s-4:16px;--s-5:24px;--s-6:32px;--s-7:48px;--s-8:64px;--s-9:96px;--s-10:128px;
+  --shadow-sm:0 1px 2px rgba(43,51,64,0.06);
+  --shadow-md:0 6px 20px rgba(43,51,64,0.10);
+  --shadow-lg:0 18px 50px rgba(43,51,64,0.16);
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+  --slash-fill-dark:rgba(43,51,64,0.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--slate-deep);font-family:var(--font-body);-webkit-font-smoothing:antialiased;color:var(--slate-deep);overflow:hidden;}
+::selection{background:var(--accent-tint);color:var(--accent-deep);}
+
+/* ---------- DECK SHELL ---------- */
+#deck{position:fixed;inset:0;}
+.slide{
+  position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;
+  background:var(--bg);overflow:hidden;
+  padding:60px clamp(48px,7vw,120px);
+}
+.slide.active{display:flex;animation:slidein .5s var(--ease-out) both;}
+@keyframes slidein{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.slide.dark{background:var(--slate-deep);}
+.slide.soft{background:var(--bg-soft);}
+.inner{position:relative;width:100%;max-width:1260px;margin:0 auto;z-index:2;}
+
+/* ---------- SLASH MOTIF (только на разделителях/титуле) ---------- */
+.motif{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;}
+.motif i{position:absolute;top:-25%;height:160%;transform:skewX(-20deg);display:block;}
+.motif .a{left:74%;width:120px;background:var(--slash-fill-dark);}
+.motif .b{left:80%;width:34px;background:rgba(43,51,64,0.04);}
+.motif .c{left:84%;width:13px;background:var(--accent-tint);}
+.dark .motif .a{background:rgba(255,255,255,0.05);}
+.dark .motif .b{background:rgba(255,255,255,0.03);}
+.dark .motif .c{background:rgba(230,0,107,0.5);}
+
+/* ---------- TYPE ---------- */
+.kicker{font-family:var(--font-display);font-weight:700;font-size:13.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.5em;margin-bottom:20px;}
+.kicker::before{content:"/";color:var(--accent);font-weight:800;}
+.dark .kicker{color:var(--accent-bright);}
+h1.display{font-family:var(--font-display);font-weight:300;font-size:clamp(40px,5.4vw,80px);
+  line-height:1.04;letter-spacing:-0.02em;color:var(--slate-deep);}
+.display .bold{font-weight:800;}
+.display .accent{color:var(--accent);font-weight:800;}
+.dark h1.display{color:#fff;}
+.dark .display .accent{color:var(--accent-bright);}
+h2{font-family:var(--font-display);font-weight:800;font-size:clamp(28px,3.1vw,46px);
+  line-height:1.08;letter-spacing:-0.018em;color:var(--slate-deep);}
+h2 .light{font-weight:300;}
+h2 .accent{color:var(--accent);}
+.dark h2{color:#fff;}
+h3{font-family:var(--font-display);font-weight:700;font-size:clamp(17px,1.4vw,21px);line-height:1.2;color:var(--slate-deep);}
+.lead{font-family:var(--font-body);font-weight:400;font-size:clamp(16px,1.4vw,20px);line-height:1.5;color:var(--slate-soft);}
+.dark .lead{color:var(--on-dark-2);}
+.body{font-size:15.5px;line-height:1.55;color:var(--slate-soft);font-weight:400;}
+.small{font-size:13px;line-height:1.5;color:var(--slate-mut);}
+.mono{font-family:var(--font-mono);font-size:13.5px;color:var(--slate-soft);}
+code,.code{font-family:var(--font-mono);font-weight:500;font-size:.92em;color:var(--accent-deep);
+  background:var(--accent-tint);border-radius:var(--r-xs);padding:.08em .36em;}
+.dark code{color:#fff;background:rgba(230,0,107,0.35);}
+.accent{color:var(--accent);}
+.rule{border-left:3px solid var(--accent);padding-left:18px;}
+
+/* ---------- LAYOUT HELPERS ---------- */
+.grid{display:grid;gap:14px;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+.flow{display:flex;flex-direction:column;gap:14px;}
+.mt{margin-top:24px;}.mt-s{margin-top:12px;}.mt-l{margin-top:34px;}
+
+/* ---------- CARDS (плотные, информативные) ---------- */
+.card{background:#fff;border:1px solid var(--line-1);border-top:3px solid var(--accent);
+  box-shadow:var(--shadow-sm);padding:18px 20px;border-radius:var(--r-xs);}
+.card h3{margin-bottom:7px;}
+.card h3 .ix{font-family:var(--font-mono);font-weight:600;font-size:.78em;color:var(--accent);margin-right:.5em;}
+.card .body{font-size:14.5px;line-height:1.5;}
+.card .body + .body{margin-top:7px;}
+.card .lbl{display:block;font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent);margin:10px 0 3px;}
+.panel{padding:26px 24px;color:#fff;display:flex;flex-direction:column;min-height:180px;border-radius:var(--r-xs);position:relative;overflow:hidden;}
+.panel .pk{font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;}
+.panel h3{color:#fff;font-size:22px;font-weight:800;margin:10px 0 0;}
+.panel .body{color:var(--on-dark-2);font-size:14.5px;margin-top:10px;}
+.p-accent{background:var(--accent);} .p-slate{background:var(--slate);} .p-deep{background:var(--slate-deep);}
+.tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-display);font-weight:700;
+  font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:var(--r-xs);
+  background:var(--bg-tint);color:var(--slate);}
+.tag.warn{background:#FBEFD8;color:#8a5a00;}
+
+/* было → стало row */
+.ba{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;
+  border:1px solid var(--line-1);border-left:3px solid var(--accent);background:#fff;padding:14px 16px;}
+.ba .was{color:var(--slate-mut);font-size:14.5px;line-height:1.42;}
+.ba .arrow{color:var(--accent);font-size:22px;font-weight:800;}
+.ba .now{color:var(--slate-deep);font-size:14.5px;line-height:1.42;font-weight:500;}
+.ba .lbl{display:block;font-family:var(--font-display);font-weight:700;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px;}
+.was .lbl{color:var(--slate-faint);} .now .lbl{color:var(--accent);}
+
+/* terminal */
+.term{background:var(--slate-deep);border-radius:var(--r-md);box-shadow:var(--shadow-lg);overflow:hidden;}
+.term .bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.term .dot{width:11px;height:11px;border-radius:50%;}
+.term .ttl{margin-left:10px;font-family:var(--font-mono);font-size:12px;color:var(--on-dark-3);}
+.term .body{padding:18px 20px;font-family:var(--font-mono);font-size:13.5px;line-height:1.8;color:var(--on-dark-2);}
+.term .p{color:var(--accent-bright);} .term .g{color:#5BE3A8;} .term .y{color:#FFB454;} .term .bl{color:#6CB6FF;} .term .w{color:#fff;}
+
+/* list */
+ul.clean{list-style:none;display:flex;flex-direction:column;gap:11px;}
+ul.clean li{display:flex;gap:11px;font-size:15px;line-height:1.45;color:var(--slate-soft);}
+ul.clean li b{color:var(--slate-deep);font-weight:700;}
+ul.clean .mk{color:var(--accent);font-weight:800;flex:none;}
+
+/* big number divider */
+.divnum{font-family:var(--font-display);font-weight:800;font-size:clamp(80px,16vw,220px);
+  line-height:.85;color:var(--accent);letter-spacing:-0.04em;}
+.dark .divnum{color:var(--accent-bright);}
+
+/* table */
+table.mon{width:100%;border-collapse:collapse;}
+table.mon td,table.mon th{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line-1);vertical-align:top;}
+table.mon th{font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);}
+table.mon td.role{font-weight:700;color:var(--slate-deep);white-space:nowrap;width:190px;}
+table.mon td.act{color:var(--slate-soft);font-size:14.5px;}
+
+/* steps */
+.steps{display:flex;flex-direction:column;gap:0;counter-reset:st;}
+.step{display:grid;grid-template-columns:42px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--line-1);}
+.step:last-child{border-bottom:none;}
+.step .n{font-family:var(--font-mono);font-weight:600;color:var(--accent);font-size:15px;padding-top:2px;}
+.step h3{margin-bottom:3px;font-size:17px;}.step .body{font-size:14px;}
+
+/* eco columns */
+.eco{border:1px solid var(--line-1);padding:18px 20px;background:#fff;}
+.eco .h{font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--slate-deep);margin-bottom:11px;display:flex;align-items:center;gap:8px;}
+.eco .h::before{content:"/";color:var(--accent);font-weight:800;}
+.eco ul{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.eco li{font-size:14px;color:var(--slate-soft);line-height:1.4;}
+.eco li b{color:var(--slate-deep);}
+
+.note{margin-top:18px;background:var(--bg-soft);border-left:3px solid var(--slate-faint);padding:13px 16px;font-size:14.5px;color:var(--slate-soft);line-height:1.5;}
+.note.warn{background:#FBEFD8;border-left-color:var(--amber);color:#7a5400;}
+.note b{color:var(--slate-deep);}
+.note.warn b{color:#5e4100;}
+
+/* ---------- CHROME ---------- */
+#bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:50;transition:width .3s var(--ease-out);}
+#hud{position:fixed;bottom:20px;right:26px;z-index:50;display:flex;align-items:center;gap:14px;
+  font-family:var(--font-mono);font-size:12px;color:var(--slate-mut);}
+.dark ~ #hud{color:var(--on-dark-3);}
+#hud a.back-link{color:inherit;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:4px;transition:color .2s;}
+#hud a.back-link:hover{color:var(--accent-bright);}
+#hud .sep{color:var(--bg-line);font-weight:300;}
+.dark ~ #hud .sep{color:rgba(255,255,255,0.15);}
+#hud .logo{display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.04em;color:var(--slate-deep);}
+#hud .logo span{color:var(--accent);}
+#dots{position:fixed;bottom:22px;left:26px;z-index:50;display:flex;gap:4px;max-width:42vw;flex-wrap:wrap;}
+#dots b{width:6px;height:6px;background:var(--slate-faint);cursor:pointer;transition:.2s;}
+#dots b.on{background:var(--accent);transform:scaleY(1.6);}
+.navhint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:50;font-family:var(--font-mono);
+  font-size:11px;color:var(--slate-faint);letter-spacing:.04em;}
+@media (prefers-reduced-motion:reduce){.slide.active{animation:none;}}
+.eyetop{position:absolute;top:38px;left:clamp(48px,7vw,120px);font-family:var(--font-mono);font-size:12px;color:var(--slate-mut);letter-spacing:.04em;}
+.dark .eyetop{color:var(--on-dark-3);}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="deck">
+
+<!-- ============ 1 · TITLE ============ -->
+<section class="slide dark active">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:38px;">
+      <img src="assets/mark.svg" width="44" height="44" alt="">
+      <span style="font-family:var(--font-display);font-weight:800;letter-spacing:.04em;color:#fff;font-size:18px;"><span class="accent" style="color:var(--accent-bright)">/</span>AI ASSISTANT</span>
+    </div>
+    <div class="kicker">Внутренний доклад · AI в разработке · 2026</div>
+    <h1 class="display">AI-агенты<br>как <span class="accent">ежедневный</span><br>инструмент команды</h1>
+    <div class="rule mt-l" style="max-width:640px;border-color:var(--accent-bright)">
+      <p class="lead">Как перейти из режима веб-чата к работе с агентами — и превратить
+      разовые эксперименты в ежедневную привычку.</p>
+    </div>
+    <div class="mt-l" style="font-family:var(--font-mono);font-size:14px;color:#fff;letter-spacing:.02em;">
+      <span><span style="color:var(--on-dark-3)">ГЛАВНАЯ ОСЬ:&nbsp;&nbsp;</span>ЧАТ <span style="color:var(--accent-bright)">→</span> АГЕНТ</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · AGENDA ============ -->
+<section class="slide soft">
+  <div class="inner">
+    <div class="kicker">План доклада · 30–40 мин + Q&amp;A</div>
+    <h2><span class="light">Семь разделов,</span> одна ось:<br>от чата к <span class="accent">агенту</span></h2>
+    <div class="grid g2 mt-l" style="gap:12px;">
+      <div class="ba" style="grid-template-columns:auto 1fr;border-left-color:var(--accent)"><span style="font-family:var(--font-mono);color:var(--accent);font-weight:600">01</span><div class="now"><b>Вступление и состояние дел</b> · 5–6 мин</div></div>
+      <div class="ba" style="grid-template-columns:auto 1fr"><span style="font-family:var(--font-mono);color:var(--accent);font-weight:600">02</span><div class="now"><b>Что такое агент + окружение</b> · 5–6 мин</div></div>
+      <div class="ba" style="grid-template-columns:auto 1fr"><span style="font-family:var(--font-mono);color:var(--accent);font-weight:600">03</span><div class="now"><b>Устройство проекта + воркфлоу</b> · ядро · 15–17 мин</div></div>
+      <div class="ba" style="grid-template-columns:auto 1fr"><span style="font-family:var(--font-mono);color:var(--accent);font-weight:600">04</span><div class="now"><b>Рецепты для разработки</b> · 6–8 мин</div></div>
+      <div class="ba" style="grid-template-columns:auto 1fr"><span style="font-family:var(--font-mono);color:var(--accent);font-weight:600">05</span><div class="now"><b>Кейсы для не-dev команд</b> · 6–7 мин</div></div>
+      <div class="ba" style="grid-template-columns:auto 1fr"><span style="font-family:var(--font-mono);color:var(--accent);font-weight:600">06</span><div class="now"><b>Внедрение через эксперименты</b> · 5–6 мин</div></div>
+      <div class="ba" style="grid-template-columns:auto 1fr"><span style="font-family:var(--font-mono);color:var(--accent);font-weight:600">07</span><div class="now"><b>Грабли и антипаттерны</b> · 5–6 мин</div></div>
+      <div class="ba" style="grid-template-columns:auto 1fr;border-left-color:var(--slate)"><span style="font-family:var(--font-mono);color:var(--slate);font-weight:600">→</span><div class="now"><b>Закрытие: «С чего начать»</b> · 1–2 мин</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 · DIVIDER 01 ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner" style="display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;">
+    <div class="divnum">/01</div>
+    <div>
+      <div class="kicker">Раздел 1 · 5–6 мин</div>
+      <h2 style="color:#fff">Где мы <span class="accent">сейчас</span></h2>
+      <p class="lead mt">Вопрос «достаточно ли хорошо агент кодит?» — закрыт.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 · СОСТОЯНИЕ МОДЕЛЕЙ ============ -->
+<section class="slide">
+  <div class="eyetop">01 / СОСТОЯНИЕ ДЕЛ</div>
+  <div class="inner">
+    <div class="kicker">Что изменилось за год</div>
+    <h2><span class="light">Фронтирные модели</span> изменились <span class="accent">качественно</span></h2>
+    <div class="grid g4 mt-l">
+      <div class="card"><h3>Длинный контекст</h3><p class="body">Держат в голове весь модуль и его историю, а не один сниппет. Можно отдать реальный объём кода и доки.</p></div>
+      <div class="card"><h3>Надёжное рассуждение</h3><p class="body">Декомпозиция и планирование без подсказок: сами разбивают задачу на шаги и держат нить.</p></div>
+      <div class="card"><h3>Следование инструкциям</h3><p class="body">Дисциплинированно держат правила, конвенции и рамки scope на протяжении всей сессии.</p></div>
+      <div class="card"><h3>Работа с инструментами</h3><p class="body">Уверенно вызывают терминал, тесты, браузер, API — и осмысленно реагируют на их вывод.</p></div>
+    </div>
+    <div class="note"><b>Главный тезис части:</b> кодит достаточно хорошо практически для любой реальной задачи — багфикс, фича, рефакторинг легаси. Спор «умеет ли» окончен. И это <b>не только про код</b>: тексты, документы, разбор данных, автоматизация рутины — то же самое, кодинг просто самый зрелый пример.</div>
+  </div>
+</section>
+
+<!-- ============ 5 · ЧТО ЭТО ДАЁТ КОМАНДЕ ============ -->
+<section class="slide soft">
+  <div class="eyetop">01 / СОСТОЯНИЕ ДЕЛ</div>
+  <div class="inner">
+    <div class="kicker">Что это даёт команде</div>
+    <h2 style="margin-bottom:20px"><span class="light">Не магия —</span> измеримые <span class="accent">эффекты</span></h2>
+    <div class="grid g3">
+      <div class="card"><h3><span class="ix">01</span>Рутина с данными</h3><p class="body">«Выгрузи по клиенту», «как используется фича», «найди записи при разборе инцидента»: было 30–60 мин разработчика → агент с read-only доступом к БД за 1–2 мин.</p></div>
+      <div class="card"><h3><span class="ix">02</span>Гипотезы быстрее</h3><p class="body">Короче весь цикл: вопросы к данным → требования → код → деплой → проверка на реальном использовании → доработка.</p></div>
+      <div class="card"><h3><span class="ix">03</span>Bus factor ниже</h3><p class="body">Повод переложить знания «человека-проекта» в текст: доки, правила, спеки. Знания больше не заперты в одной голове.</p></div>
+      <div class="card"><h3><span class="ix">04</span>Разработка быстрее</h3><p class="body">Код пишется, тестируется и релизится в разы быстрее. Не «за пару часов», но заметно.</p></div>
+      <div class="card" style="border-top-width:5px"><h3><span class="ix">05</span>Сумма — time to market</h3><p class="body">Быстрее поняли, что работает, → быстрее доставили клиентам. Главный бизнес-эффект.</p></div>
+    </div>
+    <div class="note"><b>ИИ — «удлинение ручек»:</b> лучше всего усиливает навыки, которые уже есть. Специалист с ИИ выигрывает у специалиста без — при том же опыте и в той же роли.</div>
+  </div>
+</section>
+
+<!-- ============ 6 · РАМКА: ПОДХОД, НЕ ВЕНДОР ============ -->
+<section class="slide">
+  <div class="eyetop">01 / СОСТОЯНИЕ ДЕЛ</div>
+  <div class="inner">
+    <div class="kicker">Рамка доклада</div>
+    <h2><span class="light">Про</span> агентский подход<span class="light">,</span> а не про <span class="accent">вендора</span></h2>
+    <p class="lead mt" style="max-width:840px">Показываю на конкретном инструменте, который реально будет в руках — но приёмы переносятся между инструментами почти без изменений.</p>
+    <div class="grid g4 mt-l">
+      <div class="card"><h3><span class="ix">01</span>Спека</h3><p class="body">Контракт между человеком и агентом: scope, API, DTO. Формат не зависит от инструмента.</p></div>
+      <div class="card"><h3><span class="ix">02</span>План</h3><p class="body">Разбивка на куски под сессии. Те же принципы в любом CLI или агентском UI.</p></div>
+      <div class="card"><h3><span class="ix">03</span>Ревью</h3><p class="body">Инженер отвечает за результат. Встроенный code review есть почти везде.</p></div>
+      <div class="card"><h3><span class="ix">04</span>Фиксация правил</h3><p class="body"><code>AGENTS.md</code> / <code>CLAUDE.md</code>, skills — переносятся между вендорами один-в-один.</p></div>
+    </div>
+    <div class="note"><b>Ни один инструмент не «лучший по совокупности»</b> — выбираешь под задачу, а не по бренду. Полное сравнение вендоров и клиентов — в приложении (справочные слайды в конце).</div>
+  </div>
+</section>
+
+<!-- ============ 7 · DIVIDER 02 ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner" style="display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;">
+    <div class="divnum">/02</div>
+    <div>
+      <div class="kicker">Раздел 2 · 5–6 мин</div>
+      <h2 style="color:#fff">Что такое агент<br><span class="light" style="color:var(--on-dark-2)">и как он работает</span></h2>
+      <p class="lead mt">Самопроверка — ключевое отличие от чата.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8 · ТРИ ВОЛНЫ ============ -->
+<section class="slide soft">
+  <div class="eyetop">02 / ЧТО ТАКОЕ АГЕНТ</div>
+  <div class="inner">
+    <div class="kicker">Сдвиг парадигмы</div>
+    <h2><span class="light">Три волны</span> — и <span class="accent">горизонт</span></h2>
+    <div class="grid g4 mt-l">
+      <div class="card"><h3><span class="ix">01</span>Prompt engineering</h3><p class="body">Подбираем формулировку запроса. Хрупко: меняешь слово — ломается результат.</p></div>
+      <div class="card"><h3><span class="ix">02</span>Context engineering</h3><p class="body">Важно не <i>как</i> спросить, а <i>что</i> положить в контекст — файлы, примеры, правила.</p></div>
+      <div class="card" style="border-top-width:5px"><h3><span class="ix">03</span>Harness engineering <span class="accent" style="font-size:13px;font-weight:700">← мы здесь</span></h3><p class="body">Результат определяет окружение агента: инструменты, правила, петли проверки. Не промпт, а обвязка вокруг модели.</p></div>
+      <div class="card" style="border-top-color:var(--slate)"><h3><span class="ix">04</span>Workflow engineering <span style="font-size:13px;font-weight:700;color:var(--slate-mut)">← будущее</span></h3><p class="body">Целые процессы из агентов: тикет → research → спека → код → ревью → доставка. Человек проектирует процесс и держит контрольные точки.</p></div>
+    </div>
+    <div class="note"><b>Harness</b> — набор инструментов + правил + петель вокруг модели. Всё, что накапливаем сегодня (правила, skills, инструменты, спеки), — строительные блоки будущих воркфлоу: первые шаги — субагенты (раздел 3) и «рутина → skill» (раздел 5).</div>
+  </div>
+</section>
+
+<!-- ============ 9 · ДВА РЕЖИМА: VIBE CODING vs AI-ASSISTED ============ -->
+<section class="slide">
+  <div class="eyetop">02 / ЧТО ТАКОЕ АГЕНТ</div>
+  <div class="inner">
+    <div class="kicker">Два режима работы с агентом</div>
+    <h2><span class="light">Vibe coding</span> или <span class="accent">AI-assisted coding</span></h2>
+    <div class="grid g2 mt-l">
+      <div class="card" style="border-top-color:var(--slate)"><h3>Vibe coding</h3><p class="body">Код <b>не читаем</b> — управляем только конечным поведением системы: что на входе, что на выходе, как ведёт себя продукт.</p><span class="lbl">для чего</span><p class="body">Прототипы, проверка гипотез, быстрый выход на рынок. Плата за скорость: кодом никто не владеет.</p></div>
+      <div class="card" style="border-top-width:5px"><h3>AI-assisted coding</h3><p class="body"><b>Владеем кодом</b> и отвечаем за его качество. Пишет агент — но владение и ответственность на разработчике: ревью, понимание, поддержка.</p><span class="lbl">для чего</span><p class="body">Всё, что уходит в прод и живёт дальше.</p></div>
+    </div>
+    <div class="note"><b>Перепутать опасно:</b> прототип, уехавший в прод без владельца, — техдолг, за который некому отвечать. Эта развилка отзовётся в концептах «не для прода» (раздел 3) и границах применимости (раздел 7).</div>
+  </div>
+</section>
+
+<!-- ============ 10 · ИЗ ЧЕГО СОБРАН АГЕНТ ============ -->
+<section class="slide">
+  <div class="eyetop">02 / ЧТО ТАКОЕ АГЕНТ</div>
+  <div class="inner">
+    <div class="kicker">Из чего собран агент</div>
+    <h2><span class="light">Три части,</span> и важна именно их <span class="accent">связка</span></h2>
+    <div class="grid g3 mt-l">
+      <div class="card"><h3>LLM · мозг</h3><p class="body">Модель рассуждает и решает, что делать дальше. Сама по себе — просто текст: ничего не видит и ничего не меняет.</p></div>
+      <div class="card"><h3>Tools · руки</h3><p class="body">Через что агент действует: чтение и запись файлов, команды в терминале, прогон тестов, браузер, внешние сервисы через MCP. Это превращает советчика в исполнителя.</p></div>
+      <div class="card" style="border-top-width:5px"><h3>Loop · связка</h3><p class="body">Модель не выдаёт ответ за один проход, а крутит петлю: вызвала инструмент → увидела результат → решила следующий шаг.</p></div>
+    </div>
+    <div class="note"><b>Сила не в самой модели,</b> а в том, к чему она подключена. Уберёшь руки или петлю — и останется обычный чат.</div>
+  </div>
+</section>
+
+<!-- ============ 11 · ЛУП + ЧАТ vs АГЕНТ ============ -->
+<section class="slide soft">
+  <div class="eyetop">02 / ЧТО ТАКОЕ АГЕНТ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Агентский луп</div>
+      <h2><span class="light">Цикл, который</span><br><span class="accent">проверяет себя</span></h2>
+      <div class="term mt">
+        <div class="bar"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><span class="ttl">agent — loop</span></div>
+        <div class="body">
+          <div><span class="p">контекст</span> <span class="w">→</span> план</div>
+          <div><span class="w">→</span> действие <span style="color:var(--on-dark-3)">(вызов инструмента)</span></div>
+          <div><span class="w">→</span> <span class="y">наблюдение (тесты, ошибки, вывод)</span></div>
+          <div><span class="w">→</span> коррекция</div>
+          <div><span class="g">↺ повтор до критерия готовности</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="flow">
+        <div class="card" style="border-top-color:var(--slate-faint)"><h3>Чат — <span style="color:var(--slate-mut)">советует</span></h3><p class="body">Живёт в вакууме: руками носишь ему куски контекста, руками применяешь его ответ.</p></div>
+        <div class="card"><h3>Агент — <span class="accent">делает</span></h3><p class="body">Живёт внутри рабочего окружения: читает файлы, выполняет действия, проверяет результат и повторяет.</p></div>
+      </div>
+      <div class="note"><b>Различие не зависит от формы.</b> CLI, десктоп, агентский веб — суть одна. <b>Когда чат уместен:</b> одноразовые размышления без твоих данных. Длинное, сложное или завязанное на файлы — сразу в агента: артефакты живут файлами, ветки мысли не теряются.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12 · СХЕМА ОКРУЖЕНИЯ ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="eyetop">02 / ЧТО ТАКОЕ АГЕНТ</div>
+  <div class="inner">
+    <div class="kicker">Агент и его окружение</div>
+    <h2 style="color:#fff;margin-bottom:26px"><span class="light" style="color:var(--on-dark-2)">Разница не в уме модели —</span><br>в доступе к <span class="accent">окружению</span></h2>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;">
+      <div class="flow">
+        <div class="eco" style="background:var(--slate);border-color:var(--slate-soft)"><div class="h" style="color:#fff">Файлы и документы</div><ul><li style="color:var(--on-dark-2)">любые форматы, папки</li></ul></div>
+        <div class="eco" style="background:var(--slate);border-color:var(--slate-soft)"><div class="h" style="color:#fff">Терминал</div><ul><li style="color:var(--on-dark-2)">скрипты, автоматизация</li></ul></div>
+        <div class="eco" style="background:var(--slate);border-color:var(--slate-soft)"><div class="h" style="color:#fff">Базы данных</div><ul><li style="color:var(--on-dark-2)">выгрузки, research (read-only)</li></ul></div>
+      </div>
+      <div class="panel p-accent" style="min-height:auto;text-align:center;align-items:center;justify-content:center;padding:30px 22px;">
+        <div class="pk" style="opacity:1">Агент</div>
+        <div style="font-family:var(--font-mono);font-size:14px;color:#fff;margin-top:12px;line-height:2;">
+          контекст →<br>действие →<br>проверка ↺
+        </div>
+      </div>
+      <div class="flow">
+        <div class="eco" style="background:var(--slate);border-color:var(--slate-soft)"><div class="h" style="color:#fff">Браузер</div><ul><li style="color:var(--on-dark-2)">страницы, e2e-тесты</li></ul></div>
+        <div class="eco" style="background:var(--slate);border-color:var(--slate-soft)"><div class="h" style="color:#fff">Веб и API</div><ul><li style="color:var(--on-dark-2)">research, внешние данные</li></ul></div>
+        <div class="eco" style="background:var(--accent);border-color:var(--accent-bright)"><div class="h" style="color:#fff">MCP-коннекторы</div><ul><li style="color:#fff">Jira · GitLab · Figma · Drive · Slack</li></ul></div>
+      </div>
+    </div>
+    <p class="body" style="color:var(--on-dark-2);margin-top:22px;text-align:center">Чат отвечает. Агент видит контекст, выполняет действие, проверяет результат и повторяет.</p>
+  </div>
+</section>
+
+<!-- ============ 13 · РАБОТА СМЕЩАЕТСЯ НА КРАЯ ============ -->
+<section class="slide">
+  <div class="eyetop">02 / ЧТО ТАКОЕ АГЕНТ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Работа смещается</div>
+      <h2><span class="light">Перевод схлопывается —</span><br>растут <span class="accent">края</span></h2>
+      <p class="lead mt">Десятилетиями работа была переводом: PM → макеты → код. Каждый перевод ел время и терял смысл. Теперь «перевести в код или документ» делает агент — а работа перетекает на края.</p>
+      <div class="rule mt"><p class="body"><b style="color:var(--slate-deep)">Промпт — это новое ТЗ.</b> Кто умеет ставить задачу человеку, поставит её и агенту. Письменная постановка и цифровой след — преимущество каждой роли, не бюрократия.</p></div>
+    </div>
+    <div class="flow">
+      <div class="card"><h3>Край первый — <span class="accent">начало</span></h3><p class="body">Что делаем, какую проблему решаем, какие ограничения, как поймём, что получилось. Агент действует ровно из того, что ему дали.</p></div>
+      <div class="card"><h3>Край второй — <span class="accent">конец</span></h3><p class="body">Ревью, тестирование, соответствие задаче. Агенты выдают много и быстро — нагрузка на проверку растёт.</p></div>
+      <div class="note"><b>Агент видит только записанное.</b> Дашь ребус — получишь ребус: «мусор на входе → мусор на выходе» всё ещё закон. Вход теперь — не вручную собранный контекст, а инструкции + инструменты, которыми агент сам достаёт данные.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 14 · DIVIDER 03 ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner" style="display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;">
+    <div class="divnum">/03</div>
+    <div>
+      <div class="kicker">Раздел 3 · 15–17 мин · ЯДРО</div>
+      <h2 style="color:#fff">Устройство проекта<br><span class="accent">+ мой воркфлоу</span></h2>
+      <p class="lead mt">От тикета до готового PR. Слушай не «какие команды я набираю», а «как устроен цикл».</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 15 · ВРЕЗКА ЧАТ→АГЕНТ ДЛЯ ВСЕХ ============ -->
+<section class="slide soft">
+  <div class="eyetop">03 / ВОРКФЛОУ · ДЛЯ ВСЕХ</div>
+  <div class="inner">
+    <div class="kicker">Мостик для не-dev</div>
+    <h2><span class="light">Дальше — dev-примеры,</span><br>но цикл <span class="accent">одинаков для любой работы</span></h2>
+    <p class="lead mt" style="max-width:920px">Контекст → спека → проверка → фиксация правил. Слушайте не «какие команды я набираю», а «как устроен цикл». Агентский режим доступен и через UI (файлы, MCP-коннекторы, skills), и через CLI — разница в уровне контроля, а не в подходе.</p>
+    <div class="grid g2 mt-l">
+      <div class="card"><h3>Через UI</h3><p class="body">Подключаешь файлы, MCP-коннекторы, skills в агентском веб-интерфейсе или десктоп-приложении. Низкий порог входа, работаешь агентски, а не «вопрос-ответ».</p></div>
+      <div class="card"><h3>Через CLI</h3><p class="body">Другой уровень контроля и автоматизации для повторяющихся задач. Осваивается не только разработчиками.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 16 · АРТЕФАКТЫ ============ -->
+<section class="slide">
+  <div class="eyetop">03 / ВОРКФЛОУ</div>
+  <div class="inner">
+    <div class="kicker">Из чего состоит harness проекта</div>
+    <h2><span class="light">Артефакты</span> проекта</h2>
+    <div class="grid g4 mt-l">
+      <div class="card"><h3><span class="ix">01</span><code>AGENTS.md</code></h3><p class="body">Правила и память: архитектура, конвенции, команды сборки/тестов, чего <b style="color:var(--slate-deep)">НЕ</b> делать. Читается каждый запуск.</p></div>
+      <div class="card"><h3><span class="ix">02</span>Skills</h3><p class="body">Переиспользуемые «методички» под повторяющийся класс задач: составление спеки, работа с трекером.</p></div>
+      <div class="card"><h3><span class="ix">03</span>MCP-серверы</h3><p class="body">Подключение внешних инструментов и данных: Figma, трекер, БД, документация.</p></div>
+      <div class="card"><h3><span class="ix">04</span>Агентский луп</h3><p class="body">Как всё это работает в цикле вместе: правила + инструменты + петли проверки.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 17 · ПОКАЗАТЬ ВЖИВУЮ (каркас: вставить реальные артефакты, см. план доработок) ============ -->
+<section class="slide soft">
+  <div class="eyetop">03 / ВОРКФЛОУ · ЖИВЫЕ АРТЕФАКТЫ</div>
+  <div class="inner">
+    <div class="kicker">Показать вживую</div>
+    <h2 style="margin-bottom:20px"><span class="light">Не тезисы —</span> реальные <span class="accent">артефакты</span></h2>
+    <div class="grid g3">
+      <div class="card"><h3>Спека · 5 строк</h3><p class="body">Реальная спека из проекта: только контракты (API, DTO, БД) и явный scope. Лёгкая, без примеров кода.</p><span class="lbl">на слайде</span><p class="body">Скрин/текст настоящей спеки задачи.</p></div>
+      <div class="card"><h3>AGENTS.md</h3><p class="body">Правила и память проекта: архитектура, конвенции, команды, чего НЕ делать.</p><span class="lbl">на слайде</span><p class="body">Фрагмент рабочего файла — 10–15 строк.</p></div>
+      <div class="card"><h3>Skill целиком</h3><p class="body">Обычный md-файл на ~15 строк. Никакой магии — инструкция, как делать класс задач.</p><span class="lbl">на слайде</span><p class="body">Полный текст одного skill.</p></div>
+    </div>
+    <div class="note"><b>Плюс показ реальной работы:</b> запись прогона существующей задачи (тикет → спека → агент → PR) или разбор артефактов уже сделанных задач. Зал, который «пробовал и забросил», верит экрану, а не словам.</div>
+  </div>
+</section>
+
+<!-- ============ 18 · ВОРКФЛОУ A–G ============ -->
+<section class="slide soft">
+  <div class="eyetop">03 / ВОРКФЛОУ</div>
+  <div class="inner">
+    <div class="kicker">От тикета до PR</div>
+    <h2 style="margin-bottom:16px"><span class="light">Мой</span> воркфлоу</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 52px;">
+      <div class="steps">
+        <div class="step"><div class="n">A</div><div><h3>Подход и философия</h3><p class="body">Plan &amp; Act — сначала план, потом действие. Spec-Driven Development; референсы: SpecKit, OpenSpec, BMAD.</p></div></div>
+        <div class="step"><div class="n">B</div><div><h3>Документация как фундамент</h3><p class="body">Папка с докой по фичам, накапливаю по ходу. Перед задачей ищу существующую — или прошу агента собрать.</p></div></div>
+        <div class="step"><div class="n">C</div><div><h3>Спецификация · центральная идея</h3><p class="body">На основе доки агент изучает базу → предлагает спеку. Есть skill для составления спеки из моего опыта.</p></div></div>
+        <div class="step"><div class="n">D</div><div><h3>План <span style="color:var(--slate-mut);font-weight:400">(для крупных)</span></h3><p class="body">Разбиваю на куски под отдельные сессии, последовательно. Опционально — параллельно через субагентов.</p></div></div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="n">E</div><div><h3>Выполнение и передача</h3><p class="body">Новая сессия на план. В конце: документ с результатами имплементации + описание ключевых изменений для фронта.</p></div></div>
+        <div class="step"><div class="n">F</div><div><h3>Ревью</h3><p class="body">Встроенный code review (в Codex работает очень хорошо) → фикшу найденные баги.</p></div></div>
+        <div class="step"><div class="n">G</div><div><h3>Свои инструменты для агента</h3><p class="body">Узкий CLI-инструмент + skill к нему: Jira, Jenkins, GitLab. Принцип и примеры — на следующем слайде.</p></div></div>
+      </div>
+    </div>
+    <div class="note warn"><b>Принцип спеки:</b> лёгкая и читаемая, без примеров кода; только контракты (API, DTO, изменения в БД) и явный scope. <b>Без жёстких рамок по имплементации</b> — избыточные ограничения жгут токены и сужают пространство решений. <b>Делегируй фичу, а не функцию:</b> чёткие границы + свобода внутри них.</div>
+  </div>
+</section>
+
+<!-- ============ 19 · СВОИ ИНСТРУМЕНТЫ ============ -->
+<section class="slide">
+  <div class="eyetop">03 / ВОРКФЛОУ · СВОИ ИНСТРУМЕНТЫ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Свои инструменты для агента</div>
+      <h2 style="font-size:clamp(26px,2.7vw,40px)"><span class="light">Простые и</span> <span class="accent">односложные</span></h2>
+      <p class="lead mt">Готовый MCP-сервер тащит десятки инструментов и забивает контекст — а нужен обычно один. Узкий самодельный CLI-инструмент почти всегда лучше «жирного» коннектора.</p>
+      <div class="rule mt"><p class="body"><b style="color:var(--slate-deep)">Паттерн: CLI-инструмент + skill к нему.</b> Инструмент делает ровно одну вещь; skill объясняет агенту, как им пользоваться, как оформлять результат и куда складывать.</p></div>
+    </div>
+    <div class="flow">
+      <div class="card"><h3>Jira-инструмент</h3><p class="body">По номеру задачи выгружает её со всеми комментариями → отдельная папка под задачу → research + спека. Skill описывает оформление и структуру папок.</p></div>
+      <div class="card"><h3>Jenkins-инструмент</h3><p class="body">Сборки по проектам и <b>краткие</b> логи — специально краткие, чтобы не захламлять контекст. «Сборка упала — проверь и предложи фикс».</p></div>
+      <div class="card"><h3>GitLab</h3><p class="body">Забирает комментарии к merge request, делает research, предлагает фиксы.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 20 · СУБАГЕНТЫ + ПРОТОТИПЫ ============ -->
+<section class="slide">
+  <div class="eyetop">03 / ВОРКФЛОУ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;">
+    <div>
+      <div class="kicker">Качественный скачок</div>
+      <h2 style="font-size:clamp(26px,2.6vw,38px)"><span class="light">От помощника —</span> к <span class="accent">команде</span></h2>
+      <p class="lead mt">Запуск нескольких агентов на независимых задачах. Я — в роли тимлида-ревьюера.</p>
+      <div class="card mt"><h3>Субагенты · параллельная работа</h3><p class="body">Вместо одного помощника — несколько параллельных исполнителей под ревью. Человек сводит результат и держит качество.</p></div>
+    </div>
+    <div>
+      <div class="kicker">Прототипы и гипотезы</div>
+      <h2 style="font-size:clamp(26px,2.6vw,38px)"><span class="light">Пощупать</span> технологии</h2>
+      <ul class="clean mt">
+        <li><span class="mk">/</span><span><b>Research-проекты:</b> маленькие проекты, чтобы пощупать библиотеки и проверить, как что работает.</span></li>
+        <li><span class="mk">/</span><span><b>Концепт-сёрч интерфейсов:</b> Claude Design, Replit, v0, Figma Make — только одноразовые концепты, не прод.</span></li>
+        <li><span class="mk">/</span><span><b>Рабочий дизайн:</b> MCP к Figma — тянет компоненты дизайн-системы и манипулирует layout обратно в Figma.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 21 · ПЕТЛЯ ПРОВЕРКИ В JAVA + IDEA MCP ============ -->
+<section class="slide soft">
+  <div class="eyetop">03 / ВОРКФЛОУ · НАШ СТЕК</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Петля проверки · важная оговорка</div>
+      <h2 style="font-size:clamp(26px,2.7vw,40px)"><span class="light">На Java самопроверка</span><br><span class="accent">буксует</span> — и это лечится</h2>
+      <p class="lead mt">Самопроверка через тесты — основа агентского лупа. Но в наших Java-проектах она даётся тяжелее.</p>
+    </div>
+    <div class="flow">
+      <div class="ba"><div class="was"><span class="lbl">Проблема</span>интеграционные тесты долго стартуют; прогон через Maven тянет перекомпиляцию модулей. Цикл «изменил → проверил» дорогой по времени — петля буксует.</div><div class="arrow">→</div><div class="now"><span class="lbl">IDEA MCP</span>отдаёт агенту инструменты IDE: поиск файлов, строк, классов, символов и запуск тестов через run configuration — без полного maven-цикла. Петля заметно ускоряется на нашем стеке.</div></div>
+      <div class="note"><b>IDEA MCP</b> — встроенный в IntelliJ IDEA MCP-сервер. К этой же технике вернёмся в антипаттерне «нет петель проверки» (раздел 7).</div>
+      <div class="note"><b>Перевод для не-dev:</b> тот же цикл работает для любого документа — дока → постановка → черновик → проверка → правило. Меняется материал, не цикл.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 22 · DIVIDER 04 ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner" style="display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;">
+    <div class="divnum">/04</div>
+    <div>
+      <div class="kicker">Раздел 4 · 6–8 мин</div>
+      <h2 style="color:#fff">Рецепты для<br><span class="accent">разработки</span></h2>
+      <p class="lead mt">Быстрая галерея — не только код.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 23 · РЕЦЕПТЫ ============ -->
+<section class="slide">
+  <div class="eyetop">04 / РЕЦЕПТЫ</div>
+  <div class="inner">
+    <div class="kicker">Галерея приёмов</div>
+    <h2 style="margin-bottom:20px"><span class="light">Что реально</span> делегируешь</h2>
+    <div class="grid g4">
+      <div class="card"><h3>Frontend</h3><p class="body">Компоненты, рефакторинг, миграции. Проверки в браузере: агент открывает страницу и сверяет поведение/вёрстку.</p></div>
+      <div class="card"><h3>Backend</h3><p class="body">Эндпоинты, тесты, миграции, рефакторинг, разбор легаси.</p></div>
+      <div class="card"><h3>Кросс-стековый research</h3><p class="body">Задача на бэк как «эффект на фронте»? Агент исследует чужой стек: что и куда реально ходит, какие эндпоинты дёргаются. И наоборот.</p></div>
+      <div class="card"><h3>Сборки</h3><p class="body">Упавший пайплайн: агент через Jenkins-инструмент берёт краткие логи, разбирает причину, предлагает фикс.</p></div>
+      <div class="card"><h3>Не только код</h3><p class="body">Подготовка спецификаций и разбиение эпиков, ревью чужих PR агентом, ADR и доки по изменениям.</p></div>
+      <div class="card"><h3>Ручное QA</h3><p class="body">Генерация тест-кейсов, структурные баг-репорты.</p></div>
+      <div class="card"><h3>Авто-QA</h3><p class="body">Браузерные инструменты через MCP → агент сам исследует UI и пишет e2e-покрытие (Playwright).</p></div>
+      <div class="card" style="border-top-width:5px"><h3>Универсальный приём</h3><p class="body">Агент пишет себе скрипты доступа к данным (выгрузки из БД, парсинг) — раз сгенерировал, дальше переиспользуешь.</p></div>
+    </div>
+    <div class="note"><b>Если взять одно:</b> изолированный багфикс → агенту end-to-end с тестами → отревьюй. Тот же первый шаг, что в финале; остальные рецепты подтянутся.</div>
+  </div>
+</section>
+
+<!-- ============ 24 · DIVIDER 05 ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner" style="display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;">
+    <div class="divnum">/05</div>
+    <div>
+      <div class="kicker">Раздел 5 · 6–7 мин · было → стало</div>
+      <h2 style="color:#fff">Кейсы для<br>не-dev <span class="accent">команд</span></h2>
+      <p class="lead mt">Не «генерируем новое с нуля», а «собираем из системы быстрее, снимаем рутину и работу с документами». Каждый кейс — переход чат → агент.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 25 · ВЫ УЖЕ НА ПОЛПУТИ ============ -->
+<section class="slide">
+  <div class="eyetop">05 / НЕ-DEV · СТАРТОВАЯ ТОЧКА</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1.15fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Стартовая точка зала</div>
+      <h2 style="font-size:clamp(26px,2.7vw,40px)"><span class="light">Чат с ручной загрузкой —</span><br>вы уже <span class="accent">на полпути</span></h2>
+      <p class="lead mt">Многие уже работают с ИИ в чате, загружая доки руками. Это рабочая, но самая трудоёмкая ступень: контекст собираешь заново каждый раз, результат уносишь копипастой, между сессиями ничего не накапливается.</p>
+      <p class="body mt-s">Остался один шаг — убрать ручную переноску. Дельта агента всегда одна из четырёх →</p>
+    </div>
+    <div class="grid g2" style="gap:12px">
+      <div class="card"><h3><span class="ix">01</span>Сам видит</h3><p class="body">Рабочие файлы и системы — ничего не загружаешь в окно.</p></div>
+      <div class="card"><h3><span class="ix">02</span>Сам кладёт на место</h3><p class="body">Результат — в файл, тикет, документ. Без копипасты обратно.</p></div>
+      <div class="card"><h3><span class="ix">03</span>Накапливает</h3><p class="body">Контекст и правила живут между сессиями, а не умирают с вкладкой.</p></div>
+      <div class="card"><h3><span class="ix">04</span>Недоступно чату</h3><p class="body">Репозиторий целиком, большие логи, Figma, браузер, коннекторы.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 26 · АВТОМАТИЗАЦИЯ РУТИНЫ ============ -->
+<section class="slide">
+  <div class="eyetop">05 / НЕ-DEV · ДЛЯ ВСЕХ</div>
+  <div class="inner">
+    <div class="kicker">Автоматизация рутины · кейс для всех, самый базовый</div>
+    <h2 style="margin-bottom:18px"><span class="light">Три уровня</span> по нарастанию <span class="accent">настройки</span></h2>
+    <div class="flow">
+      <div class="ba"><div class="was"><span class="lbl">Уровень 1 · чат</span>загружаешь файлы в окно чата, ответ копируешь обратно — каждый раз заново</div><div class="arrow">→</div><div class="now"><span class="lbl">та же задача, в рабочей папке</span>агент сам видит файлы и сам сохраняет результат рядом. Ноль загрузок и копипасты. Уже автоматизация — без скрипта, ноль настройки.</div></div>
+      <div class="ba"><div class="was"><span class="lbl">Уровень 2 · чат</span>чат напишет скрипт — но запускать, отлаживать и чинить будешь руками, нося код и ошибки туда-сюда</div><div class="arrow">→</div><div class="now"><span class="lbl">агент пишет тебе инструмент</span>пишет, сам запускает, сам видит ошибку и чинит до рабочего → отчёт по одной команде. Быть разработчиком не нужно.</div></div>
+      <div class="ba"><div class="was"><span class="lbl">Уровень 3 · чат</span>ходишь по Jira, Slack, Drive — и носишь собранное в чат руками</div><div class="arrow">→</div><div class="now"><span class="lbl">агент подключён к сервисам · MCP</span>через коннекторы сам достаёт данные: тикеты, заметки со встреч, support-входящие. Чату недоступно в принципе.</div></div>
+    </div>
+    <div class="note"><b>Как закрепить:</b> решили с агентом → попроси превратить сценарий в skill — дальше одна команда. Стартовать можно с чистого листа: настройка вырастет из сессии. Пример: заметки к докладу собирал телеграм-бот, написанный и задеплоенный агентом; деплой и выгрузка — тоже skills.</div>
+    <div class="note warn"><b>Честная лесенка:</b> уровень 1 — реально ноль настройки. Уровни 2–3 требуют разовой настройки (скрипту нужно где запускаться, коннектору — авторизация). Не продавать как «мгновенно».</div>
+  </div>
+</section>
+
+<!-- ============ 27 · СТАНДАРТ ТИКЕТОВ ============ -->
+<section class="slide soft">
+  <div class="eyetop">05 / НЕ-DEV · ДЛЯ ВСЕХ</div>
+  <div class="inner">
+    <div class="kicker">Стандарт оформления тикетов</div>
+    <h2 style="margin-bottom:12px"><span class="light">Выработать стандарт,</span> потом <span class="accent">применять</span> его</h2>
+    <p class="lead" style="margin-bottom:16px;max-width:1100px">Почему болит — особенно с ИИ: без строгой спеки агент реверсит бизнес-правила из коммитов и кода — медленно, дорого по токенам, ненадёжно. Документ синхронизирует бэк, фронт и QA; и в тикетах нет кейсов «а как это протестировать?».</p>
+    <div class="grid g2">
+      <div class="ba"><div class="was"><span class="lbl">Часть 1 · было</span>тикеты кто во что горазд: задача мутирует в комментах, постановки через чаты и личку, нет repro steps / DoD / критериев приёмки</div><div class="arrow">→</div><div class="now"><span class="lbl">стало</span>скармливаешь примеры хороших и плохих тикетов → агент предлагает шаблон (вкл. кейсы ручного тестирования) → команда дорабатывает → закрепляете как skill/правило</div></div>
+      <div class="ba"><div class="was"><span class="lbl">Часть 2 · было</span>пишешь тикет руками — или просишь чат отформатировать и копируешь в Jira, заполняя поля вручную</div><div class="arrow">→</div><div class="now"><span class="lbl">стало</span>даёшь агенту сырое описание → шаблон уже в его правилах → оформляет и через Jira MCP заводит напрямую. Ничего не копируешь</div></div>
+    </div>
+    <div class="note warn"><b>Стандарт утверждают люди</b>, агент только драфтит — иначе «стандарт от ИИ», который никто не принял. <b>ИИ вскрывает бардак:</b> где процесс не описан — автоматизировать нечего; агент делает цену бардака видимой — в часах, токенах и переспросах.</div>
+  </div>
+</section>
+
+<!-- ============ 28 · ОБСУЖДЕНИЕ ФИЧ ЧЕРЕЗ ЭКРАНЫ ============ -->
+<section class="slide">
+  <div class="eyetop">05 / НЕ-DEV</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Обсуждение фич через экраны · lead / дизайнер / PM</div>
+      <h2 style="font-size:clamp(26px,2.7vw,40px)"><span class="light">Скорость и разнообразие</span><br>важнее <span class="accent">точности</span></h2>
+      <p class="lead mt">Для обсуждения фич через экраны фиделити к системе не нужно — нужны скорость и разнообразие вариантов.</p>
+    </div>
+    <div>
+      <div class="ba"><div class="was"><span class="lbl">Было</span>один экран в Figma даже под выброс — на три варианта нет времени. Или картинка в чате: без контекста продукта, варианты носишь руками</div><div class="arrow">→</div><div class="now"><span class="lbl">Стало</span>агент с описанием фичи и референсами за минуты выдаёт 3–4 варианта — от картинок до кликабельного прототипа, файлами рядом с задачей</div></div>
+      <div class="note warn" style="margin-top:16px">⚠ Сгенерированная картинка — повод для решения, а не дизайн. Договорились о направлении → дальше живёт только в системе.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 29 · QA ============ -->
+<section class="slide soft">
+  <div class="eyetop">05 / НЕ-DEV · QA</div>
+  <div class="inner">
+    <div class="kicker">QA · ручное → авто → данные</div>
+    <h2 style="margin-bottom:20px"><span class="light">Один из самых</span> бесспорных <span class="accent">выигрышей</span></h2>
+    <div class="grid g3">
+      <div>
+        <div class="tag" style="margin-bottom:12px">Дизайн тестов</div>
+        <ul class="clean">
+          <li><span class="mk">/</span><span><b>Тест-кейсы из спеки:</b> читает спеку из папки задачи → позитив, негатив, edge + чеклист — документом рядом. Не вставляешь в чат и не разносишь руками.</span></li>
+          <li><span class="mk">/</span><span><b>Структурный баг-репорт:</b> шаги, ожидаемое/фактическое, окружение → сам заводит в Jira через MCP.</span></li>
+          <li><span class="mk">/</span><span><b>Тест-данные:</b> реалистичные датасеты под сценарии.</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="tag" style="margin-bottom:12px">Авто / e2e · чату недоступно</div>
+        <ul class="clean">
+          <li><span class="mk">/</span><span>Браузер через MCP + e2e на Playwright: агент сам исследует UI.</span></li>
+          <li><span class="mk">/</span><span><b>Воспроизведение бага тестом:</b> по баг-репорту пишет падающий тест.</span></li>
+          <li><span class="mk">/</span><span><b>Покрытие под дифф:</b> смотрит дифф PR → что добавить.</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="tag" style="margin-bottom:12px">Данные / коммуникация</div>
+        <ul class="clean">
+          <li><span class="mk">/</span><span><b>Разбор падений:</b> объём логов в чат не вставишь — агент читает целиком, предлагает причину.</span></li>
+          <li><span class="mk">/</span><span><b>До корня, а не до симптома:</b> агент помогает докопаться до причины — тикет приходит к разработчику с диагнозом.</span></li>
+          <li><span class="mk">/</span><span><b>QA-документация из «brain dump»:</b> поток идей → структура и стратегия.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 30 · ПИСАТЕЛИ + ДИЗАЙНЕРЫ ============ -->
+<section class="slide">
+  <div class="eyetop">05 / НЕ-DEV</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start;">
+    <div>
+      <div class="kicker">Технические писатели · лёгкие победы</div>
+      <h2 style="font-size:clamp(24px,2.4vw,34px)"><span class="light">Документация —</span> ядро</h2>
+      <ul class="clean mt">
+        <li><span class="mk">/</span><span><b>Сверка доки с кодом/спекой</b> — репозиторий в чат не загрузишь; агент читает код и доку целиком, показывает, что разошлось.</span></li>
+        <li><span class="mk">/</span><span><b>Единый стиль:</b> агент проходит всю папку доков по стайлгайду и правит на месте — не по одному файлу в чате.</span></li>
+        <li><span class="mk">/</span><span><b>Release notes:</b> сам собирает по трекеру и истории — не скармливаешь по одному.</span></li>
+        <li><span class="mk">/</span><span><b>Диаграммы</b> mermaid из текстового описания.</span></li>
+        <li><span class="mk">/</span><span><b>FAQ</b> из реальных вопросов по частоте.</span></li>
+        <li><span class="mk">/</span><span><b>Мостик:</b> «документ изменений» из dev-воркфлоу → готовый раздел доки.</span></li>
+      </ul>
+    </div>
+    <div>
+      <div class="kicker">Дизайнеры · под зрелую дизайн-систему</div>
+      <h2 style="font-size:clamp(24px,2.4vw,34px)"><span class="light">Опора —</span> <span class="accent">MCP к Figma</span></h2>
+      <ul class="clean mt">
+        <li><span class="mk">/</span><span><b>Сборка из компонентов</b> системы — черновик layout, ты доводишь. Чат не видит ни компоненты, ни макеты — недоступно в принципе.</span></li>
+        <li><span class="mk">/</span><span><b>Полнота состояний:</b> loading / empty / error / граничные, единообразно.</span></li>
+        <li><span class="mk">/</span><span><b>Проверка соответствия</b> системе — подсвечивает отклонения от токенов.</span></li>
+        <li><span class="mk">/</span><span><b>Хендофф</b> со ссылкой на реальные токены и компоненты.</span></li>
+        <li><span class="mk">/</span><span><b>UX-копи:</b> тон и глоссарий продукта уже в правилах — не объясняешь каждый раз. + синтез ресёрча: вся папка интервью, не один транскрипт.</span></li>
+        <li><span class="mk">/</span><span><b>Дизайн-система как файл:</b> снял с сайта (Google Stitch) → design.md → агент генерит материалы в бренде. <b>Эта преза сделана именно так.</b></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 31 · ЛЕСЕНКА ФИДЕЛИТИ ============ -->
+<section class="slide">
+  <div class="eyetop">05 / НЕ-DEV · ДИЗАЙНЕРЫ</div>
+  <div class="inner">
+    <div class="kicker">Лесенка фиделити · как выбирать глубину под цель</div>
+    <h2><span class="light">Один запрос —</span> разная <span class="accent">глубина</span></h2>
+    <div class="grid g3 mt-l">
+      <div class="card"><h3><span class="ix">01</span>Картинка экрана</h3><p class="body">Image-модель. Секунды, ноль настройки, намеренно одноразово.</p><span class="lbl">для</span><p class="body">«Давайте определимся с направлением».</p></div>
+      <div class="card"><h3><span class="ix">02</span>Кликабельный прототип</h3><p class="body">AI-генератор интерфейсов. Минуты, можно потыкать флоу.</p><span class="lbl">для</span><p class="body">«Как это ощущается в руках».</p></div>
+      <div class="card" style="border-top-width:5px"><h3><span class="ix">03</span>В систему</h3><p class="body">Figma + MCP. Только победивший вариант собирается из реальных компонентов дизайн-системы.</p><span class="lbl">для</span><p class="body">Прод-работа.</p></div>
+    </div>
+    <div class="note"><b>Дешёвая одноразовая стадия защищает дизайн-систему</b>, а не угрожает ей: в Figma попадает только то, что прошло обсуждение.</div>
+  </div>
+</section>
+
+<!-- ============ 32 · РОЛИ GRID ============ -->
+<section class="slide soft">
+  <div class="eyetop">05 / НЕ-DEV</div>
+  <div class="inner">
+    <div class="kicker">Ещё роли из команды</div>
+    <h2 style="margin-bottom:20px"><span class="light">Каждый видит</span> свою <span class="accent">задачу</span></h2>
+    <div class="grid g4">
+      <div class="card"><h3>PM / PO / Product</h3><p class="body">Вопросы к данным — «выгрузи по клиенту X», «как используется фича Y» — без разработчика; отчёт документом + скрипт под регулярный. Security questionnaires сам по внутренней доке через док-MCP (с вычиткой).</p></div>
+      <div class="card"><h3>Customer Support</h3><p class="body">Сам забирает входящие через коннектор (не вставляешь пачками в чат), группирует, готовит черновики со ссылками на базу знаний. Метрики к review клиента: саммари, риски и аномалии.</p></div>
+      <div class="card"><h3>Маркетинг / B2B</h3><p class="body">«Документ изменений» уже в рабочей папке → анонс/письмо под конкретных пользователей. Sales enablement из доки и спек — сам собирает. Конкурентный ресёрч в таблицу.</p></div>
+      <div class="card" style="border-top-width:5px"><h3>DevOps / прочее</h3><p class="body">Заметки со встреч: решения и экшен-айтемы — сам раскладывает в доку и трекер. <b style="color:var(--slate-deep)">Внутренний док-MCP уже работает</b> — подключается из любого агента. Docker, Jenkins, SSH напрямую.</p></div>
+    </div>
+    <div class="note"><b>Вывод раздела:</b> для не-dev агент — не «писать код», а снять рутину и работу с документами/данными прямо в рабочих файлах и системах. Кто уже в чате с ручной загрузкой — на полпути: остался один шаг, убрать ручную переноску контекста.</div>
+  </div>
+</section>
+
+<!-- ============ 33 · DIVIDER 06 ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner" style="display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;">
+    <div class="divnum">/06</div>
+    <div>
+      <div class="kicker">Раздел 6 · 5–6 мин</div>
+      <h2 style="color:#fff">Внедрение через<br><span class="accent">эксперименты</span></h2>
+      <p class="lead mt">Harness — живая система. Не «настроил и забыл».</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 34 · ФЛАЙВИЛ + ПЕРВЫЙ ШАГ ============ -->
+<section class="slide">
+  <div class="eyetop">06 / ВНЕДРЕНИЕ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Флайвил правил</div>
+      <h2><span class="light">Каждая ошибка</span><br>делает обвязку <span class="accent">умнее</span></h2>
+      <div class="term mt">
+        <div class="bar"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><span class="ttl">flywheel</span></div>
+        <div class="body">
+          <div><span class="p">эксперимент</span></div>
+          <div><span class="y">→ агент ошибся</span></div>
+          <div><span class="w">→ зафиксировал правило в AGENTS.md / skill</span></div>
+          <div><span class="g">→ больше не ошибается → повторил</span></div>
+        </div>
+      </div>
+      <p class="body mt-s">Правила растут коллективно всей командой. Стандарт тикетов — буквальный пример общего правила.</p>
+    </div>
+    <div>
+      <div class="card"><h3>Лог сессий</h3><p class="body">Правило в AGENTS.md: «веди лог работы — инсайты, ошибки, неточности, решения». Новая сессия стартует с контекстом: агент в курсе, что делаем и где споткнулись. Простой трюк с большой отдачей.</p></div>
+      <div class="card mt-s"><h3>Ретроспектива сессии</h3><p class="body">«Разбери сессию: где я тебя поправлял, чего ты не знал — предложи правила для AGENTS.md». Черновик правил за одну команду. Работает с чистого листа: ничего не настраивай заранее — сессия сама станет skill-ом или правилами.</p></div>
+      <div class="note warn" style="margin-top:12px"><b>Честные ожидания:</b> первые 2–3 задачи — <b>медленнее</b>, чем руками: настраиваются правила и привычка. Выигрыш — со второй-третьей задачи, дальше растёт с каждым правилом. Это навык, а не магия.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 35 · С ЧЕГО НАЧАТЬ + ПРЕДЛАГАЕМЫЙ ПЛАН ============ -->
+<section class="slide soft">
+  <div class="eyetop">06 / ВНЕДРЕНИЕ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start;">
+    <div>
+      <div class="kicker">С чего начать · направление</div>
+      <div class="panel p-accent"><div class="pk">Первый шаг для всех</div><h3 style="font-size:20px">Заведи папку проекта</h3>
+        <p class="body" style="margin-top:8px">Складываешь доки, скрипты, скиллы и <b style="color:#fff">AGENTS.md</b>. Агент работает в ней как в своём «рабочем столе»: видит контекст и помнит между сессиями.</p>
+      </div>
+      <div class="card mt-s" style="border-top-color:var(--slate)">
+        <ul class="clean" style="gap:9px">
+          <li><span class="mk">/</span><span>Одну реальную задачу сделай агентом <b>целиком</b>, а не кусочком.</span></li>
+          <li><span class="mk">/</span><span><b>Работай задачами, не одним чатом:</b> новая задача — новая сессия. Долгий чат расползается; контекст и решения держи в артефактах проекта.</span></li>
+          <li><span class="mk">/</span><span><b>Домашнее задание всем:</b> найди одну рутину и автоматизируй с агентом — способ тоже ищи вместе с ним. Упражнение, не экзамен.</span></li>
+          <li><span class="mk">/</span><span>Поймал ошибку → записал правило по ходу (или попроси агента).</span></li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="kicker">Предлагаемый план действий</div>
+      <ul class="clean mt-s">
+        <li><span class="mk">/</span><span><b>Предлагаю завести канал</b> для находок и вопросов — «у меня получилось» и «у меня сломалось». Имя и площадку договорим.</span></li>
+        <li><span class="mk">/</span><span><b>Предлагаю первую общую встречу</b> — обменяться результатами и граблями. Дату предложу, обсудим.</span></li>
+        <li><span class="mk">/</span><span><b>Точка входа — я.</b> Помогу с настройкой, MCP, авторизацией коннекторов. Приходите и со «сломалось», и с «с чего начать».</span></li>
+        <li><span class="mk">/</span><span><b>Растим внутри</b>, а не нанимаем «промптологов»: лучше всех внедряют те, кто знает наши процессы. Снизу — при поддержке сверху.</span></li>
+      </ul>
+      <div class="note">Не инструкция — предложение к команде, обсуждаем прямо на докладе. Без живой точки входа уровень 3 (коннекторы) у не-dev умрёт на первом препятствии.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 36 · DIVIDER 07 ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner" style="display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;">
+    <div class="divnum">/07</div>
+    <div>
+      <div class="kicker">Раздел 7 · 5–6 мин</div>
+      <h2 style="color:#fff">Грабли и<br><span class="accent">антипаттерны</span></h2>
+      <p class="lead mt">«Почему попробовали и забросили» — семь типичных причин. Плюс границы применимости и безопасность.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 37 · АНТИПАТТЕРНЫ 1–4 ============ -->
+<section class="slide">
+  <div class="eyetop">07 / ГРАБЛИ</div>
+  <div class="inner">
+    <div class="kicker">Антипаттерны · 1–4</div>
+    <h2 style="margin-bottom:20px"><span class="light">Каждый лечится</span> одной <span class="accent">техникой</span></h2>
+    <div class="grid g2">
+      <div class="card"><h3><span class="ix">01</span>Чат вместо агента</h3><p class="body">Спросил → скопировал → вставил. Используешь как Google — получаешь Google. (Для одноразовых размышлений чат ок — беда, когда живёшь в нём на агентской задаче.)</p><span class="lbl">лечится</span><p class="body">Делегируй задачу целиком: дай доступ к репо, попроси выполнить и показать результат.</p></div>
+      <div class="card"><h3><span class="ix">02</span>Нет контекста — общий результат</h3><p class="body">«Напиши функцию X» без правил, примеров, критериев — агент додумывает в вакууме.</p><span class="lbl">лечится</span><p class="body">AGENTS.md с правилами, ссылка на похожий код, явный критерий готовности.</p></div>
+      <div class="card"><h3><span class="ix">03</span>Слишком большая задача с разбегу</h3><p class="body">«Перепиши весь модуль» в одно касание — агент тонет.</p><span class="lbl">лечится</span><p class="body">Декомпозиция: сначала план, потом маленькие куски с проверкой между ними.</p></div>
+      <div class="card"><h3><span class="ix">04</span>Сразу к коду, без плана</h3><p class="body">Поправить план дёшево, код по плохому плану — дорого.</p><span class="lbl">лечится</span><p class="body">«Сначала покажи план, я подтвержу, потом пиши».</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 38 · АНТИПАТТЕРНЫ 5–7 + БЕЗОПАСНОСТЬ ============ -->
+<section class="slide soft">
+  <div class="eyetop">07 / ГРАБЛИ</div>
+  <div class="inner">
+    <div class="kicker">Антипаттерны · 5–7 + безопасность</div>
+    <h2 style="margin-bottom:20px"><span class="light">Каждый лечится</span> одной <span class="accent">техникой</span></h2>
+    <div class="grid g3">
+      <div class="card"><h3><span class="ix">05</span>Нет петель проверки</h3><p class="body">Без тестов/типов/линтера агент не может проверить себя.</p><span class="lbl">лечится</span><p class="body">Критерий = «зелёные тесты и линтер», агент гоняет цикл до зелёного. Медленная петля → ускоряем доступом к быстрым инструментам (IDEA MCP).</p></div>
+      <div class="card"><h3><span class="ix">06</span>Ответственность за чужой код</h3><p class="body">Получаешь код, который не писал, но отвечаешь за него; ревью не покроет все corner-кейсы. Проблемы — когда мешаешь ручные правки с генерацией.</p><span class="lbl">лечится</span><p class="body">Ревью обязательно. Для критичного — изолированные, полностью делегируемые куски: делегируй целиком либо не делегируй, не смешивай.</p></div>
+      <div class="card" style="border-top-width:5px"><h3><span class="ix">07</span>Не закрепляешь находки</h3><p class="body">Агент пятый раз ловит одну ошибку, ты пятый раз правишь руками. Самый дорогой антипаттерн.</p><span class="lbl">лечится</span><p class="body">Поймал ошибку → правило в AGENTS.md или skill → больше не повторится. Это флайвил из раздела 6 — и его автоматизация, саморефлексия сессии.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 39 · ВЫБОР ЗАДАЧ: 6Т + ГРАНИЦЫ ============ -->
+<section class="slide">
+  <div class="eyetop">07 / ВЫБОР ЗАДАЧ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:start;">
+    <div>
+      <div class="kicker">Метод «6Т»</div>
+      <h2 style="font-size:clamp(24px,2.4vw,34px)"><span class="light">Когда</span> <span class="accent">делегировать</span></h2>
+      <ul class="clean mt">
+        <li><span class="mk">/</span><span><b>Tiny · крошечные:</b> мелочёвка, до которой не доходят руки.</span></li>
+        <li><span class="mk">/</span><span><b>Tedious · нудные:</b> механика без мысли.</span></li>
+        <li><span class="mk">/</span><span><b>Time-consuming · трудоёмкие:</b> съедают часы.</span></li>
+        <li><span class="mk">/</span><span><b>Teachable · обучаемые:</b> можно объяснить инструкцией.</span></li>
+        <li><span class="mk">/</span><span><b>Tremendous · сверхчеловеческий объём:</b> человеку не переварить.</span></li>
+        <li><span class="mk">/</span><span><b>24/7:</b> должно работать круглосуточно.</span></li>
+      </ul>
+      <div class="note" style="margin-top:14px">Чем больше «Т» совпало — тем лучше кандидат. <b>Агент — инструмент, не волшебная палочка:</b> понимай, как должен выглядеть результат, до первого промпта.</div>
+    </div>
+    <div>
+      <div class="kicker">Границы применимости</div>
+      <h2 style="font-size:clamp(24px,2.4vw,34px)"><span class="light">Когда</span> НЕ <span class="accent">делегировать</span></h2>
+      <div class="flow mt">
+        <div class="card"><h3>Однострочная правка</h3><p class="body">Быстрее руками, чем писать постановку. Не всё надо делегировать.</p></div>
+        <div class="card"><h3>Нет проверяемого критерия</h3><p class="body">«Сделай красиво», «улучши» — сначала сформулируй, как проверишь. Не можешь — не делегируй.</p></div>
+        <div class="card"><h3>Высокорисковое</h3><p class="body">Миграции прод-данных, трудно откатить — только изолированным куском под полное ревью.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 40 · БЕЗОПАСНОСТЬ ============ -->
+<section class="slide soft">
+  <div class="eyetop">07 / БЕЗОПАСНОСТЬ</div>
+  <div class="inner">
+    <div class="kicker">Безопасность и ответственность</div>
+    <h2 style="margin-bottom:20px"><span class="light">Не «будьте осторожны» —</span> конкретные <span class="accent">правила</span></h2>
+    <div class="grid g3">
+      <div class="card"><h3><span class="ix">01</span>Секреты — вне контекста</h3><p class="body">Ключи, пароли, токены — не в промпт и не в AGENTS.md. <code>.env</code> и креды — в <code>.gitignore</code>: агент читает репо целиком и может утащить секрет в вывод или коммит.</p></div>
+      <div class="card"><h3><span class="ix">02</span>Прод- и персональные данные</h3><p class="body">Не скармливаем. PII — обезличивание при доступе к БД и выгрузкам. Для тестов — синтетика (агент сам генерит датасеты).</p></div>
+      <div class="card"><h3><span class="ix">03</span>Минимальные доступы</h3><p class="body">БД для research — read-only. Прод-доступов у агента нет. Деструктивное (миграции, удаления, рассылки) — только человек, после ревью.</p></div>
+      <div class="card"><h3><span class="ix">04</span>MCP — проверенные</h3><p class="body">Под корпоративными аккаунтами; понимать, какие данные уходят и кому. Внутренние MCP (наш док-ассистент) — безопасный вариант по умолчанию.</p></div>
+      <div class="card"><h3><span class="ix">05</span>Дифф — глазами</h3><p class="body">Агент может зацепить лишние файлы (логи, выгрузки, тот же <code>.env</code>). Не коммитить и не мерджить вслепую.</p></div>
+      <div class="card" style="border-top-width:5px"><h3><span class="ix">06</span>Ответственность не делегируется</h3><p class="body">Результат агента ревьюится как чужой код или текст. Отвечает тот, кто отправил.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 41 · ЧТО ОТКРЫТЬ СЕГОДНЯ ============ -->
+<section class="slide">
+  <div class="eyetop">ЗАКРЫТИЕ</div>
+  <div class="inner">
+    <div class="kicker">Что открыть сегодня</div>
+    <h2 style="margin-bottom:8px"><span class="light">Формы, в которых агент</span> доступен <span class="accent">уже сейчас</span></h2>
+    <p class="lead" style="margin-bottom:18px">Единый инструмент пока не выбран — это обзор, а не назначение «единственно верного». Выбирай под задачу: приёмы переносятся.</p>
+    <div class="grid g3">
+      <div class="card"><h3>Десктоп / веб · агентский режим</h3><p class="body">ChatGPT, Claude Desktop и аналоги: подключаешь папку и файлы, MCP-коннекторы, skills прямо в интерфейсе.</p><span class="lbl">для кого</span><p class="body">Низкий порог — естественный старт для не-dev.</p></div>
+      <div class="card"><h3>CLI-агенты</h3><p class="body">Codex CLI, Claude Code: максимум контроля и автоматизации.</p><span class="lbl">для кого</span><p class="body">Естественный старт для dev; осваивается и не-разработчиками.</p></div>
+      <div class="card" style="border-top-width:5px"><h3>Внутренний док-MCP</h3><p class="body">Ассистент по нашей документации — уже работает во внутренней сети, подключается из любого агента.</p><span class="lbl">для кого</span><p class="body">Готовая первая точка «попробовать с нашими данными» — для всех.</p></div>
+    </div>
+    <div class="note">Детальное сравнение вендоров и клиентов — в приложении. Не получилось — точка входа и канал (раздел 6).</div>
+  </div>
+</section>
+
+<!-- ============ 42 · ТВОЙ ПОНЕДЕЛЬНИК ============ -->
+<section class="slide">
+  <div class="eyetop">ЗАКРЫТИЕ · 1–2 мин</div>
+  <div class="inner">
+    <div class="kicker">С чего начать</div>
+    <h2 style="margin-bottom:14px"><span class="light">Один конкретный</span> первый <span class="accent">шаг</span></h2>
+    <table class="mon">
+      <tr><th>Роль</th><th>Первый шаг</th></tr>
+      <tr><td class="role">Все (база)</td><td class="act">Заведи папку проекта (доки, скрипты, скиллы, AGENTS.md) → возьми одну еженедельную рутину → дай файлы агенту → попроси сделать. Закрепить — попроси превратить решение в skill.</td></tr>
+      <tr><td class="role">Dev</td><td class="act">Изолированная фича/баг → 5-строчная спека → агент делает end-to-end с тестами → отревьюй. Полное делегирование, без смешивания.</td></tr>
+      <tr><td class="role">QA</td><td class="act">Вставь спеку → тест-кейсы с негативными и граничными. Или переоформи недавний тикет по черновику стандарта → сравни.</td></tr>
+      <tr><td class="role">Тех. писатель</td><td class="act">«Документ изменений» из dev-воркфлоу → раздел доки / чейнджлог.</td></tr>
+      <tr><td class="role">Support</td><td class="act">Вставь 10 тикетов → сгруппировать по темам и набросать черновики.</td></tr>
+      <tr><td class="role">PM / PO</td><td class="act">Вставь выгрузку → саммари и отчёт.</td></tr>
+      <tr><td class="role">Lead / дизайнер</td><td class="act">Опиши фичу → 3–4 картинки экранов для обсуждения.</td></tr>
+    </table>
+    <div class="note" style="margin-top:14px"><b>Раздатка с собой:</b> одностраничник «первый шаг по ролям» + стартовый AGENTS.md (~10 строк — скопировал и поехали) + шаблон 5-строчной спеки.</div>
+  </div>
+</section>
+
+<!-- ============ 43 · FINAL ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner" style="text-align:left;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:38px;">
+      <img src="assets/mark.svg" width="40" height="40" alt="">
+      <span style="font-family:var(--font-display);font-weight:800;letter-spacing:.04em;color:#fff;font-size:16px;"><span style="color:var(--accent-bright)">/</span>AI ASSISTANT</span>
+    </div>
+    <h1 class="display" style="font-size:clamp(36px,4.8vw,68px)">Попробовал <span class="accent">→</span><br>поймал ошибку <span class="accent">→</span><br>записал правило <span class="accent">→</span><br><span class="bold accent">принёс на общую встречу</span></h1>
+    <p class="lead mt-l" style="max-width:660px">Тогда первый шаг не разовый, а старт цикла, где находки одного становятся общими правилами. Вопросы?</p>
+  </div>
+</section>
+
+<!-- ============ 44 · APPENDIX DIVIDER ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner" style="display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;">
+    <div class="divnum" style="font-size:clamp(60px,11vw,150px)">/＋</div>
+    <div>
+      <div class="kicker">Приложение · справочно</div>
+      <h2 style="color:#fff">Вендоры и<br><span class="accent">экосистемы</span></h2>
+      <p class="lead mt">Бэкап-слайды, не часть основной линии. Поле быстро меняется, оценки личные и на текущий момент. Принцип тот же: выбираешь под задачу, не по бренду.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 45 · APPENDIX · ПЛАТФОРМЫ ВЕНДОРОВ ============ -->
+<section class="slide">
+  <div class="eyetop">ПРИЛОЖЕНИЕ / ВЕНДОРЫ</div>
+  <div class="inner">
+    <div class="kicker">Платформы вендоров моделей</div>
+    <h2 style="margin-bottom:22px"><span class="light">Три</span> экосистемы</h2>
+    <div class="grid g3">
+      <div class="eco"><div class="h">OpenAI</div><ul>
+        <li><b>Состав:</b> ChatGPT, Codex (app и CLI), генерация изображений.</li>
+        <li><b>Сильные:</b> один из лучших кодинговых агентов; удобный app со встроенным браузером; лучшее соотношение лимитов к цене; встраивается в VS Code.</li>
+        <li><b>Слабее:</b> в длинных текстах и креативе уступает Claude.</li>
+      </ul></div>
+      <div class="eco"><div class="h">Anthropic</div><ul>
+        <li><b>Состав:</b> Claude Desktop (chat, cowork, code, CLI), Claude Design.</li>
+        <li><b>Сильные:</b> отлично для дизайна и творческих задач, ресёрча и проработки новых концепций; силён в кодинге; встраивается в VS Code.</li>
+      </ul></div>
+      <div class="eco"><div class="h">Google</div><ul>
+        <li><b>Состав:</b> Gemini, Antigravity (CLI, IDE), Stitch, NotebookLM, nano banana.</li>
+        <li><b>Сильные:</b> сильная генерация изображений и инструменты вокруг (NotebookLM, Stitch); с Flash 3.5 подтягивается в кодинге.</li>
+        <li><b>Слабее:</b> в кодинге исторически не лидер (но догоняет).</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 46 · APPENDIX · КЛИЕНТЫ, IDE, ACP ============ -->
+<section class="slide soft">
+  <div class="eyetop">ПРИЛОЖЕНИЕ / КЛИЕНТЫ</div>
+  <div class="inner">
+    <div class="kicker">Агентские клиенты, IDE и доступ к моделям</div>
+    <h2 style="margin-bottom:20px"><span class="light">Агент</span> ↔ <span class="accent">редактор</span> развязаны</h2>
+    <div class="grid g4">
+      <div class="card"><h3>GitHub Copilot</h3><p class="body">Плагин/CLI, выбор моделей разных вендоров. Лучшая интеграция с VS Code; плагины для IDEA и Eclipse.</p><p class="body" style="color:var(--slate-mut)">Слабее: новый подход к лимитам дорогой.</p></div>
+      <div class="card"><h3>Cursor</h3><p class="body">Агентская IDE, CLI, своя модель Composer 2.5. Фактически стандарт агентской IDE.</p><p class="body" style="color:var(--slate-mut)">Слабее: теряет популярность на фоне Codex и Claude Code.</p></div>
+      <div class="card"><h3>OpenCode</h3><p class="body">CLI и app, open source. Доступ к широкому набору моделей, включая фронтирные и свежие китайские; полный набор агентских фич.</p></div>
+      <div class="card"><h3>JetBrains Junie</h3><p class="body">Плагин и CLI. По личному опыту неплох.</p><p class="body" style="color:var(--slate-mut)">Слабее: на момент пробы было дорого.</p></div>
+    </div>
+    <div class="note"><b>Развязка через ACP:</b> выбор агента и редактора не обязаны совпадать. В IntelliJ IDEA через плагин <b>AI Assistant</b> можно подключить любого агента по протоколу <b>ACP</b>; редактор <b>Zed</b> тоже. Привычная IDE остаётся, а агент под ней — сменный.</div>
+  </div>
+</section>
+
+</div>
+
+<div id="dots"></div>
+<div id="hud"><a href="../index.html" class="back-link">← К списку</a><span class="sep">|</span><span class="logo"><span>/</span>AI ASSISTANT</span><span id="cnt">01 / 45</span></div>
+<div class="navhint">← → · Space · Home/End · F — fullscreen</div>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var n=slides.length, i=0;
+  var bar=document.getElementById('bar'), cnt=document.getElementById('cnt'), dots=document.getElementById('dots');
+  slides.forEach(function(_,k){var b=document.createElement('b');b.onclick=function(){go(k);};dots.appendChild(b);});
+  var dotEls=[].slice.call(dots.children);
+  function pad(x){return (x+1<10?'0':'')+(x+1);}
+  function go(k){
+    i=Math.max(0,Math.min(n-1,k));
+    slides.forEach(function(s,j){s.classList.toggle('active',j===i);});
+    dotEls.forEach(function(d,j){d.classList.toggle('on',j===i);});
+    bar.style.width=((i+1)/n*100)+'%';
+    cnt.textContent=pad(i)+' / '+n;
+    var dark=slides[i].classList.contains('dark');
+    document.getElementById('hud').style.color=dark?'rgba(255,255,255,.55)':'';
+    document.querySelector('#hud .logo').style.color=dark?'#fff':'';
+  }
+  function next(){go(i+1);} function prev(){go(i-1);}
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}
+    else if(e.key==='Home'){go(0);} else if(e.key==='End'){go(n-1);}
+    else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+  });
+  document.addEventListener('click',function(e){
+    if(e.target.closest('#dots')||e.target.closest('#hud'))return;
+    if(e.clientX < window.innerWidth*0.32) prev(); else next();
+  });
+  go(0);
+})();
+</script>
+</body>
+</html>

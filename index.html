@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Материалы доклада — /AI ASSISTANT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-display: 'Manrope', system-ui, -apple-system, sans-serif;
+      --font-body: 'Manrope', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+      --bg-dark: #1E2430;
+      --card-bg: #2B3340;
+      --card-bg-hover: #343D4C;
+      --line-color: rgba(255, 255, 255, 0.08);
+
+      --slate-deep: #2B3340;
+      --slate-soft: #8A93A1;
+      --slate-mut: #5C6675;
+
+      --accent: #E6006B;
+      --accent-bright: #FF2D8B;
+      --accent-tint: rgba(230, 0, 107, 0.1);
+
+      --on-dark-1: #FFFFFF;
+      --on-dark-2: rgba(255, 255, 255, 0.88);
+      --on-dark-3: rgba(255, 255, 255, 0.55);
+
+      --r-md: 4px;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: var(--on-dark-2);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---------- SLASH MOTIF WATERMARK ---------- */
+    .motif {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .motif i {
+      position: absolute;
+      top: -25%;
+      height: 160%;
+      transform: skewX(-20deg);
+      display: block;
+    }
+    .motif .a { left: 68%; width: 140px; background: rgba(255, 255, 255, 0.015); }
+    .motif .b { left: 76%; width: 35px; background: rgba(255, 255, 255, 0.008); }
+    .motif .c { left: 80%; width: 12px; background: rgba(230, 0, 107, 0.08); }
+
+    /* ---------- LAYOUT CONTAINER ---------- */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: clamp(32px, 5vh, 80px) 24px;
+      position: relative;
+      z-index: 2;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* ---------- HEADER ---------- */
+    header {
+      margin-bottom: clamp(24px, 4.5vh, 56px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .brand-logo {
+      display: block;
+    }
+
+    .brand-text {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: 0.06em;
+      color: var(--on-dark-1);
+    }
+
+    .brand-text span {
+      color: var(--accent-bright);
+      font-weight: 900;
+    }
+
+    .kicker {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent-bright);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 0.35em;
+    }
+
+    .kicker::before {
+      content: "/";
+      color: var(--accent-bright);
+      font-weight: 800;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: clamp(32px, 5vw, 56px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--on-dark-1);
+      margin-bottom: 16px;
+    }
+
+    h1 .bold {
+      font-weight: 800;
+    }
+
+    h1 .accent {
+      color: var(--accent-bright);
+    }
+
+    .lead {
+      font-size: clamp(16px, 1.8vw, 19px);
+      line-height: 1.55;
+      color: var(--slate-soft);
+      max-width: 680px;
+    }
+
+    /* ---------- GRID ---------- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: clamp(24px, 4.5vh, 56px);
+    }
+
+    /* ---------- CARD ---------- */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--line-color);
+      border-top: 3px solid var(--accent);
+      border-radius: var(--r-md);
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.35s var(--ease-out);
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      background: var(--card-bg-hover);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.25), 0 0 20px rgba(230, 0, 107, 0.12);
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, transparent 50%, var(--accent) 50%);
+      opacity: 0;
+      transition: opacity 0.35s var(--ease-out);
+    }
+
+    .card:hover::after {
+      opacity: 1;
+    }
+
+    .card-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-bright);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-meta span.slide-count {
+      background: rgba(255, 45, 139, 0.12);
+      padding: 3px 8px;
+      border-radius: 2px;
+      font-weight: 500;
+    }
+
+    .card h2 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(20px, 2.2vw, 24px);
+      line-height: 1.2;
+      color: var(--on-dark-1);
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+
+    .card p {
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: var(--slate-soft);
+      flex-grow: 1;
+    }
+
+    .card-action {
+      margin-top: 32px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-bright);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s var(--ease-out);
+    }
+
+    .card:hover .card-action {
+      color: var(--on-dark-1);
+      gap: 14px;
+    }
+
+    /* ---------- FOOTER ---------- */
+    footer {
+      border-top: 1px solid var(--line-color);
+      padding: 32px 24px;
+      background: rgba(43, 51, 64, 0.2);
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--on-dark-3);
+      position: relative;
+      z-index: 2;
+    }
+
+    footer a {
+      color: var(--slate-soft);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--accent-bright);
+    }
+
+    /* ---------- DESKTOP VIEWPORT LOCK ---------- */
+    @media (min-width: 900px) and (min-height: 640px) {
+      body {
+        height: 100vh;
+        min-height: 0;
+        overflow: hidden;
+      }
+      .container {
+        padding: clamp(24px, 4vh, 48px) 24px;
+      }
+      .grid {
+        gap: 24px;
+      }
+      .card {
+        padding: clamp(24px, 3.5vh, 40px) 28px;
+      }
+      .card h2 {
+        font-size: clamp(18px, 2vw, 22px);
+        margin-bottom: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="motif">
+    <i class="a"></i>
+    <i class="b"></i>
+    <i class="c"></i>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <img class="brand-logo" src="presentation/assets/mark.svg" width="28" height="28" alt="Vibe Coding logo">
+        <span class="brand-text"><span>/</span>AI ASSISTANT</span>
+      </div>
+      <div class="kicker">Презентации и доклады</div>
+      <h1>AI-агенты как <span class="bold">ежедневный инструмент</span> команды</h1>
+      <p class="lead">Справочные материалы, архитектурные гайды и сессионные дневники о практическом внедрении искусственного интеллекта в процесс разработки.</p>
+    </header>
+
+    <div class="grid">
+      <!-- CARD 1: MAIN PRESENTATION -->
+      <a href="presentation/index.html" class="card">
+        <div class="card-meta">
+          <span class="slide-count">45 слайдов</span>
+          <span>Основной доклад</span>
+        </div>
+        <h2>AI-агенты как ежедневный инструмент</h2>
+        <p>Практическое руководство по внедрению автономных ИИ-агентов в операционные рутины разработчиков, QA и PM. Безопасность, организация работы, создание кастомных CLI-инструментов и MCP-серверов в контексте небольшой продуктовой команды.</p>
+        <div class="card-action">
+          Смотреть презентацию <span>→</span>
+        </div>
+      </a>
+
+      <!-- CARD 2: SDD PRESENTATION -->
+      <a href="presentation/sdd.html" class="card">
+        <div class="card-meta">
+          <span class="slide-count">25 слайдов</span>
+          <span>Проектирование</span>
+        </div>
+        <h2>Specification Driven Development (SDD)</h2>
+        <p>Дополнительный доклад о том, как проектировать и разрабатывать фичи на основе структурированных системных спецификаций. Перенос проектного контекста в работу с ИИ для минимизации ошибок кодинга.</p>
+        <div class="card-action">
+          Смотреть презентацию <span>→</span>
+        </div>
+      </a>
+
+      <!-- CARD 3: DIARY PRESENTATION -->
+      <a href="presentation/diary.html" class="card">
+        <div class="card-meta">
+          <span class="slide-count">24 слайда</span>
+          <span>Кейс-стади</span>
+        </div>
+        <h2>Дневник разработки (Session Diary)</h2>
+        <p>Интерактивная хронология и подробный разбор реальной сессии разработки с ИИ-ассистентом. Пошаговое решение реальной продуктовой задачи: от баг-репорта до автоматического написания тестов и релиза.</p>
+        <div class="card-action">
+          Смотреть дневник <span>→</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    <div>Разработано в рамках проекта докладов по AI Coding · Vibe Coding © 2026</div>
+  </footer>
+</body>
+</html>

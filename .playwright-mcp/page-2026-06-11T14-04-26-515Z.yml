@@ -1,0 +1,42 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - text: / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+    - generic [ref=e888]:
+      - generic [ref=e889]: ДНЕВНИК / ИТОГИ
+      - generic [ref=e890]:
+        - generic [ref=e891]: / Сквозная нить
+        - heading "Карта скиллов сессии" [level=2] [ref=e892]
+        - table [ref=e893]:
+          - rowgroup [ref=e894]:
+            - row "Момент Скилл Что заменил" [ref=e895]:
+              - columnheader "Момент" [ref=e896]
+              - columnheader "Скилл" [ref=e897]
+              - columnheader "Что заменил" [ref=e898]
+            - row "Вход в задачу jira-issue Ручной пересказ тикета, гадание по названию" [ref=e899]:
+              - cell "Вход в задачу" [ref=e900]
+              - cell "jira-issue" [ref=e901]
+              - cell "Ручной пересказ тикета, гадание по названию" [ref=e902]
+            - row "Проектирование implementation-spec Контракты и границы «в голове» — расползание scope" [ref=e903]:
+              - cell "Проектирование" [ref=e904]
+              - cell "implementation-spec" [ref=e905]
+              - cell "Контракты и границы «в голове» — расползание scope" [ref=e906]
+            - row "Планирование implementation-plan Стихийный порядок работ; тесты «когда-нибудь потом»" [ref=e907]:
+              - cell "Планирование" [ref=e908]
+              - cell "implementation-plan" [ref=e909]
+              - cell "Стихийный порядок работ; тесты «когда-нибудь потом»" [ref=e910]
+            - row "Проверка в рантайме export-debug-wsl «Перезапусти и посмотри PDF» без знания, что попало в workspace" [ref=e911]:
+              - cell "Проверка в рантайме" [ref=e912]
+              - cell "export-debug-wsl" [ref=e913]
+              - cell "«Перезапусти и посмотри PDF» без знания, что попало в workspace" [ref=e914]
+            - row "Дебаг регрессий systematic-debugging Спор с симптомом вместо дохода до фактического HTML" [ref=e915]:
+              - cell "Дебаг регрессий" [ref=e916]
+              - cell "systematic-debugging" [ref=e917]
+              - cell "Спор с симптомом вместо дохода до фактического HTML" [ref=e918]
+        - generic [ref=e919]: Каждый скилл — это записанный процесс команды. Сессия их не изобретала — она их переиспользовала. А чего не хватило — уйдёт в рефлексию.
+    - text: / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+  - generic [ref=e458]:
+    - generic [ref=e459]:
+      - generic [ref=e460]: /
+      - text: AI ASSISTANT
+    - generic [ref=e461]: 20 / 24
+  - generic [ref=e462]: ← → · Space · Home/End · F — fullscreen · артефакты скроллятся

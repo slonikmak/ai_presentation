@@ -1,0 +1,44 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - text: / / /
+    - generic [ref=e4]:
+      - generic [ref=e5]: ДНЕВНИК / 01 · ВХОД
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]: / Задача из Jira
+          - heading "Выглядит как CSS-задачка" [level=2] [ref=e9]
+          - paragraph [ref=e10]:
+            - text: "ES-3772: дать авторам PDF-шаблонов управлять отступом между номером главы и заголовком в ToC, ToF и ToT через"
+            - code [ref=e11]: styles_toc/tof/tot.css
+            - text: .
+          - generic [ref=e12]:
+            - generic [ref=e13]: Человек → агент
+            - generic [ref=e14]: «Загрузи issue ES-3772, изучи и предложи вариант реализации. Эта фича связана с .tasks/es-2676-…»
+          - paragraph [ref=e15]: "Спойлер: «добавить CSS-свойство» обернётся изменением DOM-контракта генерации и тремя регрессиями совместимости."
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - generic [ref=e19]: docs/diary/task.md
+            - generic [ref=e20]: артефакт сессии
+          - generic [ref=e22]:
+            - 'heading "ES-3772: PDF Template: Ability to increase space between chapter number and title in ToC (BE)" [level=1] [ref=e23]'
+            - paragraph [ref=e24]: "Source: https://esprowteam.atlassian.net/browse/ES-3772"
+            - heading "/ Description" [level=2] [ref=e25]
+            - paragraph [ref=e26]: "Add the ability to control space between the heading chapter number and title in the following files:"
+            - list [ref=e27]:
+              - listitem [ref=e28]:
+                - code [ref=e29]: styles_toc.css
+              - listitem [ref=e30]:
+                - code [ref=e31]: styles_tof.css
+              - listitem [ref=e32]:
+                - code [ref=e33]: styles_tot.css
+            - paragraph [ref=e34]: "[изображение: вложение Jira]"
+            - heading "/ Comments" [level=2] [ref=e35]
+            - paragraph [ref=e36]: _No comments_
+          - generic [ref=e37]: оригинал без купюр · скролл внутри панели
+    - text: / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+  - generic [ref=e63]:
+    - generic [ref=e64]:
+      - generic [ref=e65]: /
+      - text: AI ASSISTANT
+    - generic [ref=e66]: 04 / 24
+  - generic [ref=e67]: ← → · Space · Home/End · F — fullscreen · артефакты скроллятся

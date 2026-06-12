@@ -1,0 +1,32 @@
+<!-- @dsCard group="Type" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;background:var(--bg);}
+  .wrap{padding:24px 32px;font-family:var(--font-display);}
+  .row{display:flex;align-items:center;gap:18px;padding:11px 0;border-bottom:1px solid var(--line-1);}
+  .row:last-child{border-bottom:0;}
+  .tag{font-family:var(--font-mono);font-size:11px;color:var(--slate-mut);letter-spacing:.04em;min-width:104px;flex-shrink:0;text-transform:uppercase;}
+  .spec{line-height:1.05;white-space:nowrap;}
+  .d{font-weight:300;font-size:38px;letter-spacing:-.015em;color:var(--slate-deep);}
+  .d b{font-weight:800;}
+  .d .a{color:var(--accent);font-weight:800;}
+  .h1{font-weight:700;font-size:30px;letter-spacing:-.015em;color:var(--slate-deep);}
+  .h1 .l{font-weight:300;}
+  .h2{font-weight:700;font-size:24px;color:var(--slate-deep);}
+  .h3{font-weight:600;font-size:19px;color:var(--slate-deep);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="row"><span class="tag">Display</span><span class="spec d">Ship <b>faster</b></span></div>
+  <div class="row"><span class="tag">Two-part</span><span class="spec d">You ship. <span class="a">AI scaffolds.</span></span></div>
+  <div class="row"><span class="tag">H1</span><span class="spec h1"><span class="l">From prompt</span> to merged PR</span></div>
+  <div class="row"><span class="tag">H2</span><span class="spec h2">Automate the boilerplate</span></div>
+  <div class="row"><span class="tag">H3</span><span class="spec h3">Six things, zero toil</span></div>
+</div>
+</body>
+</html>

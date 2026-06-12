@@ -1,0 +1,44 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - text: / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+    - generic [ref=e68]:
+      - generic [ref=e69]: ДНЕВНИК / 08 · РЕГРЕССИЯ 2
+      - generic [ref=e70]:
+        - generic [ref=e71]:
+          - generic [ref=e72]: / Кульминация
+          - heading "Все файлы правильные. PDF — снова плохой" [level=2] [ref=e73]:
+            - text: Все файлы правильные.
+            - text: PDF — снова плохой
+          - generic [ref=e74]:
+            - generic [ref=e75]: Человек → агент · скриншот
+            - generic [ref=e76]: "«Снова плохо. Выглядит так: 1Minimal Export-Debug Document For ES-3772»"
+          - list [ref=e77]:
+            - listitem [ref=e78]:
+              - generic [ref=e79]: /
+              - generic [ref=e80]:
+                - code [ref=e81]: styles_toc.css
+                - text: в снапшоте — правильный
+            - listitem [ref=e82]:
+              - generic [ref=e83]: /
+              - generic [ref=e84]:
+                - code [ref=e85]: toc_template.html
+                - text: — правильный
+            - listitem [ref=e86]:
+              - generic [ref=e87]: /
+              - generic [ref=e88]:
+                - text: скрипт с
+                - code [ref=e89]: "&nbsp;"
+                - text: — уже в WSL
+            - listitem [ref=e90]:
+              - generic [ref=e91]: /
+              - generic [ref=e92]: значит, проблема глубже
+        - generic [ref=e93]:
+          - generic [ref=e96]: скриншот из сессии · docs/diary/img.png
+          - 'img "ToC со слитым номером: 1Minimal Export-Debug Document For ES-3772" [ref=e97]'
+    - text: / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+  - generic [ref=e63]:
+    - generic [ref=e64]:
+      - generic [ref=e65]: /
+      - text: AI ASSISTANT
+    - generic [ref=e66]: 15 / 24
+  - generic [ref=e67]: ← → · Space · Home/End · F — fullscreen · артефакты скроллятся

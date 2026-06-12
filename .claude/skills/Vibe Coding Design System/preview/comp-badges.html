@@ -1,0 +1,33 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;background:var(--bg);}
+  .wrap{padding:28px 32px;display:flex;flex-direction:column;gap:18px;}
+  .grp{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .lbl{font-family:var(--font-mono);font-size:10px;color:var(--slate-mut);text-transform:uppercase;letter-spacing:.08em;min-width:60px;}
+  .tab{font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:8px 4px;color:var(--slate-mut);border-bottom:3px solid transparent;}
+  .tab.on{color:var(--slate-deep);border-bottom-color:var(--accent);}
+  .badge{font-family:var(--font-display);font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--r-xs);display:inline-flex;align-items:center;gap:6px;letter-spacing:.06em;text-transform:uppercase;}
+  .dot{width:6px;height:6px;border-radius:50%;}
+  .green{background:#E4F4EC;color:#1E9E6A;}
+  .blue{background:var(--blue-tint);color:var(--blue);}
+  .pink{background:var(--accent-tint);color:var(--accent-deep);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="grp"><span class="lbl">tabs</span>
+    <span class="tab on">Overview</span><span class="tab">Automation</span><span class="tab">Review</span><span class="tab">Testing</span>
+  </div>
+  <div class="grp"><span class="lbl">status</span>
+    <span class="badge green"><span class="dot" style="background:#1E9E6A"></span>Merged</span>
+    <span class="badge blue"><span class="dot" style="background:var(--blue)"></span>In review</span>
+    <span class="badge pink"><span class="dot" style="background:var(--accent)"></span>Flagged</span>
+  </div>
+</div>
+</body>
+</html>

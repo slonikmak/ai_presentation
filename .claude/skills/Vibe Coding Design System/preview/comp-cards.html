@@ -1,0 +1,31 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;background:var(--bg-soft);}
+  .wrap{padding:26px 32px;display:flex;gap:16px;}
+  .card{flex:1;background:#fff;border:1px solid var(--line-1);border-radius:var(--r-xs);padding:22px;box-shadow:var(--shadow-sm);}
+  .card.hl{border-top:3px solid var(--accent);}
+  .k{font-family:var(--font-display);font-weight:700;font-size:11px;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;}
+  h4{font-family:var(--font-display);font-weight:700;font-size:20px;color:var(--slate-deep);margin:12px 0 8px;}
+  p{font-family:var(--font-display);font-size:14px;line-height:1.55;color:var(--slate-soft);margin:0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="k">Automation</div>
+    <h4>PR review in 30s</h4>
+    <p>Agents read the diff, flag risks, and suggest fixes before a human looks.</p>
+  </div>
+  <div class="card hl">
+    <div class="k">Featured</div>
+    <h4>Test generation</h4>
+    <p>Coverage gaps filled automatically. The accent top-rule marks the lead card.</p>
+  </div>
+</div>
+</body>
+</html>

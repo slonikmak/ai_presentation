@@ -1,0 +1,206 @@
+/* ============================================================
+   VIBE CODING — Design System Foundations
+   colors_and_type.css
+   ------------------------------------------------------------
+   Direction: esprow.com DNA, modernized & concise.
+   Light & airy · raspberry-magenta signature · slate neutrals ·
+   the "/" slash motif · sharp (square) corners · humanist grotesque.
+   ------------------------------------------------------------
+   FONT NOTE (flagged to user): No brand fonts were supplied.
+   Substituted Google Fonts:
+     - Hanken Grotesk (display, UI, body) — humanist grotesque with a
+       wide weight range for the light+bold two-part headline contrast.
+     - JetBrains Mono (code only) — for the AI-in-dev subject matter.
+   Swap for licensed brand fonts if/when available.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ---------- TYPE FAMILIES ---------- */
+  --font-display: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+  --font-body:    'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ---------- COLOR · LIGHT SURFACES ---------- */
+  --bg:       #FFFFFF;   /* page background                       */
+  --bg-soft:  #F4F5F7;   /* light gray bands / footer             */
+  --bg-tint:  #EDEFF2;   /* hover surface / inset panels          */
+  --bg-line:  #E3E6EA;   /* hairline borders on light             */
+
+  /* ---------- COLOR · SLATE (the neutral dark) ---------- */
+  --slate-deep: #2B3340; /* headlines, deepest panels             */
+  --slate:      #3D4757; /* primary slate — nav, dark panels, ui  */
+  --slate-soft: #5C6675; /* body text                             */
+  --slate-mut:  #8A93A1; /* muted / captions                      */
+  --slate-faint:#C3C9D1; /* disabled / faint lines on light       */
+
+  /* ---------- COLOR · ACCENT (signature) ---------- */
+  --accent:        #E6006B;  /* raspberry-magenta — CTAs, emphasis */
+  --accent-deep:   #C2005A;  /* hover / pressed                    */
+  --accent-bright: #FF2D8B;  /* highlight on dark                  */
+  --accent-tint:   #FDE6F0;  /* soft fill on light                 */
+
+  /* ---------- COLOR · SUPPORT ---------- */
+  --blue:      #1F7FD6;  /* inline links / info                    */
+  --blue-tint: #E4F0FB;
+  --teal:      #149E91;  /* occasional data accent                 */
+  --amber:     #E8920C;
+
+  /* ---------- COLOR · SEMANTIC ---------- */
+  --success: #1E9E6A;
+  --info:    #1F7FD6;
+  --warn:    #E8920C;
+  --danger:  #DD3030;
+
+  /* On-dark text (for slate / accent panels) */
+  --on-dark-1: #FFFFFF;
+  --on-dark-2: rgba(255,255,255,0.78);
+  --on-dark-3: rgba(255,255,255,0.55);
+
+  /* ---------- LINES & BORDERS ---------- */
+  --line-1: var(--bg-line);
+  --line-2: #D5D9DF;
+  --line-strong: var(--slate);
+  --underline-accent: 3px solid var(--accent);
+
+  /* ---------- RADII (sharp / architectural) ---------- */
+  --r-none: 0px;
+  --r-xs: 2px;
+  --r-sm: 3px;
+  --r-md: 4px;   /* maximum — keep it square */
+
+  /* ---------- SPACING (8pt base) ---------- */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px; --s-5: 24px;
+  --s-6: 32px; --s-7: 48px; --s-8: 64px; --s-9: 96px; --s-10: 128px;
+
+  /* ---------- SHADOWS / ELEVATION (subtle on light) ---------- */
+  --shadow-sm: 0 1px 2px rgba(43,51,64,0.06);
+  --shadow-md: 0 6px 20px rgba(43,51,64,0.10);
+  --shadow-lg: 0 18px 50px rgba(43,51,64,0.16);
+
+  /* ---------- MOTION ---------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 140ms;
+  --dur: 240ms;
+  --dur-slow: 420ms;
+
+  /* ---------- MOTIF ---------- */
+  --slash-angle: -20deg;
+  --slash-fill: rgba(255,255,255,0.16);   /* over photos          */
+  --slash-fill-dark: rgba(43,51,64,0.06); /* over light surfaces  */
+}
+
+/* ============================================================
+   TYPE SCALE — semantic helpers
+   Editorial: light weight for the lead clause, bold for the turn.
+   Eyebrows are UPPERCASE sans with tracking (esprow style).
+   ============================================================ */
+
+.t-display {                 /* hero headline */
+  font-family: var(--font-display);
+  font-weight: 300;          /* light by default — pair with .bold spans */
+  font-size: clamp(44px, 6.2vw, 88px);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  color: var(--slate-deep);
+}
+.t-display .bold { font-weight: 800; }
+.t-display .accent { color: var(--accent); }
+
+.t-h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(34px, 4vw, 56px);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  color: var(--slate-deep);
+}
+.t-h1 .light { font-weight: 300; }
+
+.t-h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(26px, 2.6vw, 36px);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--slate-deep);
+}
+
+.t-h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--slate-deep);
+}
+
+.t-lead {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(18px, 1.5vw, 21px);
+  line-height: 1.55;
+  color: var(--slate-soft);
+}
+
+.t-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--slate-soft);
+}
+
+.t-small {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--slate-mut);
+}
+
+.t-kicker {                  /* uppercase sans eyebrow */
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.t-label {                   /* slate uppercase label (footer headers etc) */
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--slate-deep);
+}
+
+.t-mono {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--slate-soft);
+}
+
+.t-code {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 13.5px;
+  color: var(--accent-deep);
+  background: var(--accent-tint);
+  border-radius: var(--r-xs);
+  padding: 0.1em 0.38em;
+}
+
+/* The slash device — leading "/" before an eyebrow */
+.slash::before {
+  content: "/";
+  color: var(--accent);
+  font-weight: 800;
+  margin-right: 0.35em;
+}

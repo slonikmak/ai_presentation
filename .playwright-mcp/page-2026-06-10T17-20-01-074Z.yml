@@ -1,0 +1,18 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e7]: /AI ASSISTANT
+      - generic [ref=e8]: / Внутренний доклад · AI в разработке · 2026
+      - heading "AI-агенты как ежедневный инструмент команды" [level=1] [ref=e9]:
+        - text: AI-агенты
+        - text: как ежедневный
+        - text: инструмент команды
+      - paragraph [ref=e11]: Как перейти из режима веб-чата к работе с агентами — и превратить разовые эксперименты в ежедневную привычку.
+      - generic [ref=e13]: "ГЛАВНАЯ ОСЬ: ЧАТ → АГЕНТ"
+    - text: / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+  - generic [ref=e60]:
+    - generic [ref=e61]:
+      - generic [ref=e62]: /
+      - text: AI ASSISTANT
+    - generic [ref=e63]: 01 / 45
+  - generic [ref=e64]: ← → · Space · Home/End · F — fullscreen

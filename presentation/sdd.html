@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spec-Driven Development: качество — это новая скорость — /AI ASSISTANT</title>
+<!-- Дополнительная презентация к докладу «AI-агенты как ежедневный инструмент команды».
+     По мотивам доклада с AI-конференции (июнь 2026).
+     FONT NOTE: Hanken Grotesk (бренд) не покрывает кириллицу — подставлен Manrope + JetBrains Mono. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font-display:'Manrope',system-ui,-apple-system,sans-serif;
+  --font-body:'Manrope',system-ui,-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --bg:#FFFFFF; --bg-soft:#F4F5F7; --bg-tint:#EDEFF2; --bg-line:#E3E6EA;
+  --slate-deep:#2B3340; --slate:#3D4757; --slate-soft:#5C6675; --slate-mut:#8A93A1; --slate-faint:#C3C9D1;
+  --accent:#E6006B; --accent-deep:#C2005A; --accent-bright:#FF2D8B; --accent-tint:#FDE6F0;
+  --blue:#1F7FD6; --teal:#149E91; --amber:#E8920C;
+  --on-dark-1:#FFFFFF; --on-dark-2:rgba(255,255,255,0.78); --on-dark-3:rgba(255,255,255,0.55);
+  --line-1:var(--bg-line); --line-2:#D5D9DF;
+  --r-xs:2px; --r-sm:3px; --r-md:4px;
+  --s-1:4px;--s-2:8px;--s-3:12px;--s-4:16px;--s-5:24px;--s-6:32px;--s-7:48px;--s-8:64px;--s-9:96px;--s-10:128px;
+  --shadow-sm:0 1px 2px rgba(43,51,64,0.06);
+  --shadow-md:0 6px 20px rgba(43,51,64,0.10);
+  --shadow-lg:0 18px 50px rgba(43,51,64,0.16);
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+  --slash-fill-dark:rgba(43,51,64,0.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--slate-deep);font-family:var(--font-body);-webkit-font-smoothing:antialiased;color:var(--slate-deep);overflow:hidden;}
+::selection{background:var(--accent-tint);color:var(--accent-deep);}
+
+/* ---------- DECK SHELL ---------- */
+#deck{position:fixed;inset:0;}
+.slide{
+  position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;
+  background:var(--bg);overflow:hidden;
+  padding:60px clamp(48px,7vw,120px);
+}
+.slide.active{display:flex;animation:slidein .5s var(--ease-out) both;}
+@keyframes slidein{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.slide.dark{background:var(--slate-deep);}
+.slide.soft{background:var(--bg-soft);}
+.inner{position:relative;width:100%;max-width:1260px;margin:0 auto;z-index:2;}
+
+/* ---------- SLASH MOTIF ---------- */
+.motif{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;}
+.motif i{position:absolute;top:-25%;height:160%;transform:skewX(-20deg);display:block;}
+.motif .a{left:74%;width:120px;background:var(--slash-fill-dark);}
+.motif .b{left:80%;width:34px;background:rgba(43,51,64,0.04);}
+.motif .c{left:84%;width:13px;background:var(--accent-tint);}
+.dark .motif .a{background:rgba(255,255,255,0.05);}
+.dark .motif .b{background:rgba(255,255,255,0.03);}
+.dark .motif .c{background:rgba(230,0,107,0.5);}
+
+/* ---------- TYPE ---------- */
+.kicker{font-family:var(--font-display);font-weight:700;font-size:13.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.5em;margin-bottom:20px;}
+.kicker::before{content:"/";color:var(--accent);font-weight:800;}
+.dark .kicker{color:var(--accent-bright);}
+h1.display{font-family:var(--font-display);font-weight:300;font-size:clamp(40px,5.4vw,80px);
+  line-height:1.04;letter-spacing:-0.02em;color:var(--slate-deep);}
+.display .bold{font-weight:800;}
+.display .accent{color:var(--accent);font-weight:800;}
+.dark h1.display{color:#fff;}
+.dark .display .accent{color:var(--accent-bright);}
+h2{font-family:var(--font-display);font-weight:800;font-size:clamp(28px,3.1vw,46px);
+  line-height:1.08;letter-spacing:-0.018em;color:var(--slate-deep);}
+h2 .light{font-weight:300;}
+h2 .accent{color:var(--accent);}
+.dark h2{color:#fff;}
+h3{font-family:var(--font-display);font-weight:700;font-size:clamp(17px,1.4vw,21px);line-height:1.2;color:var(--slate-deep);}
+.lead{font-family:var(--font-body);font-weight:400;font-size:clamp(16px,1.4vw,20px);line-height:1.5;color:var(--slate-soft);}
+.dark .lead{color:var(--on-dark-2);}
+.body{font-size:15.5px;line-height:1.55;color:var(--slate-soft);font-weight:400;}
+.small{font-size:13px;line-height:1.5;color:var(--slate-mut);}
+.mono{font-family:var(--font-mono);font-size:13.5px;color:var(--slate-soft);}
+code,.code{font-family:var(--font-mono);font-weight:500;font-size:.92em;color:var(--accent-deep);
+  background:var(--accent-tint);border-radius:var(--r-xs);padding:.08em .36em;}
+.dark code{color:#fff;background:rgba(230,0,107,0.35);}
+.accent{color:var(--accent);}
+.rule{border-left:3px solid var(--accent);padding-left:18px;}
+
+/* ---------- LAYOUT HELPERS ---------- */
+.grid{display:grid;gap:14px;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+.flow{display:flex;flex-direction:column;gap:14px;}
+.mt{margin-top:24px;}.mt-s{margin-top:12px;}.mt-l{margin-top:34px;}
+
+/* ---------- CARDS ---------- */
+.card{background:#fff;border:1px solid var(--line-1);border-top:3px solid var(--accent);
+  box-shadow:var(--shadow-sm);padding:18px 20px;border-radius:var(--r-xs);}
+.card h3{margin-bottom:7px;}
+.card h3 .ix{font-family:var(--font-mono);font-weight:600;font-size:.78em;color:var(--accent);margin-right:.5em;}
+.card .body{font-size:14.5px;line-height:1.5;}
+.card .body + .body{margin-top:7px;}
+.card .lbl{display:block;font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent);margin:10px 0 3px;}
+.panel{padding:26px 24px;color:#fff;display:flex;flex-direction:column;min-height:180px;border-radius:var(--r-xs);position:relative;overflow:hidden;}
+.panel .pk{font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;}
+.panel h3{color:#fff;font-size:22px;font-weight:800;margin:10px 0 0;}
+.panel .body{color:var(--on-dark-2);font-size:14.5px;margin-top:10px;}
+.p-accent{background:var(--accent);} .p-slate{background:var(--slate);} .p-deep{background:var(--slate-deep);}
+.tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-display);font-weight:700;
+  font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:var(--r-xs);
+  background:var(--bg-tint);color:var(--slate);}
+.tag.warn{background:#FBEFD8;color:#8a5a00;}
+
+/* было → стало row */
+.ba{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;
+  border:1px solid var(--line-1);border-left:3px solid var(--accent);background:#fff;padding:14px 16px;}
+.ba .was{color:var(--slate-mut);font-size:14.5px;line-height:1.42;}
+.ba .arrow{color:var(--accent);font-size:22px;font-weight:800;}
+.ba .now{color:var(--slate-deep);font-size:14.5px;line-height:1.42;font-weight:500;}
+.ba .lbl{display:block;font-family:var(--font-display);font-weight:700;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px;}
+.was .lbl{color:var(--slate-faint);} .now .lbl{color:var(--accent);}
+
+/* terminal */
+.term{background:var(--slate-deep);border-radius:var(--r-md);box-shadow:var(--shadow-lg);overflow:hidden;}
+.term .bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.term .dot{width:11px;height:11px;border-radius:50%;}
+.term .ttl{margin-left:10px;font-family:var(--font-mono);font-size:12px;color:var(--on-dark-3);}
+.term .body{padding:18px 20px;font-family:var(--font-mono);font-size:13.5px;line-height:1.8;color:var(--on-dark-2);}
+.term .p{color:var(--accent-bright);} .term .g{color:#5BE3A8;} .term .y{color:#FFB454;} .term .bl{color:#6CB6FF;} .term .w{color:#fff;}
+.term .r{color:#FF6B6B;}
+
+/* list */
+ul.clean{list-style:none;display:flex;flex-direction:column;gap:11px;}
+ul.clean li{display:flex;gap:11px;font-size:15px;line-height:1.45;color:var(--slate-soft);}
+ul.clean li b{color:var(--slate-deep);font-weight:700;}
+ul.clean .mk{color:var(--accent);font-weight:800;flex:none;}
+
+/* big number divider */
+.divnum{font-family:var(--font-display);font-weight:800;font-size:clamp(80px,16vw,220px);
+  line-height:.85;color:var(--accent);letter-spacing:-0.04em;}
+.dark .divnum{color:var(--accent-bright);}
+
+/* big stat */
+.stat{font-family:var(--font-display);font-weight:800;font-size:clamp(44px,5vw,76px);line-height:1;color:var(--slate-deep);letter-spacing:-0.03em;}
+.stat .accent{color:var(--accent);}
+.dark .stat{color:#fff;}
+.statlbl{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate-mut);margin-top:8px;}
+.dark .statlbl{color:var(--on-dark-3);}
+
+/* attention bars */
+.abar{display:flex;align-items:stretch;height:54px;border-radius:var(--r-xs);overflow:hidden;font-family:var(--font-mono);font-size:12.5px;color:#fff;}
+.abar div{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;}
+.abar .seg1{background:var(--slate);}
+.abar .seg2{background:var(--slate-faint);color:var(--slate-deep);}
+.abar .seg3{background:var(--accent);}
+
+/* table */
+table.mon{width:100%;border-collapse:collapse;}
+table.mon td,table.mon th{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line-1);vertical-align:top;}
+table.mon th{font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);}
+table.mon td.role{font-weight:700;color:var(--slate-deep);white-space:nowrap;width:190px;}
+table.mon td.act{color:var(--slate-soft);font-size:14.5px;}
+
+/* steps */
+.steps{display:flex;flex-direction:column;gap:0;counter-reset:st;}
+.step{display:grid;grid-template-columns:42px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--line-1);}
+.step:last-child{border-bottom:none;}
+.step .n{font-family:var(--font-mono);font-weight:600;color:var(--accent);font-size:15px;padding-top:2px;}
+.step h3{margin-bottom:3px;font-size:17px;}.step .body{font-size:14px;}
+
+/* eco columns */
+.eco{border:1px solid var(--line-1);padding:18px 20px;background:#fff;}
+.eco .h{font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--slate-deep);margin-bottom:11px;display:flex;align-items:center;gap:8px;}
+.eco .h::before{content:"/";color:var(--accent);font-weight:800;}
+.eco ul{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.eco li{font-size:14px;color:var(--slate-soft);line-height:1.4;}
+.eco li b{color:var(--slate-deep);}
+
+.note{margin-top:18px;background:var(--bg-soft);border-left:3px solid var(--slate-faint);padding:13px 16px;font-size:14.5px;color:var(--slate-soft);line-height:1.5;}
+.note.warn{background:#FBEFD8;border-left-color:var(--amber);color:#7a5400;}
+.note b{color:var(--slate-deep);}
+.note.warn b{color:#5e4100;}
+
+/* ---------- CHROME ---------- */
+#bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:50;transition:width .3s var(--ease-out);}
+#hud{position:fixed;bottom:20px;right:26px;z-index:50;display:flex;align-items:center;gap:14px;
+  font-family:var(--font-mono);font-size:12px;color:var(--slate-mut);}
+.dark ~ #hud{color:var(--on-dark-3);}
+#hud a.back-link{color:inherit;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:4px;transition:color .2s;}
+#hud a.back-link:hover{color:var(--accent-bright);}
+#hud .sep{color:var(--bg-line);font-weight:300;}
+.dark ~ #hud .sep{color:rgba(255,255,255,0.15);}
+#hud .logo{display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.04em;color:var(--slate-deep);}
+#hud .logo span{color:var(--accent);}
+#dots{position:fixed;bottom:22px;left:26px;z-index:50;display:flex;gap:4px;max-width:42vw;flex-wrap:wrap;}
+#dots b{width:6px;height:6px;background:var(--slate-faint);cursor:pointer;transition:.2s;}
+#dots b.on{background:var(--accent);transform:scaleY(1.6);}
+.navhint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:50;font-family:var(--font-mono);
+  font-size:11px;color:var(--slate-faint);letter-spacing:.04em;}
+@media (prefers-reduced-motion:reduce){.slide.active{animation:none;}}
+.eyetop{position:absolute;top:38px;left:clamp(48px,7vw,120px);font-family:var(--font-mono);font-size:12px;color:var(--slate-mut);letter-spacing:.04em;}
+.dark .eyetop{color:var(--on-dark-3);}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="deck">
+
+<!-- ============ 1 · TITLE ============ -->
+<section class="slide dark active">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:38px;">
+      <img src="assets/mark.svg" width="44" height="44" alt="">
+      <span style="font-family:var(--font-display);font-weight:800;letter-spacing:.04em;color:#fff;font-size:18px;"><span style="color:var(--accent-bright)">/</span>AI ASSISTANT</span>
+    </div>
+    <div class="kicker">Дополнение к докладу об AI-агентах · SDD</div>
+    <h1 class="display">Spec-Driven:<br>качество — это<br><span class="accent">новая скорость</span></h1>
+    <div class="rule mt-l" style="max-width:680px;border-color:var(--accent-bright)">
+      <p class="lead">Код подешевел. Узкое место переехало в планирование и валидацию — как с этим жить и выигрывать.</p>
+    </div>
+    <div class="mt-l" style="font-family:var(--font-mono);font-size:13px;color:var(--on-dark-3);letter-spacing:.02em;">
+      По мотивам доклада с AI-конференции · июнь 2026
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · ИСТОЧНИК И РАМКА ============ -->
+<section class="slide soft">
+  <div class="eyetop">SDD / ИСТОЧНИК</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Откуда это</div>
+      <h2><span class="light">Опыт команды,</span> где цена ошибки <span class="accent">живая</span></h2>
+      <p class="lead mt">AI-native команда в performance-маркетинге для B2C. Клиенты тратят $1–6K на рекламу в день, крупные — $1K за 20 минут. Рядом с алготрейдингом: статистика, моделирование, реальные деньги.</p>
+    </div>
+    <div class="flow">
+      <div class="card"><h3>Почему этому опыту можно верить</h3><p class="body">Продукт 600K+ строк ведут <b style="color:var(--slate-deep)">два человека</b> — параллельно с продажами, devops и операциями. Все цифры далее — из доклада, помечены.</p></div>
+      <div class="card" style="border-top-color:var(--slate)"><h3>Зачем нам</h3><p class="body">В основном докладе спека — центральная идея, а SpecKit/OpenSpec — сноска. Здесь разворачиваем SDD в полный воркфлоу: что взять себе.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 · ХУК: ЦИФРЫ ============ -->
+<section class="slide">
+  <div class="eyetop">SDD / КОНТЕКСТ · данные из доклада</div>
+  <div class="inner">
+    <div class="kicker">Декабрь 2025 — переписали продукт с нуля</div>
+    <h2 style="margin-bottom:26px"><span class="light">Тот же продукт,</span> та же <span class="accent">команда</span></h2>
+    <div class="grid g3">
+      <div class="card" style="text-align:left"><div class="stat">56K</div><div class="statlbl">строк — было, за все годы</div></div>
+      <div class="card" style="text-align:left;border-top-width:5px"><div class="stat"><span class="accent">600K</span></div><div class="statlbl">строк — за ~3 месяца на spec-driven</div></div>
+      <div class="card" style="text-align:left"><div class="stat">≈ ×11</div><div class="statlbl">и ≈ $700K/год экономии на команде из 11</div></div>
+    </div>
+    <div class="note"><b>«Считать строки — метрика так себе, но порядок виден».</b> Это не реклама скорости — дальше весь доклад о том, какой ценой это качество удерживается.</div>
+  </div>
+</section>
+
+<!-- ============ 4 · ГЛАВНЫЙ ТЕЗИС ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="eyetop">SDD / КОНТЕКСТ</div>
+  <div class="inner">
+    <div class="kicker">Главный тезис</div>
+    <h1 class="display" style="font-size:clamp(34px,4.6vw,64px)">Код теперь дешёвый.<br>Узкое место — не написать,<br>а <span class="accent">обеспечить качество</span>.</h1>
+    <div class="mt-l" style="display:flex;gap:48px;flex-wrap:wrap;">
+      <div><div class="stat" style="color:#fff">5 000</div><div class="statlbl">строк в день — среднее</div></div>
+      <div><div class="stat" style="color:#fff">30 000</div><div class="statlbl">хороший день · любой косяк умножается</div></div>
+    </div>
+    <p class="lead mt-l" style="max-width:880px">Двадцать лет рефлексы учили: каждая строка — дорогой ресурс. Теперь большинство этих рефлексов мешают: «привыкли ходить, а тут сверхзвуковые скорости». Код читать не нужно — нужно сделать так, чтобы его можно было <b style="color:#fff">не читать</b>.</p>
+  </div>
+</section>
+
+<!-- ============ 5 · СДВИГ ВНИМАНИЯ ============ -->
+<section class="slide soft">
+  <div class="eyetop">SDD / КОНТЕКСТ · данные из доклада</div>
+  <div class="inner">
+    <div class="kicker">Куда уходит внимание</div>
+    <h2 style="margin-bottom:24px"><span class="light">Середина схлопнулась —</span> работа уехала на <span class="accent">края</span></h2>
+    <p class="body" style="margin-bottom:8px"><b>Классическая разработка</b> — внимание в коде:</p>
+    <div class="abar">
+      <div class="seg1" style="width:15%">15% план</div>
+      <div class="seg2" style="width:70%">70% написание кода</div>
+      <div class="seg3" style="width:15%">15% валидация</div>
+    </div>
+    <p class="body" style="margin:18px 0 8px"><b>AI-native разработка:</b></p>
+    <div class="abar">
+      <div class="seg1" style="width:45%">45% планирование</div>
+      <div class="seg2" style="width:10%">5%</div>
+      <div class="seg3" style="width:45%">50% валидация</div>
+    </div>
+    <div class="note"><b>Это тот же тезис «работа смещается на края» из основного доклада</b> — теперь с цифрами из чужого боевого опыта. Постановка и проверка дорожают, перевод в код схлопнулся.</div>
+  </div>
+</section>
+
+<!-- ============ 6 · +120% ВАЛИДАЦИИ ============ -->
+<section class="slide">
+  <div class="eyetop">SDD / КОНТЕКСТ · данные из доклада</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Цена пропущенного плана</div>
+      <h2><span class="light">Сэкономил на плане —</span><br>получи <span class="accent">+120% валидации</span></h2>
+      <p class="lead mt">Переделывать плохое — сложнее, чем сделать заново. Срезал планирование до 10% — валидация вылетает за 100%.</p>
+    </div>
+    <div class="flow">
+      <div class="ba"><div class="was"><span class="lbl">срезал план</span>10% планирование · 5% исполнение</div><div class="arrow">→</div><div class="now"><span class="lbl">платишь дважды</span>120% валидации: разбор, переделки, повторное ревью</div></div>
+      <div class="note">С этим слайдом можно идти к тем, кто требует «выпустим — потом починим»: качество = твоя скорость через две недели.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7 · DIVIDER СТУПЕНЬ 1 ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner" style="display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;">
+    <div class="divnum">/1</div>
+    <div>
+      <div class="kicker">Ступень 1</div>
+      <h2 style="color:#fff">Прототип почти<br><span class="accent">бесплатный</span></h2>
+      <p class="lead mt">От скриптов в чате — к производству софта. Первая ступень осознанно «скриптовая».</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8 · ПАРАЛЛЕЛЬНЫЕ ПРОТОТИПЫ ============ -->
+<section class="slide">
+  <div class="eyetop">СТУПЕНЬ 1 / ПРОТОТИПЫ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Параллельные версии</div>
+      <h2 style="font-size:clamp(26px,2.7vw,40px)"><span class="light">Одна спека. Один час.</span><br><span class="accent">Три направления.</span></h2>
+      <p class="lead mt">Запусти 3–5 версий параллельно: из пяти идей три выкидываешь сам, две показываешь коллегам, одна идёт в прод. Это нормально — прототип почти бесплатный.</p>
+      <div class="rule mt"><p class="body"><b style="color:var(--slate-deep)">Raptor 1 → 2 → 3:</b> первая версия страшная, но end-to-end и быстро проверяет гипотезу; вторая лучше; третья — production. Версия 1 — не стыдная.</p></div>
+    </div>
+    <div class="flow">
+      <div class="note warn"><b>Критичное правило: прототипы — в отдельных репозиториях, не в боевом.</b> Иначе агент решит «тут так принято» — и будущая генерация скопирует кривые паттерны. Черновики заражают кодовую базу.</div>
+      <div class="card"><h3>Чат — это «детский футбол»</h3><p class="body">«Все носятся за мячиком, орут — интересно, но результат не всегда такой, как хотелось». Параллельные эксперименты в репах дают сравнимые варианты вместо одной случайной траектории.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9 · SHOW DON'T TELL + СКЕЛЕТЫ ============ -->
+<section class="slide soft">
+  <div class="eyetop">СТУПЕНЬ 1 / ШАБЛОНЫ</div>
+  <div class="inner">
+    <div class="kicker">Show, don't tell</div>
+    <h2 style="margin-bottom:20px"><span class="light">Тонкий шаблон бьёт</span> длинные <span class="accent">инструкции</span></h2>
+    <div class="grid g2" style="margin-bottom:14px">
+      <div class="ba" style="grid-template-columns:1fr auto 1fr"><div class="was"><span class="lbl">слабо</span>5 страниц абзацев-правил в CLAUDE.md — агент игнорирует</div><div class="arrow">≪</div><div class="now"><span class="lbl">сильно</span>один пример: рабочий тест + тонкий скелет — агент копирует стиль</div></div>
+      <div class="card"><h3>Готовые скелеты — форкаешь и едешь</h3><p class="body"><b>GitHub Spec Kit</b> · <b>OpenSpec</b> (Fission-AI) · <b>Agent Skills</b> (Addy Osmani) · <b>sdx-project</b> (концепт-документ → каркас со спеками и roadmap) · <b>Tessl / skills.sh</b> — реестры скилов с evals.</p></div>
+    </div>
+    <div class="note"><b>Скилы — стандартные операционные процедуры.</b> «Кто ещё не разобрался со скилами — вы теряете такое количество времени, что это уже начинает быть криминалом».</div>
+  </div>
+</section>
+
+<!-- ============ 10 · DIVIDER СТУПЕНЬ 2 ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner" style="display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;">
+    <div class="divnum">/2</div>
+    <div>
+      <div class="kicker">Ступень 2</div>
+      <h2 style="color:#fff">Нужна точность<br><span class="accent">направления</span></h2>
+      <p class="lead mt">Один чат на проект начинает забывать и галлюцинировать. Дальше едут спеки.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11 · ПОЧЕМУ ЧАТ ЛОМАЕТСЯ ============ -->
+<section class="slide">
+  <div class="eyetop">СТУПЕНЬ 2 / ПОЧЕМУ СПЕКИ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Потолок чата</div>
+      <h2 style="font-size:clamp(26px,2.7vw,40px)"><span class="light">Чатик ломается</span><br>на <span class="accent">сложности</span></h2>
+      <p class="lead mt">Миллион токенов контекста лишь отодвигает потолок. На каждый новый блок объясняешь заново, CLAUDE.md превращается в нечитаемый BLOB, plan mode работает до порога.</p>
+    </div>
+    <div class="flow">
+      <div class="ba"><div class="was"><span class="lbl">чат / plan mode</span>знание живёт в сессии → умирает с сессией; контекст таскаешь заново</div><div class="arrow">→</div><div class="now"><span class="lbl">спека в репозитории</span>markdown-файл: версионируется, ревьюится, переживает сессию, переносит знание между агентами</div></div>
+      <div class="note">Нужен формат, который переносит знания между сессиями. Это и есть SDD: спека — не церемония, а память проекта.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12 · OPENSPEC ВОРКФЛОУ ============ -->
+<section class="slide soft">
+  <div class="eyetop">СТУПЕНЬ 2 / OPENSPEC · данные из доклада</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">OpenSpec</div>
+      <h2 style="font-size:clamp(26px,2.7vw,40px)">propose → <span class="accent">review</span> →<br>apply → archive</h2>
+      <div class="term mt">
+        <div class="bar"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><span class="ttl">openspec — workflow</span></div>
+        <div class="body">
+          <div><span class="p">/opsx:propose</span> <span class="w">→</span> proposal · design · tasks</div>
+          <div><span class="y">REVIEW ← человек, до первой строчки кода</span></div>
+          <div><span class="p">/opsx:apply</span> <span class="w">→</span> агент идёт по таскам</div>
+          <div><span class="g">/opsx:archive → дельта → живая карта спек</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="flow">
+      <div class="card"><h3>Что рождается до кода</h3><p class="body"><b>proposal</b> — зачем и что · <b>design</b> — как технически · <b>tasks</b> — чеклист. Дёшево поменять здесь — дорого потом. Сильных инженеров — на вход.</p></div>
+      <div class="card" style="border-top-width:5px"><h3>8 из 10 — в цель</h3><p class="body">Два предложения на вход → proposal «вот как это будет в твоей системе». 8/10 попадают, 2 — «ты меня неправильно понял». Лишает магии one-prompt, но радикально режет валидацию.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 13 · МАСШТАБ И МЕРА ============ -->
+<section class="slide">
+  <div class="eyetop">СТУПЕНЬ 2 / МЕРА · данные из доклада</div>
+  <div class="inner">
+    <div class="kicker">Масштаб одной спеки</div>
+    <h2 style="margin-bottom:22px"><span class="light">Одна спека ≈ 5 000 строк ≈</span> <span class="accent">1–2 месяца</span> <span class="light">прежней работы</span></h2>
+    <div class="grid g3">
+      <div class="card"><h3>Цена ошибки в спеке высокая</h3><p class="body">Спека упаковывает целый квартал. Поэтому ревью спеки — работа сильного инженера, не формальность.</p></div>
+      <div class="card"><h3>Не пережимать</h3><p class="body">Детализируешь всё — начинаешь «программировать на английском языке». Спека держит контракты и инварианты, не построчный план.</p></div>
+      <div class="card"><h3>Читается быстро</h3><p class="body">Spec-файлы читаются редко; proposal + design — «три странички за пять минут». Это быстрее, чем 30 файлов сгенерированного кода без структуры.</p></div>
+    </div>
+    <div class="note"><b>Знакомо по основному докладу:</b> наши принципы спеки те же — лёгкая, только контракты, явный scope, без жёстких рамок имплементации.</div>
+  </div>
+</section>
+
+<!-- ============ 14 · СПЕКИ В ОБЕ СТОРОНЫ ============ -->
+<section class="slide soft">
+  <div class="eyetop">СТУПЕНЬ 2 / В ОБЕ СТОРОНЫ</div>
+  <div class="inner">
+    <div class="kicker">Спеки работают в обе стороны</div>
+    <h2 style="margin-bottom:20px"><span class="light">Не только текст → код,</span> но и <span class="accent">код → текст</span></h2>
+    <div class="grid g3">
+      <div class="card"><h3>Прототип → спека</h3><p class="body">«Изучи код прототипа, собери PRD и спеку. Не пересказывай построчно — зафиксируй <b>INTENT</b>». Фича пересобирается в основном проекте чисто.</p></div>
+      <div class="card"><h3>Легаси → спеки</h3><p class="body">«Сканируй проект, сгенерируй спеки уже реализованного; дальше развиваем систему ОТ спек». Старый проект заезжает в SDD <b>без переписывания</b>. LLM отлично читает и обобщает код.</p></div>
+      <div class="card"><h3>Explore — дистилляция</h3><p class="body">«Не знаю, чего хочу»: час чата с ресёрчем → сжимается в один proposal → свежий старт без багажа неудачных идей. «Забывать — очень хороший скил».</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 15 · ГЕЙТ DATA MODEL ============ -->
+<section class="slide">
+  <div class="eyetop">СТУПЕНЬ 2 / ГЕЙТЫ · кейс из доклада</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1.1fr;gap:44px;align-items:center;">
+    <div>
+      <div class="kicker">Гейт №1 · модель данных</div>
+      <h2 style="font-size:clamp(24px,2.5vw,36px)"><span class="light">Тесты прошли.</span><br>Прод <span class="accent">рванул на девятой</span></h2>
+      <p class="lead mt">Спека: «храним токены для разных платформ». Агент «креативно» сделал колонку на платформу. Тесты зелёные на обоих вариантах — рвануло на проде на девятой платформе.</p>
+      <p class="body mt-s"><b style="color:var(--slate-deep)">Фикс процесса, а не выговор:</b> в воркфлоу добавлен шаг — модель данных проверяет человек, до кода. Модель данных — один из самых сильных элементов успеха.</p>
+    </div>
+    <div class="term">
+      <div class="bar"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><span class="ttl">credentials.sql</span></div>
+      <div class="body" style="font-size:12.5px;line-height:1.65">
+        <div><span class="r">✗ что сделал агент</span></div>
+        <div>CREATE TABLE credentials (</div>
+        <div>&nbsp;&nbsp;user_id INT,</div>
+        <div>&nbsp;&nbsp;twitter_token TEXT, facebook_token TEXT,</div>
+        <div>&nbsp;&nbsp;instagram_token TEXT, <span class="y">... -- +колонка на платформу</span></div>
+        <div>);</div>
+        <div style="margin-top:8px"><span class="g">✓ что должно быть</span></div>
+        <div>CREATE TABLE credentials (</div>
+        <div>&nbsp;&nbsp;user_id INT, platform TEXT, token TEXT</div>
+        <div>); <span class="g">-- новая платформа = новая строка</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 16 · ГЕЙТ REUSE ============ -->
+<section class="slide soft">
+  <div class="eyetop">СТУПЕНЬ 2 / ГЕЙТЫ · кейс из доклада</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Гейт №2 · reuse / inventory</div>
+      <h2 style="font-size:clamp(26px,2.7vw,40px)"><span class="light">Восемь реализаций</span><br><span class="accent">одного и того же</span></h2>
+      <p class="lead mt">«Чиним один баг — починилось. Смотришь — а тут не починилось. На третьей итерации: почему мы это чиним три раза? — Смотри, у тебя восемь реализаций». Пять обновили, три забыли. Тесты прошли на всех восьми.</p>
+      <p class="body mt-s">LLM оптимизирует на скорость и срезает углы: написать заново проще, чем найти существующее. → Гейт: <b style="color:var(--slate-deep)">полный скан базы «есть готовое?» перед каждой новой фичей</b>.</p>
+    </div>
+    <div class="flow">
+      <div class="term">
+        <div class="bar"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><span class="ttl">openspec — gates growing</span></div>
+        <div class="body">
+          <div>proposal <span class="w">→</span> design <span class="w">→</span> <span class="p">DATA MODEL</span> <span class="y">← человек</span></div>
+          <div><span class="w">→</span> <span class="p">REUSE</span> <span class="y">← есть готовое?</span> <span class="w">→</span> tasks</div>
+          <div><span class="g">гейты появляются там, где налажали</span></div>
+        </div>
+      </div>
+      <div class="note"><b>Это наш флайвил правил, встроенный в pipeline:</b> один раз обжёгся → шаг в воркфлоу → больше не повторяется. Воркфлоу растёт из реальных факапов, не из теории.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 17 · DIVIDER СТУПЕНЬ 3 ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner" style="display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;">
+    <div class="divnum">/3</div>
+    <div>
+      <div class="kicker">Ступень 3</div>
+      <h2 style="color:#fff">Качество — это<br><span class="accent">новая скорость</span></h2>
+      <p class="lead mt">Валидация — главное ограничение. И главная метрика: часы на проверку, не строки в день.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 18 · ТРИ ТИРА ============ -->
+<section class="slide">
+  <div class="eyetop">СТУПЕНЬ 3 / ТИРЫ</div>
+  <div class="inner">
+    <div class="kicker">Матрица критичности</div>
+    <h2 style="margin-bottom:20px"><span class="light">Не все системы</span> достойны одинакового <span class="accent">внимания</span></h2>
+    <div class="grid g3">
+      <div class="card" style="border-top-width:5px"><h3>Tier 1 · нельзя ломать</h3><p class="body">Платежи, авторизация, core data.</p><span class="lbl">валидация</span><p class="body">Полные спеки · полные тесты · ревью человеком · часы проверки.</p></div>
+      <div class="card"><h3>Tier 2 · нежелательно</h3><p class="body">API, интеграции, бизнес-логика.</p><span class="lbl">валидация</span><p class="body">Спеки · тесты · точечные проверки.</p></div>
+      <div class="card" style="border-top-color:var(--slate)"><h3>Tier 3 · потерпит</h3><p class="body">Админки, внутренние тулзы, дашборды.</p><span class="lbl">валидация</span><p class="body">Лёгкие спеки · vibe-code ok · сломается — починим.</p></div>
+    </div>
+    <div class="note"><b>Строгость = функция критичности, не догма.</b> Внедрять SDD — с tier 3, потом 2, потом 1. Главный трейд-офф инженера сейчас: где <b>не</b> тратить своё время. <b>Вопрос к нам:</b> что наш tier 1 и где мы читаем код руками? (У спикера: бизнес-метрики, бюджеты, денежные потоки.)</div>
+  </div>
+</section>
+
+<!-- ============ 19 · ИЕРАРХИЯ ВЛИЯНИЯ ============ -->
+<section class="slide soft">
+  <div class="eyetop">СТУПЕНЬ 3 / ИЕРАРХИЯ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Иерархия влияния на агента</div>
+      <h2 style="font-size:clamp(28px,3vw,44px)">Код <span class="accent">&gt;</span> Skills <span class="accent">&gt;</span> CLAUDE.md</h2>
+      <p class="lead mt">Самый сильный сигнал — сам код: что в нём написано, то агент и повторит. Skills — операционные процедуры поверх. Длинные правила в CLAUDE.md два верхних этажа переопределяют почти полностью.</p>
+    </div>
+    <div class="flow">
+      <div class="card"><h3>Следствие 1</h3><p class="body"><b>Чистый код сегодня предотвращает плохую генерацию завтра.</b> Качественный код — это обучающий материал для каждой следующей фичи.</p></div>
+      <div class="card"><h3>Следствие 2</h3><p class="body"><b>Прототипы и черновики — вне боевого репозитория.</b> Паттерны — в скилы (например, retry во внешние вызовы): один раз описал — везде одинаково. Design doc перечитывать — агент про него забывает.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 20 · СКИЛЛЫ ВСЕРЬЁЗ ============ -->
+<section class="slide">
+  <div class="eyetop">СТУПЕНЬ 3 / СКИЛЛЫ · данные из доклада</div>
+  <div class="inner">
+    <div class="kicker">Скиллы всерьёз</div>
+    <h2 style="margin-bottom:20px"><span class="light">Не пишутся руками —</span> <span class="accent">генерируются и меряются</span></h2>
+    <div class="grid g3">
+      <div class="card"><h3>Готовые — по областям</h3><p class="body"><b>Frontend</b> — anthropics/skills · <b>Backend</b> — claude-skills (66 скилов) · <b>Security</b> — Trail of Bits, Sentry · <b>Testing</b> — TDD + debugging (A. Osmani). Каталоги: awesome-agent-skills — 1000+.</p></div>
+      <div class="card"><h3>Генерируй, не пиши</h3><p class="body">«Большой скил руками уже не напишешь». Pipeline: draft генерит агент → посмотрел → итерации через evals. Тот же Raptor 1→2→3, только для скилов. Скил — за ~10 минут; эксперт — на постановке и валидации.</p></div>
+      <div class="card" style="border-top-width:5px"><h3>Evals — минимальная гигиена</h3><p class="body">Скил может отлично выглядеть на бумаге и ничего не менять в поведении. Реальный сигнал — только A/B: задача со скилом и без, много прогонов (это делает Tessl). Скилов 30 — без evals не отличишь полезные от мёртвого груза.</p></div>
+    </div>
+    <div class="note"><b>Мета-пример из доклада:</b> спикер собрал саму презентацию доклада AI-скилом, включая картинки, — ~20 минут вместо трёх часов. <b>Наш мост:</b> Jira/Jenkins/спека-скилы у нас уже есть — следующий уровень зрелости это evals.</div>
+  </div>
+</section>
+
+<!-- ============ 21 · ТЕСТЫ И МОКИ ============ -->
+<section class="slide">
+  <div class="eyetop">СТУПЕНЬ 3 / ТЕСТЫ · данные из доклада</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Тесты и умные моки</div>
+      <h2 style="font-size:clamp(26px,2.7vw,40px)"><span class="light">Если агент не может запустить тесты —</span> он их <span class="accent">не запустит</span></h2>
+      <p class="lead mt">Скажет «оставлю тебе запустить» — и качество реализации падает. Петля проверки должна крутиться без человека.</p>
+      <div class="rule mt"><p class="body">«Большую часть времени мы теперь — <b style="color:var(--slate-deep)">manual QA, который автоматизирует сам себя</b>».</p></div>
+    </div>
+    <div class="flow">
+      <div class="card"><h3>Полная пирамида</h3><p class="body">Код : тесты ≈ <b>1 : 2</b>. Unit — тысячи, быстрые → integration/API/UI → e2e всё замокано → smoke против реального прода.</p></div>
+      <div class="card"><h3>Умные моки</h3><p class="body">База и внешние системы замоканы <b>со всеми edge-кейсами</b>. Цель: спека крутится с автопрогоном всех тестов за ~20 минут.</p></div>
+      <div class="note"><b>Наш стек:</b> на Java петля и так дорогая (Maven, интеграционные) — моки и быстрые прогоны критичнее вдвойне; связка с IDEA MCP из основного доклада.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 22 · ГИГИЕНА / ДРИФТ ============ -->
+<section class="slide soft">
+  <div class="eyetop">СТУПЕНЬ 3 / ГИГИЕНА</div>
+  <div class="inner">
+    <div class="kicker">Дрифт — это норма</div>
+    <h2 style="margin-bottom:20px"><span class="light">Не разовый аудит —</span> регулярная <span class="accent">гигиена</span></h2>
+    <div class="grid g3">
+      <div>
+        <div class="tag" style="margin-bottom:12px">Code quality</div>
+        <ul class="clean">
+          <li><span class="mk">/</span><span>Стандарты и нейминг.</span></li>
+          <li><span class="mk">/</span><span>Дубли и размер файлов.</span></li>
+          <li><span class="mk">/</span><span>Структура. Чисто?</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="tag" style="margin-bottom:12px">Coherence</div>
+        <ul class="clean">
+          <li><span class="mk">/</span><span>Архитектура соответствует design doc?</span></li>
+          <li><span class="mk">/</span><span>Спеки не разошлись с кодом?</span></li>
+          <li><span class="mk">/</span><span>Паттерны на месте?</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="tag" style="margin-bottom:12px">Security</div>
+        <ul class="clean">
+          <li><span class="mk">/</span><span>OWASP, инъекции.</span></li>
+          <li><span class="mk">/</span><span>Авторизация.</span></li>
+          <li><span class="mk">/</span><span>Секреты. Безопасно?</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="note"><b>Раз в неделю, скилами-проверками</b> (drift detection, duplicate finder, complexity checker). Не даём мелким отклонениям стать нормой — denormalization of deviance. Поймали 8 копий → появился inventory-гейт; цикл тот же.</div>
+  </div>
+</section>
+
+<!-- ============ 23 · ЧЕСТНО: ЦЕНА ============ -->
+<section class="slide">
+  <div class="eyetop">СТУПЕНЬ 3 / ЦЕНА · данные из доклада</div>
+  <div class="inner">
+    <div class="kicker">Честно: цена подхода</div>
+    <h2 style="margin-bottom:20px"><span class="light">Это не «стало легче».</span> Это <span class="accent">другая нагрузка</span></h2>
+    <div class="grid g3">
+      <div class="card"><h3>Когнитивная нагрузка выросла</h3><p class="body">«Сильно возросла. Намного». День на 30K строк — «после него ты овощ»: пять часов думания подряд вместо двух недель с кофе. Помогает спорт и хобби — серьёзно.</p></div>
+      <div class="card"><h3>Проектирование разрослось</h3><p class="body">«Пачка A3-листов с диаграммами — сложность уже не держится в голове». Скилы-иллюстраторы обновляют архитектурные диаграммы автоматически.</p></div>
+      <div class="card"><h3>Сильные инженеры — нужнее</h3><p class="body">Это не «AI заменит разработчиков»: планка поднялась, потребление растёт (парадокс Джевонса). Потребность в сильных инженерах «намного-намного больше».</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 24 · ГЛАВНОЕ + МОСТ К НАМ ============ -->
+<section class="slide soft">
+  <div class="eyetop">ИТОГИ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start;">
+    <div>
+      <div class="kicker">Главное из доклада</div>
+      <ul class="clean mt-s">
+        <li><span class="mk">1</span><span><b>Качество = твоя скорость.</b> Ограничение — валидация.</span></li>
+        <li><span class="mk">2</span><span><b>Не проверил план</b> → +120% к валидации.</span></li>
+        <li><span class="mk">3</span><span><b>Быстрые прототипы:</b> запустил 3 — выбрал одно.</span></li>
+        <li><span class="mk">4</span><span><b>Не все системы</b> достойны одинакового внимания.</span></li>
+        <li><span class="mk">5</span><span><b>Предотвращаем косяки</b> — в воркфлоу, а не латаем потом.</span></li>
+      </ul>
+    </div>
+    <div>
+      <div class="kicker">Что это значит для нас</div>
+      <ul class="clean mt-s">
+        <li><span class="mk">/</span><span>Спека у нас уже центральная идея — SDD-фреймворк формализует то, что мы начали своими форматами.</span></li>
+        <li><span class="mk">/</span><span><b>OpenSpec — кандидат на пробу:</b> немногословный, три странички на ревью. SpecKit — альтернатива.</span></li>
+        <li><span class="mk">/</span><span>Наш флайвил «ошибка → правило» = его «гейты из факапов», только встроенные в pipeline.</span></li>
+        <li><span class="mk">/</span><span>Примерить тиры на наш продукт; определить наши «места ручного чтения».</span></li>
+        <li><span class="mk">/</span><span>Java-петля медленная → моки и быстрые прогоны для нас критичнее вдвойне.</span></li>
+        <li><span class="mk">/</span><span>Скиллы у нас уже есть — следующий уровень: <b>evals</b> (со скилом и без, сравнение).</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 25 · ДОМАШКА + ФИНАЛ ============ -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:30px;">
+      <img src="assets/mark.svg" width="40" height="40" alt="">
+      <span style="font-family:var(--font-display);font-weight:800;letter-spacing:.04em;color:#fff;font-size:16px;"><span style="color:var(--accent-bright)">/</span>AI ASSISTANT</span>
+    </div>
+    <div class="kicker">Сделать до понедельника</div>
+    <h2 style="color:#fff;margin-bottom:24px"><span class="light" style="color:var(--on-dark-2)">Попробуй цикл</span> на маленьком</h2>
+    <div class="grid g3">
+      <div class="eco" style="background:var(--slate);border-color:var(--slate-soft)"><div class="h" style="color:#fff">Tier-3 задача</div><ul><li style="color:var(--on-dark-2)">Внутренний инструмент или отложенная фича — целиком через спеку.</li></ul></div>
+      <div class="eco" style="background:var(--slate);border-color:var(--slate-soft)"><div class="h" style="color:#fff">Код → спека</div><ul><li style="color:var(--on-dark-2)">Сними спеки с одного существующего модуля и добавь фичу уже от спек.</li></ul></div>
+      <div class="eco" style="background:var(--accent);border-color:var(--accent-bright)"><div class="h" style="color:#fff">Прототип в репе</div><ul><li style="color:#fff">То, что давно просили пользователи, — запусти прототипом в отдельной репе.</li></ul></div>
+    </div>
+    <p class="lead mt-l" style="max-width:760px">Вопросы?</p>
+    <div class="mt" style="font-family:var(--font-mono);font-size:12.5px;color:var(--on-dark-3);">
+      По мотивам доклада с AI-конференции · OpenSpec: github.com/Fission-AI/OpenSpec · Spec Kit: github.com/github/spec-kit
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div id="dots"></div>
+<div id="hud"><a href="../index.html" class="back-link">← К списку</a><span class="sep">|</span><span class="logo"><span>/</span>AI ASSISTANT</span><span id="cnt">01 / 25</span></div>
+<div class="navhint">← → · Space · Home/End · F — fullscreen</div>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var n=slides.length, i=0;
+  var bar=document.getElementById('bar'), cnt=document.getElementById('cnt'), dots=document.getElementById('dots');
+  slides.forEach(function(_,k){var b=document.createElement('b');b.onclick=function(){go(k);};dots.appendChild(b);});
+  var dotEls=[].slice.call(dots.children);
+  function pad(x){return (x+1<10?'0':'')+(x+1);}
+  function go(k){
+    i=Math.max(0,Math.min(n-1,k));
+    slides.forEach(function(s,j){s.classList.toggle('active',j===i);});
+    dotEls.forEach(function(d,j){d.classList.toggle('on',j===i);});
+    bar.style.width=((i+1)/n*100)+'%';
+    cnt.textContent=pad(i)+' / '+n;
+    var dark=slides[i].classList.contains('dark');
+    document.getElementById('hud').style.color=dark?'rgba(255,255,255,.55)':'';
+    document.querySelector('#hud .logo').style.color=dark?'#fff':'';
+  }
+  function next(){go(i+1);} function prev(){go(i-1);}
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}
+    else if(e.key==='Home'){go(0);} else if(e.key==='End'){go(n-1);}
+    else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+  });
+  document.addEventListener('click',function(e){
+    if(e.target.closest('#dots')||e.target.closest('#hud'))return;
+    if(e.clientX < window.innerWidth*0.32) prev(); else next();
+  });
+  go(0);
+})();
+</script>
+</body>
+</html>

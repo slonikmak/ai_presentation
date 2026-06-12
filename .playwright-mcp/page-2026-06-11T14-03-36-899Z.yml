@@ -1,0 +1,509 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - text: / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
+    - generic [ref=e4]:
+      - generic [ref=e5]: ДНЕВНИК / РЕФЛЕКСИЯ
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]: / Второй агент читает артефакты снаружи
+          - heading "Рефлексия над рефлексией" [level=2] [ref=e9]
+          - list [ref=e10]:
+            - listitem [ref=e11]:
+              - generic [ref=e12]: /
+              - generic [ref=e13]: "Общий корень регрессий: проверка шла на синтетике. Прикреплять к задаче реальные шаблоны, на которых шла проверка."
+            - listitem [ref=e14]:
+              - generic [ref=e15]: /
+              - generic [ref=e16]: "Фикстуры кодируют допущения агента: тесты строить от runtime-данных, не от воображаемых примеров."
+            - listitem [ref=e17]:
+              - generic [ref=e18]: /
+              - generic [ref=e19]: "Фикс нарушил spec — spec не догнал: обновлять спеку в том же цикле, что и код."
+            - listitem [ref=e20]:
+              - generic [ref=e21]: /
+              - generic [ref=e22]: "Рефлексии не должны умирать в скобках: по каждой — скилл / инструкция / отбросить."
+            - listitem [ref=e23]:
+              - generic [ref=e24]: /
+              - generic [ref=e25]: "Успех документировать как провал: эталонные снимки в task folder, а не «вроде ок»."
+          - paragraph [ref=e26]: "Изнутри сессии видны тактические улучшения; системное — видно со стороны. Этот шаг дешёвый: второй агент, готовые артефакты. Справа — дневник, раздел 13."
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e30]: docs/diary/agent-session-diary.md · раздел 13
+            - generic [ref=e31]: артефакт сессии
+          - generic [ref=e33]:
+            - 'heading "Дневник одной агентской сессии: ES-3772" [level=1] [ref=e34]'
+            - paragraph [ref=e35]: Ниже черновик в формате "дневник сессии". Я пишу от первого лица агента, но оставляю человека как активного участника, потому что именно в таких сессиях хорошо видно, что агентская разработка не автономная магия, а итеративная связка "человек + инструменты + репозиторий + проверки".
+            - heading "/ 1. Входная точка" [level=2] [ref=e36]
+            - paragraph [ref=e37]: "Пользователь пришел с задачей:"
+            - blockquote [ref=e38]:
+              - paragraph [ref=e39]:
+                - text: Загрузи issue
+                - code [ref=e40]: ES-3772
+                - text: ", изучи и предложи вариант реализации. Эта фича связана с"
+                - code [ref=e41]: .tasks/es-2676-pdf-template-ability-to-increase-space-between-c
+            - paragraph [ref=e42]: "Я начал не с кода. Сначала мне нужно было понять контекст: что за Jira issue, что уже известно по связанной задаче, и где в репозитории живет PDF export pipeline."
+            - paragraph [ref=e43]:
+              - text: Я активировал скилл
+              - code [ref=e44]: jira-issue
+              - text: ", потому что пользователь дал ссылку на Jira. Это важный момент: я не стал вручную пересказывать URL или гадать по названию, а использовал уже существующий локальный рабочий процесс для загрузки issue. Параллельно я прочитал старые task-документы по"
+              - code [ref=e45]: ES-2676
+              - text: .
+            - paragraph [ref=e46]:
+              - text: "Из старой задачи быстро стало ясно:"
+              - code [ref=e47]: ES-2676
+              - text: "была про spacing между номером главы и заголовком в теле PDF и running headers. Там уже был важный архитектурный вывод: номер и title нельзя оставлять одной строкой, их нужно разделять в DOM, чтобы CSS мог управлять spacing."
+            - paragraph [ref=e48]:
+              - text: Но
+              - code [ref=e49]: ES-3772
+              - text: "оказалась другой поверхностью. Формулировка Jira говорила:"
+            - blockquote [ref=e50]:
+              - paragraph [ref=e51]: "Add the ability to control space between the heading chapter number and title in:"
+            - blockquote [ref=e52]:
+              - paragraph [ref=e53]:
+                - code [ref=e54]: styles_toc.css
+                - text: ","
+                - code [ref=e55]: styles_tof.css
+                - text: ","
+                - code [ref=e56]: styles_tot.css
+            - paragraph [ref=e57]: "То есть задача не про body headings, а про generated outline pages: Table of Contents, Table of Figures, Table of Tables."
+            - paragraph [ref=e58]:
+              - text: "[Саморефлексия: здесь хорошо сработала связка Jira +"
+              - code [ref=e59]: .tasks
+              - text: . Без старой задачи можно было бы начать менять не тот слой пайплайна.]
+            - heading "/ 2. Исследование пайплайна" [level=2] [ref=e60]
+            - paragraph [ref=e61]: "Я пошел смотреть код PDF export. Ключевой файл оказался:"
+            - paragraph [ref=e62]:
+              - code [ref=e63]: dev_setup/docker/processing-app/html_to_pdf_convert_with_weasyprint.py
+            - paragraph [ref=e64]:
+              - text: В нем есть генерация ToC/ToF/ToT через
+              - code [ref=e65]: generateOutlineStr(...)
+              - text: . Эта функция берет
+              - code [ref=e66]: page.bookmarks
+              - text: из WeasyPrint и подставляет один плоский
+              - code [ref=e67]: linkText
+              - text: "в HTML templates:"
+            - code [ref=e69]: "%(indent)s%(linkText)s"
+            - paragraph [ref=e70]:
+              - text: Это и было ядро проблемы. Даже если Pandoc или body HTML где-то содержит отдельный
+              - code [ref=e71]: span.header-section-number
+              - text: ", ToC/ToF/ToT строятся позже, уже из bookmark labels. На этой стадии number/title снова превращались в одну строку."
+            - paragraph [ref=e72]: "Я прочитал шаблоны:"
+            - list [ref=e73]:
+              - listitem [ref=e74]:
+                - code [ref=e75]: toc_template.html
+              - listitem [ref=e76]:
+                - code [ref=e77]: tof_template.html
+              - listitem [ref=e78]:
+                - code [ref=e79]: tot_template.html
+            - paragraph [ref=e80]: "И соответствующие CSS:"
+            - list [ref=e81]:
+              - listitem [ref=e82]:
+                - code [ref=e83]: styles_toc.css
+              - listitem [ref=e84]:
+                - code [ref=e85]: styles_tof.css
+              - listitem [ref=e86]:
+                - code [ref=e87]: styles_tot.css
+            - paragraph [ref=e88]: Везде был один текстовый placeholder. Значит template author физически не мог настроить spacing между номером и текстом отдельно, потому что в DOM не было двух элементов.
+            - paragraph [ref=e89]:
+              - text: "[Саморефлексия: это хороший пример, почему агенту нужно смотреть реальный runtime path, а не только \"логически похожий\" код. Старый фикс для"
+              - code [ref=e90]: h1
+              - text: уже существовал, но ToC генерировался другим путем.]
+            - heading "/ 3. Проектирование через локальные документы" [level=2] [ref=e91]
+            - paragraph [ref=e92]: "Пользователь сказал:"
+            - blockquote [ref=e93]:
+              - paragraph [ref=e94]: Да, сделай локальные документы и реализуй
+            - paragraph [ref=e95]:
+              - text: Я использовал скиллы
+              - code [ref=e96]: implementation-spec
+              - text: и
+              - code [ref=e97]: implementation-plan
+              - text: . В этом репозитории есть привычка фиксировать задачу в
+              - code [ref=e98]: .tasks
+              - text: ", поэтому я создал локальную папку:"
+            - paragraph [ref=e99]:
+              - code [ref=e100]: .tasks/es-3772-pdf-template-ability-to-increase-space-between-c-in-toc/
+            - paragraph [ref=e101]: "Туда легли:"
+            - list [ref=e102]:
+              - listitem [ref=e103]:
+                - code [ref=e104]: task.md
+              - listitem [ref=e105]:
+                - code [ref=e106]: implementation-spec.md
+              - listitem [ref=e107]:
+                - code [ref=e108]: implementation-plan.md
+            - paragraph [ref=e109]: "В spec я зафиксировал главную архитектурную идею:"
+            - paragraph [ref=e110]:
+              - text: PDF ToX generation должен передавать в шаблоны не только
+              - code [ref=e111]: linkText
+              - text: ", а структурированные placeholders:"
+            - list [ref=e112]:
+              - listitem [ref=e113]:
+                - code [ref=e114]: numberHtml
+              - listitem [ref=e115]:
+                - code [ref=e116]: titleHtml
+            - paragraph [ref=e117]: "Для ToC split должен работать по heading number:"
+            - code [ref=e119]: 1 Introduction 1.2 Context
+            - paragraph [ref=e120]: "Для ToF:"
+            - code [ref=e122]: "Figure 1: Diagram caption"
+            - paragraph [ref=e123]: "Для ToT:"
+            - code [ref=e125]: "Table 1: Mapping caption"
+            - paragraph [ref=e126]: "План был простой: сначала тесты, потом runtime helper, потом шаблоны и CSS."
+            - paragraph [ref=e127]: "[Саморефлексия: documentation-first здесь не бюрократия. Это помогло удержать границы задачи: не менять API, не менять storage, не трогать HTML/DOCX export.]"
+            - heading "/ 4. Реализация и первый зеленый тест" [level=2] [ref=e128]
+            - paragraph [ref=e129]: Перед production-кодом я добавил Python unit tests в существующий test-файл для processing script.
+            - paragraph [ref=e130]: "Тесты проверяли:"
+            - list [ref=e131]:
+              - listitem [ref=e132]:
+                - code [ref=e133]: 1.2 Introduction and Scope
+                - text: split на
+                - code [ref=e134]: "1.2"
+                - text: и
+                - code [ref=e135]: Introduction and Scope
+              - listitem [ref=e136]:
+                - code [ref=e137]: "Figure 4: Message flow"
+                - text: split на
+                - code [ref=e138]: "Figure 4:"
+                - text: и
+                - code [ref=e139]: Message flow
+              - listitem [ref=e140]:
+                - code [ref=e141]: Table 7 Message fields
+                - text: split на
+                - code [ref=e142]: Table 7
+                - text: и
+                - code [ref=e143]: Message fields
+              - listitem [ref=e144]: unsupported value остается без split
+              - listitem [ref=e145]: generated outline HTML содержит отдельные spans
+            - paragraph [ref=e146]:
+              - text: "Сначала тесты упали ожидаемо: helper"
+              - code [ref=e147]: split_outline_title
+              - text: еще не существовал.
+            - paragraph [ref=e148]: "Потом я добавил реализацию:"
+            - list [ref=e149]:
+              - listitem [ref=e150]:
+                - code [ref=e151]: split_outline_title(...)
+              - listitem [ref=e152]:
+                - code [ref=e153]: split_caption_outline_title(...)
+              - listitem [ref=e154]:
+                - code [ref=e155]: build_outline_number_html(...)
+              - listitem [ref=e156]:
+                - code [ref=e157]: build_outline_title_html(...)
+              - listitem [ref=e158]: class-name helpers для ToC/ToF/ToT
+            - paragraph [ref=e159]: После этого тесты прошли.
+            - paragraph [ref=e160]: "Дальше я обновил templates:"
+            - code [ref=e162]: "%(indent)s%(numberHtml)s%(titleHtml)s"
+            - paragraph [ref=e163]: "И CSS добавил selectors вроде:"
+            - code [ref=e165]: ".book-toc-item-title .toc-section-number { display: inline; margin-right: 0.45em; } .book-toc-item-title .toc-section-title { display: inline; }"
+            - paragraph [ref=e166]: То же самое для ToF и ToT.
+            - paragraph [ref=e167]: "[Саморефлексия: тут можно было бы иметь генератор \"template contract test\", который автоматически проверяет, что все default templates используют новые placeholders.]"
+            - heading "/ 5. Первый ручной export и задача для QA" [level=2] [ref=e168]
+            - paragraph [ref=e169]:
+              - text: Мы решили проверить через
+              - code [ref=e170]: export-debug-snapshot
+              - text: . Для этого я использовал скилл
+              - code [ref=e171]: export-debug-wsl
+              - text: .
+            - paragraph [ref=e172]: "Я синхронизировал processing scripts в WSL:"
+            - code [ref=e174]: /conversion_utils/html_markup_processing.py /conversion_utils/html_to_pdf_convert_with_weasyprint.py
+            - paragraph [ref=e175]: "Потом подготовил минимальный markdown-документ для проверки всех трех поверхностей:"
+            - list [ref=e176]:
+              - listitem [ref=e177]:
+                - text: несколько
+                - code [ref=e178]: "#"
+                - text: и
+                - code [ref=e179]: "##"
+                - text: headings для ToC
+              - listitem [ref=e180]: таблица с caption для ToT
+              - listitem [ref=e181]: PlantUML или image с caption для ToF
+            - paragraph [ref=e182]:
+              - text: Я также сделал шаблон в
+              - code [ref=e183]: .tasks/.../template
+              - text: ", где для первого кейса ToC gap был увеличен:"
+            - code [ref=e185]: ".toc-section-number { margin-right: 1.2em; }"
+            - paragraph [ref=e186]: "Пользователь прогнал export и сказал:"
+            - blockquote [ref=e187]:
+              - paragraph [ref=e188]: первый экспорт прошел
+            - paragraph [ref=e189]: "Потом:"
+            - blockquote [ref=e190]:
+              - paragraph [ref=e191]: pdf выглядит хорошо. проверь последний снапшот
+            - paragraph [ref=e192]: "Я проверил snapshot. В workspace действительно были:"
+            - list [ref=e193]:
+              - listitem [ref=e194]:
+                - code [ref=e195]: styles_toc.css
+                - text: с
+                - code [ref=e196]: "margin-right: 1.2em"
+              - listitem [ref=e197]:
+                - code [ref=e198]: toc_template.html
+                - text: с
+                - code [ref=e199]: "%(numberHtml)s%(titleHtml)s"
+            - paragraph [ref=e200]: Первый positive case был подтвержден.
+            - paragraph [ref=e201]: "[Саморефлексия: export-debug snapshot - очень сильная техника. Он позволяет проверить не только \"PDF выглядит хорошо\", но и что именно попало в runtime workspace.]"
+            - 'heading "/ 6. Backward compatibility: первая пойманная регрессия" [level=2] [ref=e202]'
+            - paragraph [ref=e203]: "Пользователь заметил важную вещь:"
+            - blockquote [ref=e204]:
+              - paragraph [ref=e205]: сейчас в toc если не задать стили то номер сливается с текстом. Это ломает старые шаблоны пользователей.
+            - paragraph [ref=e206]: Это был правильный product-level риск. Новая DOM-структура сама по себе не гарантировала spacing, если старый пользовательский CSS не знает про новые selectors.
+            - paragraph [ref=e207]: "Я добавил fallback: если split произошел, title fragment должен начинаться с separator. Сначала я поставил обычный пробел:"
+            - code [ref=e209]: <span class="toc-section-title"> Introduction</span>
+            - paragraph [ref=e210]: Тесты прошли, но позже реальный PDF показал, что этого недостаточно. HTML/CSS rendering может схлопнуть обычный пробел.
+            - paragraph [ref=e211]:
+              - text: Тогда я заменил fallback на
+              - code [ref=e212]: "&nbsp;"
+              - text: ":"
+            - code [ref=e214]: <span class="toc-section-title">&nbsp;Introduction</span>
+            - paragraph [ref=e215]: И обновил тесты.
+            - paragraph [ref=e216]: "[Саморефлексия: тут важный урок для агентской разработки: unit test может подтвердить строку, но browser/PDF renderer может вести себя иначе. Для layout-регрессий нужен runtime/snapshot feedback.]"
+            - heading "/ 7. Второй кейс и regression template" [level=2] [ref=e217]
+            - paragraph [ref=e218]: "Пользователь попросил проверить второй кейс. Сначала я неправильно понял и усилил ToF positive case:"
+            - code [ref=e220]: ".tof-item-number { margin-right: 1.2em; }"
+            - paragraph [ref=e221]: "Пользователь уточнил:"
+            - blockquote [ref=e222]:
+              - paragraph [ref=e223]: Но я имел ввиду проверить регрессию если свойств нет
+            - paragraph [ref=e224]: Это поменяло задачу. Нужно было не увеличить spacing, а симулировать старый пользовательский шаблон, где новых selectors вообще нет.
+            - paragraph [ref=e225]: "Я сделал отдельный regression-template:"
+            - paragraph [ref=e226]:
+              - code [ref=e227]: template-regression-no-tof-properties
+            - paragraph [ref=e228]:
+              - text: В нем удалил из
+              - code [ref=e229]: styles_tof.css
+              - text: "новые selectors:"
+            - list [ref=e230]:
+              - listitem [ref=e231]:
+                - code [ref=e232]: .tof-item-number
+              - listitem [ref=e233]:
+                - code [ref=e234]: .tof-item-title
+            - paragraph [ref=e235]: И оставил runtime fallback как единственный механизм разделения.
+            - paragraph [ref=e236]: "[Саморефлексия: здесь можно было бы иметь отдельный skill \"make regression template\", который создает копию template bundle и удаляет заданные selectors для backward compatibility проверки.]"
+            - 'heading "/ 8. Вторая пойманная регрессия: WeasyPrint bookmark без пробела" [level=2] [ref=e237]'
+            - paragraph [ref=e238]: "Пользователь прислал screenshot:"
+            - blockquote [ref=e239]:
+              - paragraph [ref=e240]:
+                - text: "Снова плохо. Выглядит так:"
+                - code [ref=e241]: 1Minimal Export-Debug Document For ES-3772
+            - paragraph [ref=e242]:
+              - text: На первый взгляд это выглядело так, будто
+              - code [ref=e243]: "&nbsp;"
+              - text: "fallback не сработал. Я проверил snapshot:"
+            - list [ref=e244]:
+              - listitem [ref=e245]:
+                - code [ref=e246]: styles_toc.css
+                - text: был правильный
+              - listitem [ref=e247]:
+                - code [ref=e248]: toc_template.html
+                - text: был правильный
+              - listitem [ref=e249]:
+                - code [ref=e250]: /conversion_utils/html_to_pdf_convert_with_weasyprint.py
+                - text: уже содержал
+                - code [ref=e251]: "&nbsp;"
+            - paragraph [ref=e252]: Значит проблема была глубже.
+            - paragraph [ref=e253]: "Я сделал replay snapshot pipeline в WSL и вывел фактический generated ToC HTML. Там обнаружилось:"
+            - code [ref=e255]: <span class='toc-section-title'>1Minimal Export-Debug Document For ES-3772</span>
+            - paragraph [ref=e256]: То есть split вообще не сработал для top-level headings.
+            - paragraph [ref=e257]:
+              - text: "Причина: WeasyPrint bookmark для"
+              - code [ref=e258]: h1
+              - text: "отдавал не:"
+            - code [ref=e260]: 1 Minimal Export-Debug Document
+            - paragraph [ref=e261]: "а:"
+            - code [ref=e263]: 1Minimal Export-Debug Document
+            - paragraph [ref=e264]:
+              - text: А мой parser ждал пробел после номера. Для
+              - code [ref=e265]: h2
+              - text: он работал, потому что там было
+              - code [ref=e266]: 1.1 Recommended Markdown
+              - text: ", а для"
+              - code [ref=e267]: h1
+              - text: нет.
+            - paragraph [ref=e268]: "Я добавил тест:"
+            - code [ref=e270]: 2Introduction and Scope
+            - paragraph [ref=e271]: "И изменил ToC split так, чтобы он поддерживал обе формы:"
+            - list [ref=e272]:
+              - listitem [ref=e273]:
+                - code [ref=e274]: 1 Introduction
+              - listitem [ref=e275]:
+                - code [ref=e276]: 1Introduction
+              - listitem [ref=e277]:
+                - code [ref=e278]: 1.2 Introduction
+            - paragraph [ref=e279]: "После этого тесты снова прошли, скрипт был залит в WSL, пользователь сделал новый export и сказал:"
+            - blockquote [ref=e280]:
+              - paragraph [ref=e281]: готово. выглядит хорошо
+            - paragraph [ref=e282]: "[Саморефлексия: это самый важный момент кейса. Агент не должен \"доказывать\", что код правильный, если PDF показывает обратное. Нужно дойти до фактического HTML, который попал в renderer.]"
+            - heading "/ 9. Отчет для QA" [level=2] [ref=e283]
+            - paragraph [ref=e284]: "Пользователь попросил:"
+            - blockquote [ref=e285]:
+              - paragraph [ref=e286]: Мне нужен отчет для команды тестирования о том что и как проверить, какой теперь эффект ожидается
+            - paragraph [ref=e287]:
+              - text: Я создал
+              - code [ref=e288]: testing-report.md
+              - text: "в task folder. В нем описал:"
+            - list [ref=e289]:
+              - listitem [ref=e290]: что изменилось функционально
+              - listitem [ref=e291]: positive behavior
+              - listitem [ref=e292]: regression-safe behavior
+              - listitem [ref=e293]: какие template variants проверить
+              - listitem [ref=e294]: какие outputs считаются правильными
+              - listitem [ref=e295]: какие outputs считаются регрессией
+            - paragraph [ref=e296]: Потом пользователь попросил короткий Jira comment без ссылок на локальные файлы. Я подготовил текст для Jira.
+            - paragraph [ref=e297]: "Основные acceptance criteria:"
+            - list [ref=e298]:
+              - listitem [ref=e299]: styled templates visibly increase spacing
+              - listitem [ref=e300]: old templates without new properties still produce readable output
+              - listitem [ref=e301]: no ToC/ToF/ToT entry merges number/prefix with title text
+            - paragraph [ref=e302]:
+              - text: "[Саморефлексия: генерация QA-коммента из task-local testing report - хороший кандидат на автоматизацию. Можно сделать skill, который берет"
+              - code [ref=e303]: implementation-spec
+              - text: ","
+              - code [ref=e304]: testing-report
+              - text: ", git diff и выдает Jira-ready comment.]"
+            - heading "/ 10. Commit и push" [level=2] [ref=e305]
+            - paragraph [ref=e306]: "В конце пользователь сказал:"
+            - blockquote [ref=e307]:
+              - paragraph [ref=e308]:
+                - text: Теперь коммит с коротким сообщением, начинающимся с
+                - code [ref=e309]: "[task-id]"
+                - text: и пуш
+            - paragraph [ref=e310]:
+              - text: Я проверил
+              - code [ref=e311]: git status
+              - text: ". В рабочем дереве были посторонние изменения:"
+            - list [ref=e312]:
+              - listitem [ref=e313]:
+                - code [ref=e314]: DictionaryStorageTest.kt
+              - listitem [ref=e315]:
+                - code [ref=e316]: agents-workflow/
+            - paragraph [ref=e317]: "Я не стал их трогать. В commit попали только файлы, относящиеся к ES-3772:"
+            - list [ref=e318]:
+              - listitem [ref=e319]: Python processing script
+              - listitem [ref=e320]: Python regression tests
+              - listitem [ref=e321]: default PDF ToC/ToF/ToT templates
+              - listitem [ref=e322]: default PDF ToC/ToF/ToT CSS
+            - paragraph [ref=e323]: "Commit:"
+            - code [ref=e325]: "[ES-3772] Fix PDF ToX spacing"
+            - paragraph [ref=e326]: "Hash:"
+            - code [ref=e328]: 6b8b91806
+            - paragraph [ref=e329]: "Push ушел в:"
+            - code [ref=e331]: origin/development
+            - paragraph [ref=e332]: "[Саморефлексия: dirty worktree - нормальное состояние реальной разработки. Агент должен уметь коммитить только свой scope, не \"убирая\" чужие изменения.]"
+            - 'heading "/ 11. QA issue после push: старый %(linkText)s" [level=2] [ref=e333]':
+              - text: "/ 11. QA issue после push: старый"
+              - code [ref=e334]: "%(linkText)s"
+            - paragraph [ref=e335]: "После push работа не закончилась. Пользователь вернулся с новым QA-сценарием:"
+            - blockquote [ref=e336]:
+              - paragraph [ref=e337]:
+                - text: Я загрузил кастомный шаблон с qa
+                - code [ref=e338]: .tasks/es-3772-pdf-template-ability-to-increase-space-between-c-in-toc/PDF-Template-NASDAQ-20260430 - SGX Iris-ST (1)
+                - text: "и сделал экспорт. Результат: текст toc снова слит"
+                - code [ref=e339]: 1Minimal Export-Debug Document For ES-3772
+                - text: .
+            - paragraph [ref=e340]:
+              - text: На этот раз проблема была не в default template и не в
+              - code [ref=e341]: numberHtml/titleHtml
+              - text: . Я снова пошел через
+              - code [ref=e342]: systematic-debugging
+              - text: и
+              - code [ref=e343]: export-debug-wsl
+              - text: ": сначала проверил свежий snapshot, потом сам QA template."
+            - paragraph [ref=e344]:
+              - text: Ключевая находка была в
+              - code [ref=e345]: toc_template.html
+              - text: "кастомного NASDAQ-шаблона:"
+            - code [ref=e347]: "%(indent)s%(linkText)s"
+            - paragraph [ref=e348]: "Это был старый template contract. Он вообще не использовал новые placeholders:"
+            - code [ref=e350]: "%(numberHtml)s%(titleHtml)s"
+            - paragraph [ref=e351]:
+              - text: Значит наш предыдущий fallback внутри
+              - code [ref=e352]: titleHtml
+              - text: "не мог помочь: старый шаблон обходил новый DOM-контракт полностью и продолжал получать legacy"
+              - code [ref=e353]: linkText
+              - text: .
+            - paragraph [ref=e354]: "Я добавил регрессионный тест ровно на этот сценарий:"
+            - code [ref=e356]: template = "<li><a href='%(refAddr)s'>%(linkText)s</a></li>" bookmark = "1Introduction" expected = "1&nbsp;Introduction"
+            - paragraph [ref=e357]: "Тест сначала упал:"
+            - code [ref=e359]: "AssertionError: '>1&nbsp;Introduction</a>' not found in \"<li><a href='#intro'>1Introduction</a></li>\""
+            - paragraph [ref=e360]: "Это было хорошее падение: оно точно воспроизводило QA issue."
+            - paragraph [ref=e361]:
+              - text: После этого я изменил
+              - code [ref=e362]: generateOutlineStr(...)
+              - text: ": legacy"
+              - code [ref=e363]: linkText
+              - text: "теперь тоже строится через тот же split, что и новый structured output. Для старых шаблонов это означает:"
+            - code [ref=e365]: 1&nbsp;Minimal Export-Debug Document For ES-3772
+            - paragraph [ref=e366]: "А для новых шаблонов по-прежнему доступны отдельные:"
+            - code [ref=e368]: numberHtml titleHtml
+            - paragraph [ref=e369]: "Я прогнал Python tests:"
+            - code [ref=e371]: Ran 9 tests ... OK
+            - paragraph [ref=e372]:
+              - text: Потом синхронизировал исправленный processing script в WSL
+              - code [ref=e373]: /conversion_utils
+              - text: "и сделал replay последнего QA snapshot. Replay показал фактический HTML:"
+            - code [ref=e375]: 1&nbsp;Minimal Export-Debug Document For ES-3772
+            - paragraph [ref=e376]: "После ручного экспорта пользователь подтвердил:"
+            - blockquote [ref=e377]:
+              - paragraph [ref=e378]: вроде ок
+            - paragraph [ref=e379]: "Я сделал второй scoped commit:"
+            - code [ref=e381]: "[ES-3772] Preserve legacy ToC spacing"
+            - paragraph [ref=e382]: "Hash:"
+            - code [ref=e384]: d4c77cb57
+            - paragraph [ref=e385]:
+              - text: И запушил его в
+              - code [ref=e386]: origin/development
+              - text: .
+            - paragraph [ref=e387]: "[Саморефлексия: первая версия backward compatibility покрывала \"старый CSS с новым template\", но не \"старый template с legacy placeholder\". Это полезное различие: совместимость нужно проверять не только на уровне CSS-свойств, но и на уровне template placeholders.]"
+            - heading "/ 12. Что эта сессия показывает про агентскую разработку" [level=2] [ref=e388]
+            - paragraph [ref=e389]: Это был не линейный сценарий "получил задачу - написал код - готово".
+            - paragraph [ref=e390]: "Было несколько циклов:"
+            - list [ref=e391]:
+              - listitem [ref=e392]: Jira и старая task-документация помогли быстро определить домен.
+              - listitem [ref=e393]: Код показал, что настоящая точка изменения не там, где похожая старая задача.
+              - listitem [ref=e394]: Implementation spec и plan зафиксировали границы.
+              - listitem [ref=e395]: Unit tests поймали базовую логику split.
+              - listitem [ref=e396]: Export-debug snapshot проверил реальный runtime.
+              - listitem [ref=e397]: Пользовательская визуальная проверка поймала backward compatibility проблему.
+              - listitem [ref=e398]: Replay snapshot в WSL показал фактический generated HTML.
+              - listitem [ref=e399]: Второй фикс учел особенность WeasyPrint bookmark labels.
+              - listitem [ref=e400]: QA report и Jira comment превратили техническую работу в проверяемый процесс.
+              - listitem [ref=e401]: Первый commit был scoped, с учетом грязного рабочего дерева.
+              - listitem [ref=e402]:
+                - text: "QA template после push показал еще один compatibility gap: старый"
+                - code [ref=e403]: "%(linkText)s"
+                - text: .
+              - listitem [ref=e404]: Новый regression test закрепил старый template contract, а второй commit закрыл этот сценарий.
+            - paragraph [ref=e405]: "Главный вывод: агентская разработка сильна не потому, что агент \"сам все сделал\", а потому что он может удерживать много контекста одновременно: Jira, локальные docs, code path, тесты, WSL tooling, export snapshots, пользовательскую обратную связь и git hygiene."
+            - paragraph [ref=e406]: Но качество появилось только там, где были проверки. Визуальная обратная связь пользователя была такой же важной частью системы, как unit tests и snapshot replay.
+            - 'heading "/ 13. Внешняя рефлексия: взгляд второго агента" [level=2] [ref=e407]'
+            - paragraph [ref=e408]: Этот раздел написан другим агентом, который не участвовал в сессии, а читал ее артефакты снаружи. Саморефлексия внутри сессии видит тактические улучшения; некоторые системные вещи видны только при взгляде со стороны. Все наблюдения ниже — про улучшение связки "человек + агент", и каждое сформулировано так, чтобы его можно было превратить в скилл или инструкцию.
+            - heading "У двух регрессий общий корень" [level=3] [ref=e409]
+            - paragraph [ref=e410]:
+              - text: "\"Старый CSS без новых селекторов\" и \"старый шаблон с"
+              - code [ref=e411]: "%(linkText)s"
+              - text: "\" — один класс ошибки: compatibility contract в спеке был сформулирован абстрактно (\"existing templates must still export successfully\"), но проверка шла на синтетических шаблонах, которые агент сделал сам. Обе регрессии — варианты легаси, которых не было в проверочном наборе."
+            - paragraph [ref=e412]: "Улучшение процесса: к задаче, затрагивающей пользовательские шаблоны, прикреплять реальные шаблоны, на которых проходила проверка, — как артефакт в task folder. Тогда regression-проверка идет не по придуманным агентом вариантам, а по фактическим. QA-инцидент после push был бы пойман локально."
+            - paragraph [ref=e413]: "Кандидат в инструкцию: перед push template-facing изменения прогнать проверку на реальных шаблонах, приложенных к задаче."
+            - heading "Фикстуры, придуманные агентом, кодируют допущения агента" [level=3] [ref=e414]
+            - paragraph [ref=e415]:
+              - text: Парсер ждал пробел после номера, потому что тестовые примеры (
+              - code [ref=e416]: 1 Introduction
+              - text: ","
+              - code [ref=e417]: 1.2 Context
+              - text: ) агент написал сам. WeasyPrint отдавал
+              - code [ref=e418]: 1Minimal
+              - text: — это вскрылось только через replay.
+            - paragraph [ref=e419]: "Кандидат в инструкцию: перед написанием parsing/split-тестов снять реальные runtime-данные (в этом случае — фактические bookmark labels из одного снапшота) и строить тесты от них, а не от воображаемых примеров."
+            - heading "Финальный фикс нарушил собственный spec, и spec не обновили" [level=3] [ref=e420]
+            - paragraph [ref=e421]:
+              - text: "В Validation Contract написано: \"spacing must be controlled by DOM structure and CSS, not by hard-coded literal spaces\". Итоговый fallback — ровно hard-coded"
+              - code [ref=e422]: "&nbsp;"
+              - text: в строке. Решение правильное, реальность заставила — но spec теперь врет следующему читателю. Documentation-first работает, только если документы догоняют отклонения.
+            - paragraph [ref=e423]: "Кандидат в инструкцию: если реализация отклонилась от контракта в spec — обновить spec в том же цикле, что и код."
+            - heading "Саморефлексии не должны умирать в квадратных скобках" [level=3] [ref=e424]
+            - paragraph [ref=e425]: Агент сгенерировал десять наблюдений и несколько идей скиллов — но они остались текстом внутри дневника. Цикл "сессия -> рефлексия -> новый скилл -> следующая сессия дешевле" замыкается, только если есть шаг превращения рефлексий в скиллы или инструкции.
+            - paragraph [ref=e426]: "Улучшение процесса: после сессии собирать блоки саморефлексии и явно решать по каждому — становится скиллом, становится инструкцией или отбрасывается. Хорошо, если агент сам предлагает такие улучшения по итогам рефлексии."
+            - heading "Успех не задокументирован так же, как провал" [level=3] [ref=e427]
+            - paragraph [ref=e428]: В артефактах есть скриншот сломанного ToC, но нет эталонного скриншота правильного результата. QA получил описание словами ("clearly increased gap"). Финальное "вроде ок" от человека — самое слабое подтверждение во всей сессии, контрастирующее со строгостью остальных проверок.
+            - paragraph [ref=e429]: "Кандидат в инструкцию: при визуальных проверках сохранять в task folder не только провальные, но и эталонные снимки — отчет для QA тогда становится сравнением с эталоном."
+            - heading "Вывод второго уровня" [level=3] [ref=e430]
+            - paragraph [ref=e431]: "Агент внутри сессии видит, где не хватило скилла. Снаружи видно другое: где проверочный набор был синтетическим, где документы разошлись с кодом, куда деваются сами рефлексии. Поэтому рефлексия над сессией — тоже часть процесса \"человек + агент\": она дешевая, делается другим агентом по готовым артефактам и возвращает улучшения в скиллы и инструкции."
+          - generic [ref=e432]: оригинал без купюр · скролл внутри панели
+    - text: / / / / / / / / / / / / / / /
+  - generic [ref=e458]:
+    - generic [ref=e459]:
+      - generic [ref=e460]: /
+      - text: AI ASSISTANT
+    - generic [ref=e461]: 22 / 24
+  - generic [ref=e462]: ← → · Space · Home/End · F — fullscreen · артефакты скроллятся

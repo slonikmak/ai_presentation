@@ -1,0 +1,32 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;background:var(--bg);}
+  .wrap{padding:28px 32px;display:flex;flex-direction:column;gap:18px;}
+  .grp{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .btn{font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;padding:13px 22px;border-radius:var(--r-xs);border:1px solid transparent;cursor:pointer;line-height:1;}
+  .primary{background:var(--accent);color:#fff;}
+  .primary-h{background:var(--accent-deep);color:#fff;}
+  .slate{background:var(--slate);color:#fff;}
+  .ghost{background:transparent;color:var(--accent);border-color:var(--accent);}
+  .lbl{font-family:var(--font-mono);font-size:10px;color:var(--slate-mut);text-transform:uppercase;letter-spacing:.08em;min-width:62px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="grp"><span class="lbl">default</span>
+    <button class="btn primary">Run the demo</button>
+    <button class="btn slate">See the workflow</button>
+    <button class="btn ghost">Open playbook</button>
+  </div>
+  <div class="grp"><span class="lbl">hover</span>
+    <button class="btn primary-h">Run the demo</button>
+    <button class="btn ghost" style="background:var(--accent);color:#fff">Open playbook</button>
+  </div>
+</div>
+</body>
+</html>

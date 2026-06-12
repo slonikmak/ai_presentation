@@ -1,0 +1,35 @@
+<!-- @dsCard group="Brand" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;background:var(--bg);}
+  .wrap{display:flex;gap:0;}
+  .panel{flex:1;height:150px;position:relative;overflow:hidden;}
+  .slate{background:var(--slate-deep);}
+  .light{background:var(--bg-soft);border-left:1px solid var(--line-1);border-right:1px solid var(--line-1);}
+  .blocks{display:flex;}
+  /* big translucent slash parallelogram */
+  .slash::before{content:"";position:absolute;top:-30%;left:30%;width:90px;height:200%;background:var(--slash-fill);transform:skewX(-20deg);}
+  .slash::after{content:"";position:absolute;top:-30%;left:48%;width:30px;height:200%;background:rgba(255,255,255,0.08);transform:skewX(-20deg);}
+  .lslash::before{content:"";position:absolute;top:-30%;left:32%;width:100px;height:200%;background:var(--slash-fill-dark);transform:skewX(-20deg);}
+  .cap{position:absolute;left:14px;bottom:12px;font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;}
+  .cap.w{color:rgba(255,255,255,.6);}
+  .cap.d{color:var(--slate-mut);}
+  .bk{flex:1;height:150px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="panel slate slash"><span class="cap w">slash on slate</span></div>
+  <div class="panel light lslash"><span class="cap d">slash on light</span></div>
+  <div class="panel blocks">
+    <div class="bk" style="background:var(--accent)"></div>
+    <div class="bk" style="background:var(--slate)"></div>
+    <div class="bk" style="background:var(--bg-soft)"></div>
+  </div>
+</div>
+</body>
+</html>

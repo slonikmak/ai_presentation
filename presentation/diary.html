@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Дневник одной агентской сессии — /AI ASSISTANT</title>
+<!-- Дополнительная презентация к докладу «AI-агенты как ежедневный инструмент команды».
+     Разбор реальной агентской сессии ES-3772 по артефактам из docs/diary/.
+     Артефакты зашиты инлайн в <script type="text/plain"> и рендерятся в скролл-панелях (сплит-слайды).
+     FONT NOTE: Hanken Grotesk (бренд) не покрывает кириллицу — подставлен Manrope + JetBrains Mono. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font-display:'Manrope',system-ui,-apple-system,sans-serif;
+  --font-body:'Manrope',system-ui,-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --bg:#FFFFFF; --bg-soft:#F4F5F7; --bg-tint:#EDEFF2; --bg-line:#E3E6EA;
+  --slate-deep:#2B3340; --slate:#3D4757; --slate-soft:#5C6675; --slate-mut:#8A93A1; --slate-faint:#C3C9D1;
+  --accent:#E6006B; --accent-deep:#C2005A; --accent-bright:#FF2D8B; --accent-tint:#FDE6F0;
+  --blue:#1F7FD6; --teal:#149E91; --amber:#E8920C;
+  --on-dark-1:#FFFFFF; --on-dark-2:rgba(255,255,255,0.78); --on-dark-3:rgba(255,255,255,0.55);
+  --line-1:var(--bg-line); --line-2:#D5D9DF;
+  --r-xs:2px; --r-sm:3px; --r-md:4px;
+  --shadow-sm:0 1px 2px rgba(43,51,64,0.06);
+  --shadow-md:0 6px 20px rgba(43,51,64,0.10);
+  --shadow-lg:0 18px 50px rgba(43,51,64,0.16);
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+  --slash-fill-dark:rgba(43,51,64,0.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--slate-deep);font-family:var(--font-body);-webkit-font-smoothing:antialiased;color:var(--slate-deep);overflow:hidden;}
+::selection{background:var(--accent-tint);color:var(--accent-deep);}
+
+/* ---------- DECK SHELL ---------- */
+#deck{position:fixed;inset:0;}
+.slide{
+  position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;
+  background:var(--bg);overflow:hidden;
+  padding:60px clamp(48px,7vw,120px);
+}
+.slide.active{display:flex;animation:slidein .5s var(--ease-out) both;}
+@keyframes slidein{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.slide.dark{background:var(--slate-deep);}
+.slide.soft{background:var(--bg-soft);}
+.inner{position:relative;width:100%;max-width:1260px;margin:0 auto;z-index:2;}
+
+/* ---------- SLASH MOTIF ---------- */
+.motif{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;}
+.motif i{position:absolute;top:-25%;height:160%;transform:skewX(-20deg);display:block;}
+.motif .a{left:74%;width:120px;background:var(--slash-fill-dark);}
+.motif .b{left:80%;width:34px;background:rgba(43,51,64,0.04);}
+.motif .c{left:84%;width:13px;background:var(--accent-tint);}
+.dark .motif .a{background:rgba(255,255,255,0.05);}
+.dark .motif .b{background:rgba(255,255,255,0.03);}
+.dark .motif .c{background:rgba(230,0,107,0.5);}
+
+/* ---------- TYPE ---------- */
+.kicker{font-family:var(--font-display);font-weight:700;font-size:13.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.5em;margin-bottom:20px;}
+.kicker::before{content:"/";color:var(--accent);font-weight:800;}
+.dark .kicker{color:var(--accent-bright);}
+h1.display{font-family:var(--font-display);font-weight:300;font-size:clamp(40px,5.4vw,80px);
+  line-height:1.04;letter-spacing:-0.02em;color:var(--slate-deep);}
+.display .bold{font-weight:800;}
+.display .accent{color:var(--accent);font-weight:800;}
+.dark h1.display{color:#fff;}
+.dark .display .accent{color:var(--accent-bright);}
+h2{font-family:var(--font-display);font-weight:800;font-size:clamp(26px,2.9vw,42px);
+  line-height:1.08;letter-spacing:-0.018em;color:var(--slate-deep);}
+h2 .light{font-weight:300;}
+h2 .accent{color:var(--accent);}
+.dark h2{color:#fff;}
+h3{font-family:var(--font-display);font-weight:700;font-size:clamp(16px,1.3vw,20px);line-height:1.2;color:var(--slate-deep);}
+.lead{font-family:var(--font-body);font-weight:400;font-size:clamp(15px,1.3vw,19px);line-height:1.5;color:var(--slate-soft);}
+.dark .lead{color:var(--on-dark-2);}
+.body{font-size:15px;line-height:1.55;color:var(--slate-soft);font-weight:400;}
+.small{font-size:13px;line-height:1.5;color:var(--slate-mut);}
+.mono{font-family:var(--font-mono);font-size:13.5px;color:var(--slate-soft);}
+code,.code{font-family:var(--font-mono);font-weight:500;font-size:.92em;color:var(--accent-deep);
+  background:var(--accent-tint);border-radius:var(--r-xs);padding:.08em .36em;}
+.dark code{color:#fff;background:rgba(230,0,107,0.35);}
+.accent{color:var(--accent);}
+.rule{border-left:3px solid var(--accent);padding-left:18px;}
+
+/* ---------- LAYOUT HELPERS ---------- */
+.grid{display:grid;gap:14px;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:repeat(3,1fr);}
+.flow{display:flex;flex-direction:column;gap:14px;}
+.mt{margin-top:24px;}.mt-s{margin-top:12px;}.mt-l{margin-top:34px;}
+
+/* ---------- CARDS ---------- */
+.card{background:#fff;border:1px solid var(--line-1);border-top:3px solid var(--accent);
+  box-shadow:var(--shadow-sm);padding:16px 18px;border-radius:var(--r-xs);}
+.card h3{margin-bottom:6px;}
+.card h3 .ix{font-family:var(--font-mono);font-weight:600;font-size:.78em;color:var(--accent);margin-right:.5em;}
+.card .body{font-size:14px;line-height:1.5;}
+.card .body + .body{margin-top:7px;}
+.panel{padding:24px 22px;color:#fff;display:flex;flex-direction:column;min-height:160px;border-radius:var(--r-xs);position:relative;overflow:hidden;}
+.panel .pk{font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;}
+.panel h3{color:#fff;font-size:21px;font-weight:800;margin:10px 0 0;}
+.panel .body{color:var(--on-dark-2);font-size:14px;margin-top:10px;}
+.p-accent{background:var(--accent);} .p-slate{background:var(--slate);} .p-deep{background:var(--slate-deep);}
+.tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-display);font-weight:700;
+  font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:var(--r-xs);
+  background:var(--bg-tint);color:var(--slate);}
+
+/* quote of the human */
+.hq{border-left:3px solid var(--accent);background:var(--accent-tint);padding:14px 18px;border-radius:var(--r-xs);}
+.hq .who{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:6px;}
+.hq .q{font-size:16.5px;line-height:1.45;color:var(--slate-deep);font-weight:500;}
+.dark .hq{background:rgba(230,0,107,0.16);border-color:var(--accent-bright);}
+.dark .hq .who{color:var(--accent-bright);}
+.dark .hq .q{color:#fff;}
+
+/* terminal */
+.term{background:var(--slate-deep);border-radius:var(--r-md);box-shadow:var(--shadow-lg);overflow:hidden;}
+.term .bar{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.term .dot{width:11px;height:11px;border-radius:50%;}
+.term .ttl{margin-left:10px;font-family:var(--font-mono);font-size:12px;color:var(--on-dark-3);}
+.term .body{padding:16px 20px;font-family:var(--font-mono);font-size:13px;line-height:1.75;color:var(--on-dark-2);}
+.term .p{color:var(--accent-bright);} .term .g{color:#5BE3A8;} .term .y{color:#FFB454;} .term .bl{color:#6CB6FF;} .term .w{color:#fff;}
+.term .r{color:#FF6B6B;}
+
+/* list */
+ul.clean{list-style:none;display:flex;flex-direction:column;gap:10px;}
+ul.clean li{display:flex;gap:11px;font-size:14.5px;line-height:1.45;color:var(--slate-soft);}
+ul.clean li b{color:var(--slate-deep);font-weight:700;}
+ul.clean .mk{color:var(--accent);font-weight:800;flex:none;}
+
+/* table */
+table.mon{width:100%;border-collapse:collapse;}
+table.mon td,table.mon th{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line-1);vertical-align:top;}
+table.mon th{font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);}
+table.mon td.role{font-weight:700;color:var(--slate-deep);white-space:nowrap;}
+table.mon td.act{color:var(--slate-soft);font-size:14px;}
+table.mon td .mono{font-size:12.5px;}
+
+/* steps */
+.steps{display:flex;flex-direction:column;gap:0;}
+.step{display:grid;grid-template-columns:42px 1fr;gap:14px;padding:11px 0;border-bottom:1px solid var(--line-1);}
+.step:last-child{border-bottom:none;}
+.step .n{font-family:var(--font-mono);font-weight:600;color:var(--accent);font-size:15px;padding-top:2px;}
+.step h3{margin-bottom:3px;font-size:16px;}.step .body{font-size:13.5px;}
+
+.note{margin-top:18px;background:var(--bg-soft);border-left:3px solid var(--slate-faint);padding:12px 16px;font-size:14px;color:var(--slate-soft);line-height:1.5;}
+.note.warn{background:#FBEFD8;border-left-color:var(--amber);color:#7a5400;}
+.note b{color:var(--slate-deep);}
+.note.warn b{color:#5e4100;}
+.dark .note{background:rgba(255,255,255,0.06);border-left-color:rgba(255,255,255,0.25);color:var(--on-dark-2);}
+.dark .note b{color:#fff;}
+
+/* ---------- SPLIT + ARTIFACT VIEWER ---------- */
+.slide.has-art{justify-content:flex-start;padding-top:54px;padding-bottom:46px;}
+.split{display:grid;grid-template-columns:minmax(0,46fr) minmax(0,54fr);gap:clamp(24px,3vw,48px);
+  align-items:stretch;height:100%;min-height:0;}
+.split .left{display:flex;flex-direction:column;justify-content:center;min-width:0;}
+.artifact{display:flex;flex-direction:column;min-width:0;max-height:calc(100vh - 130px);
+  background:#fff;border:1px solid var(--line-2);border-radius:var(--r-sm);box-shadow:var(--shadow-md);overflow:hidden;}
+.artifact .ahead{flex:none;display:flex;align-items:center;gap:10px;padding:10px 16px;
+  background:var(--slate-deep);}
+.artifact .ahead .adot{width:9px;height:9px;border-radius:50%;background:var(--accent-bright);flex:none;}
+.artifact .ahead .aname{font-family:var(--font-mono);font-size:12.5px;color:var(--on-dark-2);letter-spacing:.02em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.artifact .ahead .alab{margin-left:auto;font-family:var(--font-display);font-weight:700;font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--on-dark-3);flex:none;}
+.artifact .abody{flex:1;overflow-y:auto;padding:20px 24px 28px;overscroll-behavior:contain;position:relative;}
+.artifact .abody::-webkit-scrollbar{width:9px;}
+.artifact .abody::-webkit-scrollbar-track{background:var(--bg-soft);}
+.artifact .abody::-webkit-scrollbar-thumb{background:var(--slate-faint);border-radius:4px;}
+.artifact .abody::-webkit-scrollbar-thumb:hover{background:var(--slate-mut);}
+.artifact .ahint{flex:none;padding:7px 16px;border-top:1px solid var(--line-1);background:var(--bg-soft);
+  font-family:var(--font-mono);font-size:10.5px;color:var(--slate-mut);letter-spacing:.04em;}
+
+/* rendered markdown inside artifact */
+.md{font-size:13.5px;line-height:1.6;color:var(--slate);}
+.md h1,.md h2,.md h3,.md h4{font-family:var(--font-display);color:var(--slate-deep);letter-spacing:-0.01em;line-height:1.2;}
+.md h1{font-size:19px;font-weight:800;margin:4px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--accent);}
+.md h2{font-size:16px;font-weight:800;margin:22px 0 8px;}
+.md h2::before{content:"/ ";color:var(--accent);font-weight:800;}
+.md h3{font-size:14px;font-weight:700;margin:16px 0 6px;}
+.md h4{font-size:13px;font-weight:700;margin:13px 0 5px;color:var(--slate-soft);text-transform:uppercase;letter-spacing:.05em;}
+.md p{margin:0 0 9px;}
+.md ul,.md ol{margin:0 0 10px;padding-left:22px;}
+.md li{margin-bottom:4px;}
+.md blockquote{border-left:3px solid var(--accent);background:var(--accent-tint);
+  padding:8px 13px;margin:0 0 10px;border-radius:var(--r-xs);color:var(--slate-deep);}
+.md blockquote p{margin:0;}
+.md pre{background:var(--slate-deep);color:#DCE3EC;font-family:var(--font-mono);font-size:12px;line-height:1.6;
+  padding:11px 14px;border-radius:var(--r-sm);overflow-x:auto;margin:0 0 10px;}
+.md code{font-family:var(--font-mono);font-size:.92em;color:var(--accent-deep);background:var(--accent-tint);
+  border-radius:var(--r-xs);padding:.06em .3em;}
+.md pre code{background:none;color:inherit;padding:0;}
+.md hr{border:none;border-top:1px solid var(--line-1);margin:14px 0;}
+.md strong{color:var(--slate-deep);}
+.md img{max-width:100%;}
+
+/* screenshot frame (slide 15) */
+.shot{background:#fff;border:1px solid var(--line-2);border-radius:var(--r-sm);box-shadow:var(--shadow-lg);overflow:hidden;}
+.shot .bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--slate-deep);}
+.shot .bar .aname{font-family:var(--font-mono);font-size:12px;color:var(--on-dark-2);}
+.shot img{display:block;width:100%;height:auto;}
+
+/* ---------- CHROME ---------- */
+#bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:50;transition:width .3s var(--ease-out);}
+#hud{position:fixed;bottom:20px;right:26px;z-index:50;display:flex;align-items:center;gap:14px;
+  font-family:var(--font-mono);font-size:12px;color:var(--slate-mut);}
+.dark ~ #hud{color:var(--on-dark-3);}
+#hud a.back-link{color:inherit;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:4px;transition:color .2s;}
+#hud a.back-link:hover{color:var(--accent-bright);}
+#hud .sep{color:var(--bg-line);font-weight:300;}
+.dark ~ #hud .sep{color:rgba(255,255,255,0.15);}
+#hud .logo{display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.04em;color:var(--slate-deep);}
+#hud .logo span{color:var(--accent);}
+#dots{position:fixed;bottom:22px;left:26px;z-index:50;display:flex;gap:4px;max-width:42vw;flex-wrap:wrap;}
+#dots b{width:6px;height:6px;background:var(--slate-faint);cursor:pointer;transition:.2s;}
+#dots b.on{background:var(--accent);transform:scaleY(1.6);}
+.navhint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:50;font-family:var(--font-mono);
+  font-size:11px;color:var(--slate-faint);letter-spacing:.04em;}
+@media (prefers-reduced-motion:reduce){.slide.active{animation:none;}}
+.eyetop{position:absolute;top:38px;left:clamp(48px,7vw,120px);font-family:var(--font-mono);font-size:12px;color:var(--slate-mut);letter-spacing:.04em;z-index:3;}
+.dark .eyetop{color:var(--on-dark-3);}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="deck">
+
+<!-- ===== 1 · ТИТУЛ ===== -->
+<section class="slide dark active">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="inner">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:38px;">
+      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiMyQjMzNDAiPjwvcmVjdD4KICAKICA8cGF0aCBkPSJNNzQgMjYgTDUyIDk0IEwzNiA5NCBMNTggMjYgWiIgZmlsbD0iI0U2MDA2QiI+PC9wYXRoPgogIDxwYXRoIGQ9Ik05MiAyNiBMNzAgOTQgTDYyIDk0IEw4NCAyNiBaIiBmaWxsPSIjRkZGRkZGIj48L3BhdGg+Cjwvc3ZnPg==" width="44" height="44" alt="">
+      <span style="font-family:var(--font-display);font-weight:800;letter-spacing:.04em;color:#fff;font-size:18px;"><span style="color:var(--accent-bright)">/</span>AI ASSISTANT</span>
+    </div>
+    <div class="kicker">Дополнение к докладу об AI-агентах · для dev-команды</div>
+    <h1 class="display">Дневник одной<br><span class="accent">агентской сессии</span></h1>
+    <div class="rule mt-l" style="max-width:700px;border-color:var(--accent-bright)">
+      <p class="lead">Реальная задача ES-3772, реальные артефакты, три пойманные регрессии. Как работают тулы, скиллы и рефлексия агента — по следам, а не по обещаниям.</p>
+    </div>
+    <div class="mt-l" style="font-family:var(--font-mono);font-size:13px;color:var(--on-dark-3);letter-spacing:.02em;">
+      PDF export · ToC/ToF/ToT spacing · человек + агент
+    </div>
+  </div>
+</section>
+
+<!-- ===== 2 · ЧТО ЭТО И КАК СМОТРЕТЬ ===== -->
+<section class="slide soft">
+  <div class="eyetop">ДНЕВНИК / ФОРМАТ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="kicker">Что это</div>
+      <h2><span class="light">Не демо.</span> Сессия <span class="accent">как она была</span></h2>
+      <p class="lead mt">Агент собрал свою рабочую сессию в дневник: с неправильными первыми попытками, уточнениями человека и фиксами после пуша. Мы разберём её по шагам.</p>
+    </div>
+    <div class="flow">
+      <div class="card"><h3>Справа — живые артефакты</h3><p class="body">На многих слайдах справа — реальный документ из сессии: task, spec, план, отчёт для QA. Панель скроллится — листайте сами, это оригиналы без купюр.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3 · ТУЛ / СКИЛЛ / РЕФЛЕКСИЯ ===== -->
+<section class="slide">
+  <div class="eyetop">ДНЕВНИК / СЛОВАРЬ</div>
+  <div class="inner">
+    <div class="kicker">Три слова, которые дальше будут постоянно</div>
+    <h2 style="margin-bottom:26px"><span class="light">Тул, скилл,</span> <span class="accent">рефлексия</span></h2>
+    <div class="grid g3">
+      <div class="panel p-slate"><span class="pk">Тулы</span><h3>Руки агента</h3><p class="body">git, файлы, тесты, WSL, Jira API. То, чем агент физически действует. Сами по себе процесса не знают.</p></div>
+      <div class="panel p-accent"><span class="pk">Скиллы</span><h3>Процессы команды</h3><p class="body">Упакованный рабочий процесс: «как загружать issue», «как делать snapshot replay». Это markdown с инструкцией, не магия. Агент подключает их по ситуации.</p></div>
+      <div class="panel p-deep"><span class="pk">Рефлексия</span><h3>Обратная связь</h3><p class="body">Агент отмечает, чего не хватило в процессе. Эти заметки — сырьё для новых скиллов и инструкций. Цикл замыкается, если их не терять.</p></div>
+    </div>
+    <div class="note">В этой сессии агент использовал пять скиллов — и оставил десять заметок-рефлексий. Обе нити пройдут через весь доклад.</div>
+  </div>
+</section>
+
+<!-- ===== 4 · ЗАДАЧА ===== -->
+<section class="slide has-art">
+  <div class="eyetop">ДНЕВНИК / 01 · ВХОД</div>
+  <div class="inner split">
+    <div class="left">
+      <div class="kicker">Задача из Jira</div>
+      <h2><span class="light">Выглядит как</span> <span class="accent">CSS-задачка</span></h2>
+      <p class="lead mt">ES-3772: дать авторам PDF-шаблонов управлять отступом между номером главы и заголовком в ToC, ToF и ToT через <code>styles_toc/tof/tot.css</code>.</p>
+      <div class="hq mt">
+        <div class="who">Человек → агент</div>
+        <div class="q">«Загрузи issue ES-3772, изучи и предложи вариант реализации. Эта фича связана с .tasks/es-2676-…»</div>
+      </div>
+      <p class="body mt">Спойлер: «добавить CSS-свойство» обернётся изменением DOM-контракта генерации и тремя регрессиями совместимости.</p>
+    </div>
+    <div class="artifact" data-art="art-task" data-name="docs/diary/task.md"></div>
+  </div>
+</section>
+
+<!-- ===== 5 · ВХОД: КОНТЕКСТ ДО КОДА ===== -->
+<section class="slide soft">
+  <div class="eyetop">ДНЕВНИК / 01 · ВХОД</div>
+  <div class="inner">
+    <div class="kicker">Шаг первый — не код</div>
+    <h2 style="margin-bottom:24px"><span class="light">Сначала</span> собрать контекст</h2>
+    <div class="grid g2">
+      <div class="card"><h3><span class="ix">скилл</span>jira-issue</h3><p class="body">Пользователь дал ссылку на Jira — агент не пересказывает URL по памяти, а активирует локальный процесс загрузки issue. Формулировка задачи попадает в работу дословно.</p></div>
+      <div class="card" style="border-top-color:var(--slate)"><h3><span class="ix">тул</span>.tasks архив</h3><p class="body">Параллельно читает task-доки родственной задачи ES-2676. Оттуда — готовый архитектурный вывод: <b style="color:var(--slate-deep)">номер и заголовок нельзя держать одной строкой</b>, их нужно разделять в DOM.</p></div>
+    </div>
+    <div class="note"><b>Цитата из дневника:</b> «Без старой задачи можно было бы начать менять не тот слой пайплайна». Контекст команды — Jira плюс локальные доки — отработал до первой строчки кода.</div>
+  </div>
+</section>
+
+<!-- ===== 6 · ИССЛЕДОВАНИЕ ===== -->
+<section class="slide">
+  <div class="eyetop">ДНЕВНИК / 02 · ИССЛЕДОВАНИЕ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;">
+    <div>
+      <div class="kicker">Исследование пайплайна</div>
+      <h2><span class="light">Точка изменения</span> — <span class="accent">не там</span>, где похожая старая задача</h2>
+      <p class="lead mt">ES-2676 чинила заголовки в теле документа. Но ToC/ToF/ToT строятся <b>позже</b> — из закладок WeasyPrint, где номер и заголовок уже склеены в один плоский <code>linkText</code>.</p>
+      <p class="body mt">Шаблонам физически нечего стилизовать: в DOM один текстовый узел.</p>
+    </div>
+    <div class="term">
+      <div class="bar"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><span class="ttl">html_to_pdf_convert_with_weasyprint.py</span></div>
+      <div class="body">
+        <span class="bl">def</span> <span class="w">generateOutlineStr</span>(...):<br>
+        &nbsp;&nbsp;<span class="y"># page.bookmarks → один плоский linkText</span><br>
+        &nbsp;&nbsp;...<br><br>
+        <span class="y"># toc_template.html / tof / tot:</span><br>
+        <span class="p">%(indent)s%(linkText)s</span><br><br>
+        <span class="g"># урок: смотреть реальный runtime path,</span><br>
+        <span class="g"># а не «логически похожий» код</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 7 · ПРОЕКТИРОВАНИЕ (SPEC) ===== -->
+<section class="slide has-art">
+  <div class="eyetop">ДНЕВНИК / 03 · ПРОЕКТИРОВАНИЕ</div>
+  <div class="inner split">
+    <div class="left">
+      <div class="kicker">скилл · implementation-spec</div>
+      <h2><span class="light">Спека держит</span> <span class="accent">границы</span></h2>
+      <p class="lead mt">Главная идея: шаблоны получают не один <code>linkText</code>, а структурные плейсхолдеры <code>numberHtml</code> + <code>titleHtml</code>.</p>
+      <ul class="clean mt">
+        <li><span class="mk">/</span><span><b>Контракты явно:</b> runtime, template, compatibility, validation — четыре секции, на которые сессия потом ссылается.</span></li>
+        <li><span class="mk">/</span><span><b>Non-goals спасают scope:</b> не трогать API, storage, HTML/DOCX export, Pandoc-нумерацию.</span></li>
+        <li><span class="mk">/</span><span><b>Documentation-first — не бюрократия:</b> цитата из дневника — «это помогло удержать границы задачи».</span></li>
+      </ul>
+    </div>
+    <div class="artifact" data-art="art-spec" data-name="docs/diary/implementation-spec.md"></div>
+  </div>
+</section>
+
+<!-- ===== 8 · ПЛАН ===== -->
+<section class="slide has-art soft">
+  <div class="eyetop">ДНЕВНИК / 03 · ПРОЕКТИРОВАНИЕ</div>
+  <div class="inner split">
+    <div class="left">
+      <div class="kicker">скилл · implementation-plan</div>
+      <h2><span class="light">Три стадии,</span> тесты — <span class="accent">первыми</span></h2>
+      <div class="steps mt">
+        <div class="step"><div class="n">01</div><div><h3>Тесты фиксируют контракт</h3><p class="body">Regression-тесты на split до любого production-кода. Должны упасть по ожидаемой причине.</p></div></div>
+        <div class="step"><div class="n">02</div><div><h3>Runtime split</h3><p class="body">Helpers в processing-скрипте: разделение bookmark label на номер/префикс и заголовок.</p></div></div>
+        <div class="step"><div class="n">03</div><div><h3>Шаблоны и CSS</h3><p class="body">Новые плейсхолдеры в ToC/ToF/ToT templates, аддитивные селекторы в default CSS.</p></div></div>
+      </div>
+      <p class="body mt">Коммиты группируются в том же порядке. Риски и митигации — заранее, в самом плане.</p>
+    </div>
+    <div class="artifact" data-art="art-plan" data-name="docs/diary/implementation-plan.md"></div>
+  </div>
+</section>
+
+<!-- ===== 9 · TDD-ЦИКЛ ===== -->
+<section class="slide">
+  <div class="eyetop">ДНЕВНИК / 04 · РЕАЛИЗАЦИЯ</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;">
+    <div>
+      <div class="kicker">Красный → зелёный</div>
+      <h2><span class="light">Сначала тест,</span> потом <span class="accent">helper</span></h2>
+      <ul class="clean mt">
+        <li><span class="mk">/</span><span><code>1.2 Introduction and Scope</code> → <code>1.2</code> + заголовок</span></li>
+        <li><span class="mk">/</span><span><code>Figure 4: Message flow</code> → префикс с двоеточием + caption</span></li>
+        <li><span class="mk">/</span><span><code>Table 7 Message fields</code> → префикс без двоеточия + caption</span></li>
+        <li><span class="mk">/</span><span>Нераспознанное — остаётся целым, текст не теряется</span></li>
+      </ul>
+      <p class="body mt">Тесты падают: <code>split_outline_title</code> ещё не существует. Затем helpers, зелёные тесты, и только после — шаблоны и CSS.</p>
+    </div>
+    <div class="term">
+      <div class="bar"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><span class="ttl">toc_template.html · styles_toc.css</span></div>
+      <div class="body">
+        <span class="y"># было</span><br>
+        %(indent)s<span class="r">%(linkText)s</span><br><br>
+        <span class="y"># стало</span><br>
+        %(indent)s<span class="g">%(numberHtml)s%(titleHtml)s</span><br><br>
+        <span class="w">.toc-section-number</span> { <span class="bl">margin-right</span>: .45em; }<br>
+        <span class="w">.toc-section-title</span>&nbsp;&nbsp;{ <span class="bl">display</span>: inline; }
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 10 · ПРОВЕРКА В РАНТАЙМЕ ===== -->
+<section class="slide has-art">
+  <div class="eyetop">ДНЕВНИК / 05 · ПРОВЕРКА</div>
+  <div class="inner split">
+    <div class="left">
+      <div class="kicker">скилл · export-debug-wsl</div>
+      <h2><span class="light">Проверить</span> не «как выглядит», а <span class="accent">что попало в рантайм</span></h2>
+      <ul class="clean mt">
+        <li><span class="mk">/</span><span>Processing-скрипты синхронизируются в WSL <code>/conversion_utils</code>.</span></li>
+        <li><span class="mk">/</span><span>Экспорт снимается в <b>snapshot</b>: workspace со всеми шаблонами, CSS и входным документом.</span></li>
+        <li><span class="mk">/</span><span>Snapshot можно <b>переиграть</b> локально стадия за стадией — вплоть до фактического HTML.</span></li>
+      </ul>
+      <div class="note mt"><b>Из дневника:</b> «export-debug snapshot — очень сильная техника. Он позволяет проверить не только „PDF выглядит хорошо", но и что именно попало в runtime workspace».</div>
+    </div>
+    <div class="artifact" data-art="art-replay" data-name="docs/diary/export-debug-wsl-replay.md"></div>
+  </div>
+</section>
+
+<!-- ===== 11 · ФИКСТУРА ===== -->
+<section class="slide has-art soft">
+  <div class="eyetop">ДНЕВНИК / 05 · ПРОВЕРКА</div>
+  <div class="inner split">
+    <div class="left">
+      <div class="kicker">Минимальная фикстура</div>
+      <h2><span class="light">Один документ —</span> все три <span class="accent">поверхности</span></h2>
+      <ul class="clean mt">
+        <li><span class="mk">/</span><span>Два top-level заголовка и подзаголовок — для <b>ToC</b></span></li>
+        <li><span class="mk">/</span><span>Таблица с caption — для <b>ToT</b></span></li>
+        <li><span class="mk">/</span><span>PlantUML-диаграмма с caption — для <b>ToF</b></span></li>
+        <li><span class="mk">/</span><span>Заголовки нарочно длинные — spacing и переносы видно глазами</span></li>
+      </ul>
+      <p class="body mt">Документ остался артефактом в task folder — QA потом использует его же. Проверочный материал — тоже результат работы, не одноразовый мусор.</p>
+    </div>
+    <div class="artifact" data-art="art-mindoc" data-name="docs/diary/export-debug-minimal-document.md"></div>
+  </div>
+</section>
+
+<!-- ===== 12 · ЧЕЛОВЕК КАК СЕНСОР №1 ===== -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="eyetop">ДНЕВНИК / 06 · РЕГРЕССИЯ 1</div>
+  <div class="inner">
+    <div class="kicker">Первый экспорт прошёл. И тут —</div>
+    <h2 style="margin-bottom:22px"><span class="light" style="color:var(--on-dark-2)">Человек видит</span> product-риск, <span class="accent">которого агент не видел</span></h2>
+    <div class="hq" style="max-width:840px">
+      <div class="who">Человек → агент</div>
+      <div class="q">«Сейчас в toc если не задать стили, то номер сливается с текстом. Это ломает старые шаблоны пользователей».</div>
+    </div>
+    <div class="grid g2 mt-l">
+      <div class="panel p-slate"><span class="pk">Регрессия №1</span><h3>Старый CSS не знает новых селекторов</h3><p class="body">Новая DOM-структура сама по себе не даёт отступа. У клиентов шаблоны написаны до этой фичи — для них номер прилипает к заголовку.</p></div>
+      <div class="panel p-accent"><span class="pk">Фикс</span><h3>Fallback-разделитель в рантайме</h3><p class="body">Если split произошёл — title-фрагмент начинается с разделителя. Старые шаблоны получают читаемый отступ без единой правки.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 13 · УРОК: РЕНДЕРЕР ===== -->
+<section class="slide">
+  <div class="eyetop">ДНЕВНИК / 06 · РЕГРЕССИЯ 1</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;">
+    <div>
+      <div class="kicker">Урок №1</div>
+      <h2><span class="light">Unit-тест подтверждает строку.</span> Рендерер живёт <span class="accent">своей жизнью</span></h2>
+      <p class="lead mt">Fallback с обычным пробелом прошёл тесты — а реальный PDF пробел схлопнул. Замена на <code>&amp;nbsp;</code>, обновление тестов.</p>
+      <div class="note"><b>Из дневника:</b> «Unit test может подтвердить строку, но browser/PDF renderer может вести себя иначе. Для layout-регрессий нужен runtime/snapshot feedback».</div>
+    </div>
+    <div class="term">
+      <div class="bar"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><span class="ttl">fallback evolution</span></div>
+      <div class="body">
+        <span class="y"># попытка 1 — тесты зелёные, PDF плохой</span><br>
+        &lt;span class="toc-section-title"&gt;<span class="r">&nbsp;</span>Introduction&lt;/span&gt;<br><br>
+        <span class="y"># попытка 2 — тесты зелёные, PDF хороший</span><br>
+        &lt;span class="toc-section-title"&gt;<span class="g">&amp;nbsp;</span>Introduction&lt;/span&gt;
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 14 · УТОЧНЕНИЕ ЧЕЛОВЕКА №2 ===== -->
+<section class="slide soft">
+  <div class="eyetop">ДНЕВНИК / 07 · РЕГРЕССИОННЫЙ ШАБЛОН</div>
+  <div class="inner">
+    <div class="kicker">Агент понял не так — человек уточняет</div>
+    <h2 style="margin-bottom:22px"><span class="light">«Я имел ввиду</span> проверить <span class="accent">регрессию</span>»</h2>
+    <div class="grid g2">
+      <div class="card"><h3><span class="ix">было</span>Агент усилил positive case</h3><p class="body">Понял «проверь второй кейс» как «сделай отступ больше для ToF» — добавил <code>margin-right: 1.2em</code> в стилизованный шаблон.</p></div>
+      <div class="card"><h3><span class="ix">стало</span>Симуляция старого шаблона</h3><p class="body">Отдельный <code>template-regression-no-tof-properties</code>: из CSS <b style="color:var(--slate-deep)">удалены</b> новые селекторы. Единственный механизм разделения — runtime fallback. Это и есть мир клиента, который шаблон не обновлял.</p></div>
+    </div>
+    <div class="note">Дешёвое уточнение в диалоге сэкономило ложную проверку. Постановка проверки — совместная работа: агент готов проверять, но <b>что</b> проверять — пришло от человека.</div>
+  </div>
+</section>
+
+<!-- ===== 15 · РЕГРЕССИЯ №2: СКРИНШОТ ===== -->
+<section class="slide dark">
+  <div class="eyetop">ДНЕВНИК / 08 · РЕГРЕССИЯ 2</div>
+  <div class="inner" style="display:grid;grid-template-columns:46fr 54fr;gap:44px;align-items:center;">
+    <div>
+      <div class="kicker">Кульминация</div>
+      <h2><span class="light" style="color:var(--on-dark-2)">Все файлы правильные.</span><br>PDF — <span class="accent">снова плохой</span></h2>
+      <div class="hq mt">
+        <div class="who">Человек → агент · скриншот</div>
+        <div class="q">«Снова плохо. Выглядит так: 1Minimal Export-Debug Document For ES-3772»</div>
+      </div>
+      <ul class="clean mt" style="--mk:#fff">
+        <li><span class="mk">/</span><span style="color:var(--on-dark-2)"><code>styles_toc.css</code> в снапшоте — правильный</span></li>
+        <li><span class="mk">/</span><span style="color:var(--on-dark-2)"><code>toc_template.html</code> — правильный</span></li>
+        <li><span class="mk">/</span><span style="color:var(--on-dark-2)">скрипт с <code>&amp;nbsp;</code> — уже в WSL</span></li>
+        <li><span class="mk">/</span><span style="color:#fff;font-weight:700">значит, проблема глубже</span></li>
+      </ul>
+    </div>
+    <div class="shot">
+      <div class="bar"><span class="adot" style="width:9px;height:9px;border-radius:50%;background:var(--accent-bright)"></span><span class="aname">скриншот из сессии · docs/diary/img.png</span></div>
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABHwAAAHECAYAAABLKT2QAACAAElEQVR4XuzdB3QT1741cEuybNNNL6aFgMOlGTAdB9v00A0JJTbVIZAQegm9BAih92JK6D30+uglpl+qTeDRAou+aM/gD/tauvubGWuk0ViSJWMSUPZvrVlL8l8aSWeOxjpbZ0YeICIiIiIiIiIit+Kh/gMREREREREREX3cGPgQEREREREREbkZBj5ERERERERERG6GgQ8RERERERERkZth4ENERERERERE5GYY+BARERERERERuRkGPkREREREREREboaBDxERERERERGRm2HgQ0RERERERETkZhj4EBERERERERG5GQY+RERERERERERuhoEPEREREREREZGbYeBDRERERERERORmGPgQEREREREREbkZBj5ERERERERERG6GgQ8RERERERERkZth4ENERERERERE5GYY+BARERERERERuRkGPkREREREREREboaBDxERERERERGRm2HgQ0RERERERETkZhj4EBERERERERG5GQY+RERERERERERuhoEPEREREREREZGbYeBDRERERERERORmGPgQEREREREREbkZBj5ERERERERERG6GgQ8RERERERERkZth4ENERERERERE5GYY+BARERERERERuRkGPkREREREREREboaBDxERERERERGRm2HgQ0RERERERETkZhj4EBERERERERG5GQY+RERERERERERuhoEPEREREREREZGbYeBDRERERERERORmGPgQEREREREREbkZBj5ERERERERERG6GgQ8RERERERERkZth4ENERERERERE5GYY+BARERERERERuRkGPkREREREREREboaBDxERERERERGRm2HgQ0RERERERETkZhj4EBERERERERG5GQY+RERERERERERuhoEPEREREREREZGbYeBDRERERERERORm/lmBz9snuHU1BjExyUvsny9gUN9GFP8IN2Itt4uJicXNx2/Vt5IYXz/ANfPtkm97+2miuZ50NQodQ4MRHCwudTF41xvFvdMg6SqiOoaa1heMuoN3qW/xt0rr641/dAOxVu1oa7mGB6+N6rv+41m3XSxir17DtZt/4sHTOCS+l+ZKwtWojgg19cHguoPh5Gb+YPz1bUbvXYr9tu3l2oPX+Ds38Tvt6wzPcf34VqyI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tnHjxjTVfvvtN+n6kCFDpFDE2dqmTZtS1C5evOhSTQxvlLXNmzdL1wcPHuxUTQxq1TUxSHK19uOPP0qhlkgMXN+ltmXLFun6oEGDnKqJQa1Y27p1q3R94MCBUjDnam3AgAHmmhjUirVt27a5VBODWrG2fft2c00MHp2t7dixw1wTg8601MRgVSQGtcpa//7901Tr16+fSzVxsC7q27evFByLxPA3LTUx4BVrYnAg6tOnj1M1MeAVa2L4IdfE0DwtNTH4F4nhrys18UsIZU0McES9e/d2qSaGSaJevXpJX4i4WuvZs6e5JobNaamJYbNYEwMx0Q8//OBSTQzn5Jr4ZZBIDKJTq7kk8TluX4jGYfEz9tbdOHjmhvncmEr3799X/8kpbhv4EFlLp8CH/gZJOD8iEDn9ayOi9zCMnzYP82b+jEEdglBQMftM59cBm5w67xEREREREZH7Y+BD/xAMfD5eYuATYDlczMaiy14NP+534iehiYiIiIiI/iEY+NA/RBLO/xSE/LlzI7e4+H2NNXHq29CHyYjHh6ehW/Ma8M+XFT6eplk9nhmRp0R1hPWciX23Hfy0MxERERER0T8QAx8i+rgY3iLuRRzi3+G8JURERERERO6OgQ8RERERERERkZth4ENERERERERE5GYY+BARERERERERuRkGPkREREREREREboaBDxERERERERGRm2HgQ0RERERERETkZhj4EBERERERERG5GQY+RERERERERERuhoEPEREREREREZGbYeBDRERERERERORmGPgQEREREREREbkZBj5ERERERERERG6GgQ8RERERERERkZth4ENERERERERE5GYY+BARERERERERuRkGPkREREREREREboaBDxERERERERGRm2HgQ0RERERERETkZhj4EBERERERERG5GQY+RERERERERERuhoEPEREREREREZGbYeBDRERERERERORmGPgQEREREREREbkZBj5pZYjDw+uxiIm5jodvjOqqCwyIe3gdsTExuP7wDVxdU8LLh7h39y7uysv9h3j6MkFYK31sEg6PRqOQUHw9+xKS1MV04Nr64/Hohti/YxBz9R5e2e2YiXh623S72Dt4nvqK0ygJV+ZGIDSkMcYcSVAXXeJaOxAREREREX2cGPi4wnALW0Z1QVitABTMpofGwwMeuoL4dq+rA1ADbm0Z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AAAAAAAAmyHwAQAAAAAAsBkCHwAAAAAAAJsh8AEAAAAAALAZAh8AAAAAAACbIfABAAAAAACwGQIfAAAAAAAAmyHwAQAAAAAAsBkCHwAAAAAAAJsh8AEAAAAAALAZAh8AAAAAAACbIfABAAAAAACwGQIfAAAAAAAAmyHwAQAAAAAAsBkCHwAAAAAAAJsh8AEAAAAAALAZAh8AAAAAAACbIfABAAAAAACwGQIfAAAAAAAAmyHwAQAAAAAAsBkCHwAAAAAAAJsh8AEAAAAAALAZAh8AAAAAAACbIfABAAAAAACwGQIfAAAAAAAAmyHwAQAAAAAAsBkCHwAAAAAAAJsh8AEAAAAAALAZAh8AAAAAAACbIfABAAAAAACwGQIfAAAAAAAAmyHwAQAAAAAAsBkCHwAAAAAAAJsh8AEAAAAAALAZAh8AAAAAAACbIfABAAAAAACwGQIfAAAAAAAAmyHwAQAAAAAAsBkCHwAAAAAAAJsh8AEAAAAAALAZAh8AAAAAAACbIfABAAAAAACwGQIfAAAAAAAAmyHwAQAAAAAAsBkCHwAAAAAAAJsh8AEAAAAAALAZAh8AAAAAAACbIfABAAAAAACwGQIfAAAAAAAAmyHwAQAAAAAAsBkCHwAAAAAAAJsh8AEAAAAAALAZAh8AAAAAAACbIfABAAAAAACwGQIfAAAAAAAAmyHwAQAAAAAAsBkCHwAAAAAAAJsh8AEAAAAAALAZAh8AAAAAAACbIfABAAAAAACwGQIfAAAAAAAAmyHwAQAAAAAAsBkCHwAAAAAAAJsh8AEAAAAAALAZAh8AAAAAAACbIfABAAAAAACwGQIfAAAAAAAAmyHwAQAAAAAAsBkCHwAAAAAAAJsh8AEAAAAAALAZAh8AAAAAAACbIfABAAAAAACwGQIfAAAAAAAAmyHwAQAAAAAAsJn/B4ZSeZ5P+aomAAAAAElFTkSuQmCC" alt="ToC со слитым номером: 1Minimal Export-Debug Document For ES-3772">
+    </div>
+  </div>
+</section>
+
+<!-- ===== 16 · ДЕБАГ ДО ФАКТИЧЕСКОГО HTML ===== -->
+<section class="slide">
+  <div class="eyetop">ДНЕВНИК / 08 · РЕГРЕССИЯ 2</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;">
+    <div>
+      <div class="kicker">скиллы · systematic-debugging + export-debug-wsl</div>
+      <h2><span class="light">Дойти до</span> <span class="accent">фактического HTML</span></h2>
+      <p class="lead mt">Replay снапшота в WSL показал: split вообще не сработал для <code>h1</code>. WeasyPrint отдаёт bookmark <b>без пробела</b> — <code>1Minimal…</code>, а парсер ждал пробел. Для <code>h2</code> (<code>1.1 …</code>) всё работало — поэтому ошибка пряталась.</p>
+      <p class="body mt">Тест на форму <code>2Introduction</code> → парсер поддерживает обе формы → sync в WSL → экспорт: «готово. выглядит хорошо».</p>
+      <div class="note"><b>Из дневника:</b> «Агент не должен „доказывать", что код правильный, если PDF показывает обратное. Нужно дойти до фактического HTML, который попал в renderer».</div>
+    </div>
+    <div class="term">
+      <div class="bar"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><span class="ttl">wsl · replay snapshot</span></div>
+      <div class="body">
+        <span class="p">$</span> python html_to_pdf_convert…py --replay<br><br>
+        <span class="y"># фактический generated ToC HTML:</span><br>
+        &lt;span class='toc-section-title'&gt;<br>
+        &nbsp;&nbsp;<span class="r">1Minimal Export-Debug Document…</span><br>
+        &lt;/span&gt;<br><br>
+        <span class="y"># bookmark от WeasyPrint для h1:</span><br>
+        <span class="r">"1Minimal Export-Debug Document"</span> <span class="g">← нет пробела</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 17 · ОТЧЁТ ДЛЯ QA ===== -->
+<section class="slide has-art soft">
+  <div class="eyetop">ДНЕВНИК / 09 · QA</div>
+  <div class="inner split">
+    <div class="left">
+      <div class="kicker">Техническая работа → проверяемый процесс</div>
+      <h2><span class="light">Отчёт</span> для <span class="accent">QA</span></h2>
+      <p class="lead mt">Из task-доков агент собирает testing-report: что изменилось, какие варианты шаблонов проверять, что считать правильным выводом, а что — регрессией.</p>
+      <ul class="clean mt">
+        <li><span class="mk">/</span><span><b>Positive:</b> стилизованный шаблон заметно увеличивает отступ</span></li>
+        <li><span class="mk">/</span><span><b>Regression-safe:</b> старый шаблон без новых свойств остаётся читаемым</span></li>
+        <li><span class="mk">/</span><span><b>Провал:</b> любой слитый вывод вида <code>1Introduction</code></span></li>
+      </ul>
+      <p class="body mt">Плюс короткий Jira-комментарий без локальных путей — для тех, кто видит только тикет.</p>
+    </div>
+    <div class="artifact" data-art="art-testing" data-name="docs/diary/testing-report.md"></div>
+  </div>
+</section>
+
+<!-- ===== 18 · GIT HYGIENE ===== -->
+<section class="slide">
+  <div class="eyetop">ДНЕВНИК / 10 · COMMIT</div>
+  <div class="inner" style="display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;">
+    <div>
+      <div class="kicker">Git hygiene</div>
+      <h2><span class="light">Грязное дерево —</span> <span class="accent">норма</span>. Коммит — только свой scope</h2>
+      <p class="lead mt">В worktree лежали чужие изменения — <code>DictionaryStorageTest.kt</code>, <code>agents-workflow/</code>. Агент их не тронул: ни в коммит, ни «прибрать».</p>
+      <div class="note"><b>Из дневника:</b> «Dirty worktree — нормальное состояние реальной разработки. Агент должен уметь коммитить только свой scope, не „убирая" чужие изменения».</div>
+    </div>
+    <div class="term">
+      <div class="bar"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><span class="ttl">git</span></div>
+      <div class="body">
+        <span class="p">$</span> git status<br>
+        <span class="y">modified: DictionaryStorageTest.kt &nbsp;← чужое, не трогаем</span><br>
+        <span class="y">untracked: agents-workflow/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← чужое, не трогаем</span><br><br>
+        <span class="p">$</span> git commit -m <span class="g">"[ES-3772] Fix PDF ToX spacing"</span><br>
+        <span class="w">6b8b91806</span> → origin/development
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 19 · РЕГРЕССИЯ №3: ПОСЛЕ ПУША ===== -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="eyetop">ДНЕВНИК / 11 · РЕГРЕССИЯ 3</div>
+  <div class="inner">
+    <div class="kicker">Push — не конец</div>
+    <h2 style="margin-bottom:22px"><span class="light" style="color:var(--on-dark-2)">QA-шаблон обошёл</span> новый контракт <span class="accent">целиком</span></h2>
+    <div class="hq" style="max-width:880px">
+      <div class="who">Человек → агент · после пуша</div>
+      <div class="q">«Я загрузил кастомный шаблон с qa и сделал экспорт. Результат: текст toc снова слит — 1Minimal Export-Debug Document For ES-3772».</div>
+    </div>
+    <div class="grid g3 mt-l">
+      <div class="panel p-slate"><span class="pk">Находка</span><h3>Старый placeholder</h3><p class="body">В кастомном <code>toc_template.html</code> — легаси <code>%(linkText)s</code>. Никаких <code>numberHtml/titleHtml</code>: fallback внутри новых плейсхолдеров не мог помочь.</p></div>
+      <div class="panel p-accent"><span class="pk">Фикс</span><h3>Legacy через тот же split</h3><p class="body">Сначала тест, который точно воспроизводит QA issue и падает. Потом <code>linkText</code> тоже строится через split — старые шаблоны получают <code>1&amp;nbsp;Title</code>.</p></div>
+      <div class="panel p-deep"><span class="pk">Урок</span><h3>Совместимость — многослойная</h3><p class="body">CSS-свойства, поведение рендерера, template placeholders — три разных слоя легаси. Ни один не виден из unit-тестов нового кода.</p></div>
+    </div>
+    <div class="note mt" style="max-width:880px">Второй scoped commit: <code>[ES-3772] Preserve legacy ToC spacing</code> → origin/development. Ran 9 tests… OK.</div>
+  </div>
+</section>
+
+<!-- ===== 20 · КАРТА СКИЛЛОВ ===== -->
+<section class="slide soft">
+  <div class="eyetop">ДНЕВНИК / ИТОГИ</div>
+  <div class="inner">
+    <div class="kicker">Сквозная нить</div>
+    <h2 style="margin-bottom:20px"><span class="light">Карта</span> <span class="accent">скиллов</span> сессии</h2>
+    <table class="mon">
+      <tr><th>Момент</th><th>Скилл</th><th>Что заменил</th></tr>
+      <tr><td class="role">Вход в задачу</td><td class="act"><span class="mono">jira-issue</span></td><td class="act">Ручной пересказ тикета, гадание по названию</td></tr>
+      <tr><td class="role">Проектирование</td><td class="act"><span class="mono">implementation-spec</span></td><td class="act">Контракты и границы «в голове» — расползание scope</td></tr>
+      <tr><td class="role">Планирование</td><td class="act"><span class="mono">implementation-plan</span></td><td class="act">Стихийный порядок работ; тесты «когда-нибудь потом»</td></tr>
+      <tr><td class="role">Проверка в рантайме</td><td class="act"><span class="mono">export-debug-wsl</span></td><td class="act">«Перезапусти и посмотри PDF» без знания, что попало в workspace</td></tr>
+      <tr><td class="role">Дебаг регрессий</td><td class="act"><span class="mono">systematic-debugging</span></td><td class="act">Спор с симптомом — вместо того чтобы дойти до фактического HTML</td></tr>
+    </table>
+    <div class="note">Каждый скилл — это записанный процесс команды. Сессия их не изобретала — она их <b>переиспользовала</b>. А чего не хватило — уйдёт в рефлексию.</div>
+  </div>
+</section>
+
+<!-- ===== 21 · САМОРЕФЛЕКСИЯ АГЕНТА ===== -->
+<section class="slide">
+  <div class="eyetop">ДНЕВНИК / РЕФЛЕКСИЯ</div>
+  <div class="inner">
+    <div class="kicker">10 блоков [Саморефлексия] в дневнике</div>
+    <h2 style="margin-bottom:22px"><span class="light">Агент сам отмечает,</span> чего <span class="accent">не хватило</span></h2>
+    <div class="grid g3">
+      <div class="card"><h3><span class="ix">кандидат</span>Template contract test</h3><p class="body">Автопроверка, что все default-шаблоны используют актуальные плейсхолдеры. Регрессия №3 — ровно про это.</p></div>
+      <div class="card"><h3><span class="ix">кандидат</span>Make regression template</h3><p class="body">Скилл: копия template bundle с удалёнными селекторами — для backward-compatibility проверок одной командой.</p></div>
+      <div class="card"><h3><span class="ix">кандидат</span>QA-комментарий из отчёта</h3><p class="body">Скилл: берёт spec, testing-report и git diff — выдаёт Jira-ready комментарий. В сессии делалось руками.</p></div>
+    </div>
+    <div class="note">Это не «выводы для отчётности» — каждая заметка written in place, в момент, когда нехватка ощущалась. Вопрос: что с ними происходит дальше?</div>
+  </div>
+</section>
+
+<!-- ===== 22 · ВНЕШНЯЯ РЕФЛЕКСИЯ ===== -->
+<section class="slide has-art soft">
+  <div class="eyetop">ДНЕВНИК / РЕФЛЕКСИЯ</div>
+  <div class="inner split">
+    <div class="left">
+      <div class="kicker">Второй агент читает артефакты снаружи</div>
+      <h2><span class="light">Рефлексия</span> над <span class="accent">рефлексией</span></h2>
+      <ul class="clean mt">
+        <li><span class="mk">/</span><span><b>Общий корень регрессий:</b> проверка шла на синтетике. Прикреплять к задаче реальные шаблоны, на которых шла проверка.</span></li>
+        <li><span class="mk">/</span><span><b>Фикстуры кодируют допущения агента:</b> тесты строить от runtime-данных, не от воображаемых примеров.</span></li>
+        <li><span class="mk">/</span><span><b>Фикс нарушил spec — spec не догнал:</b> обновлять спеку в том же цикле, что и код.</span></li>
+        <li><span class="mk">/</span><span><b>Рефлексии не должны умирать в скобках:</b> по каждой — скилл / инструкция / отбросить.</span></li>
+        <li><span class="mk">/</span><span><b>Успех документировать как провал:</b> эталонные снимки в task folder, а не «вроде ок».</span></li>
+      </ul>
+      <p class="body mt">Изнутри сессии видны тактические улучшения; системное — видно со стороны. Этот шаг дешёвый: второй агент, готовые артефакты. Справа — дневник, раздел 13.</p>
+    </div>
+    <div class="artifact" data-art="art-diary" data-name="docs/diary/agent-session-diary.md · раздел 13" data-anchor="13."></div>
+  </div>
+</section>
+
+<!-- ===== 23 · ЦИКЛ УЛУЧШЕНИЯ ===== -->
+<section class="slide dark">
+  <div class="motif"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+  <div class="eyetop">ДНЕВНИК / РЕФЛЕКСИЯ</div>
+  <div class="inner">
+    <div class="kicker">Зачем всё это</div>
+    <h2 style="margin-bottom:26px"><span class="light" style="color:var(--on-dark-2)">Каждая сессия делает</span> следующую <span class="accent">дешевле</span></h2>
+    <div class="grid g3" style="grid-template-columns:repeat(4,1fr);">
+      <div class="panel p-slate"><span class="pk">1 · Сессия</span><h3>Скиллы работают</h3><p class="body">Агент переиспользует записанные процессы команды и оставляет артефакты.</p></div>
+      <div class="panel p-slate"><span class="pk">2 · Рефлексия</span><h3>Своя + внешняя</h3><p class="body">Заметки изнутри сессии и взгляд второго агента по артефактам.</p></div>
+      <div class="panel p-accent"><span class="pk">3 · Решение</span><h3>Скилл / инструкция / отбросить</h3><p class="body">Каждый блок рефлексии разбирается явно — ничего не умирает в квадратных скобках.</p></div>
+      <div class="panel p-deep"><span class="pk">4 · Следующая сессия</span><h3>Стартует выше</h3><p class="body">Новые скиллы и инструкции уже в репозитории — связка «человек + агент» дорожает медленнее, чем умнеет.</p></div>
+    </div>
+    <div class="note mt" style="max-width:900px">Это про улучшение процесса <b>человек + агент</b>, а не про отчётность. Хорошо, когда улучшения предлагает сам агент — по итогам рефлексии.</div>
+  </div>
+</section>
+
+<!-- ===== 24 · ФИНАЛ ===== -->
+<section class="slide has-art dark">
+  <div class="eyetop">ДНЕВНИК / ФИНАЛ</div>
+  <div class="inner split">
+    <div class="left">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:26px;">
+        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiMyQjMzNDAiPjwvcmVjdD4KICAKICA8cGF0aCBkPSJNNzQgMjYgTDUyIDk0IEwzNiA5NCBMNTggMjYgWiIgZmlsbD0iI0U2MDA2QiI+PC9wYXRoPgogIDxwYXRoIGQ9Ik05MiAyNiBMNzAgOTQgTDYyIDk0IEw4NCAyNiBaIiBmaWxsPSIjRkZGRkZGIj48L3BhdGg+Cjwvc3ZnPg==" width="40" height="40" alt="">
+        <span style="font-family:var(--font-display);font-weight:800;letter-spacing:.04em;color:#fff;font-size:16px;"><span style="color:var(--accent-bright)">/</span>AI ASSISTANT</span>
+      </div>
+      <div class="kicker">Главный вывод дневника</div>
+      <h2 style="color:#fff;margin-bottom:20px"><span class="light" style="color:var(--on-dark-2)">Сила — в контексте.</span><br>Качество — <span class="accent">в проверках</span></h2>
+      <ul class="clean">
+        <li><span class="mk">/</span><span style="color:var(--on-dark-2)">Агент удерживает всё сразу: Jira, доки, code path, тесты, WSL, снапшоты, git.</span></li>
+        <li><span class="mk">/</span><span style="color:var(--on-dark-2)">Но качество появилось только там, где были проверки — unit-тесты, replay, глаза человека.</span></li>
+        <li><span class="mk">/</span><span style="color:var(--on-dark-2)">Человек — не наблюдатель, а часть системы проверок: сенсор и источник product-рисков.</span></li>
+      </ul>
+      <p class="lead mt-l" style="color:var(--on-dark-2)">Весь дневник — справа. Вопросы?</p>
+    </div>
+    <div class="artifact" data-art="art-diary" data-name="docs/diary/agent-session-diary.md"></div>
+  </div>
+</section>
+
+</div>
+
+<div id="dots"></div>
+<div id="hud"><a href="../index.html" class="back-link">← К списку</a><span class="sep">|</span><span class="logo"><span>/</span>AI ASSISTANT</span><span id="cnt">01 / 24</span></div>
+<div class="navhint">← → · Space · Home/End · F — fullscreen · артефакты скроллятся</div>
+
+<!-- ===== АРТЕФАКТЫ СЕССИИ (инлайн, оригиналы из docs/diary/) ===== -->
+<script type="text/plain" id="art-task"># ES-3772: PDF Template: Ability to increase space between chapter number and title in ToC (BE)
+
+Source: https://esprowteam.atlassian.net/browse/ES-3772
+
+## Description
+Add the ability to control space between the heading chapter number and title in the following files:
+
+- `styles_toc.css`
+- `styles_tof.css`
+- `styles_tot.css`
+
+![image-20260611-074013.png](https://esprowteam.atlassian.net/rest/api/3/attachment/content/41183)
+
+## Comments
+_No comments_</script>
+<script type="text/plain" id="art-spec"># ES-3772: PDF Template: ability to increase space between number and title in ToC/ToF/ToT (BE)
+
+## Context
+
+The PDF template already lets authors style visible chapter headings and running headers through separate `header-section-number` and `header-section-title` nodes. The new Jira task asks for the same practical outcome on the generated Table of Contents, Table of Figures, and Table of Tables pages: template authors must be able to control the gap between the numbering prefix and the remaining title text through `styles_toc.css`, `styles_tof.css`, and `styles_tot.css`.
+
+The current PDF ToX pages do not preserve that split. They are generated after WeasyPrint renders the main document, using bookmark labels flattened into one `linkText` string. Because the title prefix and the title body are concatenated before the ToX HTML templates are filled, the CSS surface has no stable DOM node that can receive spacing or independent styling.
+
+This task is therefore a PDF-outline rendering change, not a storage or REST-contract change. It is related to `.tasks/es-2676-pdf-template-ability-to-increase-space-between-c`, but it affects the ToC/ToF/ToT generation path instead of visible `h1` headings or running headers.
+
+## Goals
+
+- Preserve numbering and title text as separate styling targets in PDF ToC pages.
+- Preserve figure/table prefixes and caption text as separate styling targets in PDF ToF and ToT pages.
+- Add an additive DOM and CSS contract so template authors can widen the number/title gap without backend string rewrites per template.
+- Keep the scope limited to PDF ToX generation and default PDF template assets.
+
+## Non-Goals
+
+- No changes to document body heading rendering or running headers beyond the already existing `ES-2676` behavior.
+- No changes to PDF template upload, download, selection, or ZIP storage contracts.
+- No changes to HTML export or DOCX export.
+- No changes to Pandoc numbering generation or bookmark ownership.
+- No database schema, entity, or Liquibase changes.
+
+## Current State
+
+- `dev_setup/docker/processing-app/html_to_pdf_convert_with_weasyprint.py` renders the main document and then creates ToC/ToF/ToT pages through `createToXDocument(...)`.
+- `generateOutlineStr(...)` iterates over `page.bookmarks` and passes a single `linkText` value into the ToX HTML templates.
+- The ToX templates in `services/application-service/src/main/resources/conversion/default_templates/pdf/custom/templates/` render that one flat value inside the clickable title block.
+- The default stylesheets `styles_toc.css`, `styles_tof.css`, and `styles_tot.css` style the overall line and text block, but they do not receive separate DOM nodes for number/prefix versus title body.
+- For document headings, `process_section_headers(...)` already normalizes `h1` nodes into `header-section-number` and `header-section-title`, but that structure is not reused by ToX generation because ToX is built later from WeasyPrint bookmarks, not from the original heading DOM.
+- Figure and table titles become bookmark labels through `bookmark-label: attr(title)` on `.numbered-figure` and `.numbered-table`, so ToF/ToT entries also arrive as one flattened string such as `Figure 4: Caption text`.
+
+## Target Solution
+
+Keep the change inside the PDF ToX generation stage in `html_to_pdf_convert_with_weasyprint.py`. Instead of passing only one `linkText` placeholder to the templates, the backend should derive a stable split between prefix and title body before rendering the ToX HTML.
+
+The split rules are:
+
+- ToC entries: separate a leading section-number token such as `1`, `1.2`, or `2.4.1` from the remaining heading title.
+- ToF entries: separate a leading `Figure <n>` or `Figure <n>:` prefix from the remaining caption text.
+- ToT entries: separate a leading `Table <n>` or `Table <n>:` prefix from the remaining caption text.
+
+The resulting HTML contract should expose separate spans for prefix and title body in all three ToX templates. The default CSS should then add spacing rules on the prefix element, preserving backward compatibility by keeping the existing outer selectors intact.
+
+This approach keeps the feature aligned with the real PDF runtime path, avoids changing shared HTML markup processing, and provides a direct template-facing contract where the Jira request expects it.
+
+## Contracts
+
+### Runtime Contract
+
+- PDF ToX generation must produce separate DOM nodes for prefix and title body when the bookmark text matches the supported split patterns.
+- If a bookmark text does not match a supported split pattern, ToX generation must keep the entry exportable and render the full text as the title body without creating an invalid empty prefix node.
+- The split must be applied only to the generated ToC/ToF/ToT outline pages, not to the body document content.
+
+### Template Contract
+
+- `toc_template.html` must expose separate prefix/title spans for ToC entries.
+- `tof_template.html` must expose separate prefix/title spans for ToF entries.
+- `tot_template.html` must expose separate prefix/title spans for ToT entries.
+- The default `styles_toc.css`, `styles_tof.css`, and `styles_tot.css` must include additive selectors for the new prefix/title nodes so spacing can be controlled through CSS.
+
+### Compatibility Contract
+
+- Existing templates that do not override the new selectors must still export successfully.
+- Existing outer selectors such as `.book-toc-item-title`, `.book-tof-item-title`, `.book-tot-item-title`, `.text`, and `.text-inner` must remain intact.
+- Existing page-number placement and outline nesting must remain unchanged.
+
+### Validation Contract
+
+- Prefix/title spacing must be controlled by DOM structure and CSS, not by hard-coded literal spaces inserted into one text string.
+- Bookmark texts that do not contain a recognized prefix must remain readable and must not lose text content.
+- ToF/ToT splitting must handle both values with and without a colon after the figure/table number.
+
+## Business Logic
+
+- For each bookmark line, the backend determines which ToX surface is being rendered based on the `anchorIdPrefix` argument already used by `generateOutlineStr(...)`.
+- For ToC generation, a leading dotted numeric token is treated as the numbering prefix only when it appears at the start of the bookmark title and is followed by whitespace plus non-empty title text.
+- For ToF generation, a leading `Figure <number>` token is treated as the prefix. The optional trailing colon belongs to the prefix.
+- For ToT generation, a leading `Table <number>` token is treated as the prefix. The optional trailing colon belongs to the prefix.
+- If the title contains no body text after the prefix, the backend must keep the whole string as title text instead of emitting a prefix-only entry.
+- Indentation by heading level remains unchanged and continues to be rendered before the entry content in the ToX templates.
+- Page numbers, anchors, and bookmark filtering behavior remain unchanged.
+
+## Invariants
+
+- `page.bookmarks` remains the source for ToC/ToF/ToT entries in PDF export.
+- Figure/table bookmark labels remain derived from existing caption/title generation logic.
+- No changes to API modules, controllers, services, entities, or repositories are required.
+- Main document heading numbering and running-header generation behavior stays unchanged.
+
+## API Changes
+
+No API changes.
+
+## Data/Storage and DB Migrations
+
+No data model changes and no DB migrations. The feature changes only runtime ToX HTML generation and default template assets inside the existing PDF template bundle.
+
+## Runtime Integration
+
+- `dev_setup/docker/processing-app/html_to_pdf_convert_with_weasyprint.py`
+  - extend `generateOutlineStr(...)` to pass structured prefix/title placeholders into ToX templates;
+  - add a helper that splits bookmark labels according to ToC/ToF/ToT rules;
+  - keep outline generation compatible with existing indentation, anchor, and page-number logic.
+- `services/application-service/src/main/resources/conversion/default_templates/pdf/custom/templates/toc_template.html`
+  - render separate prefix/title spans for ToC entries.
+- `services/application-service/src/main/resources/conversion/default_templates/pdf/custom/templates/tof_template.html`
+  - render separate prefix/title spans for ToF entries.
+- `services/application-service/src/main/resources/conversion/default_templates/pdf/custom/templates/tot_template.html`
+  - render separate prefix/title spans for ToT entries.
+- `services/application-service/src/main/resources/conversion/default_templates/pdf/custom/styles_toc.css`
+  - add selectors for ToC prefix/title spacing.
+- `services/application-service/src/main/resources/conversion/default_templates/pdf/custom/styles_tof.css`
+  - add selectors for ToF prefix/title spacing.
+- `services/application-service/src/main/resources/conversion/default_templates/pdf/custom/styles_tot.css`
+  - add selectors for ToT prefix/title spacing.
+
+## Test Contract
+
+- Unit coverage in `dev_setup/docker/processing-app/tests/test_html_to_pdf_convert_with_weasyprint.py` must verify prefix/title splitting for:
+  - numbered ToC entries;
+  - `Figure N` ToF entries with and without a colon;
+  - `Table N` ToT entries with and without a colon;
+  - titles that should remain unsplit.
+- Unit coverage must verify generated outline HTML contains separate prefix/title nodes and does not fall back to a single concatenated text placeholder when a supported split exists.
+- Regression coverage must verify unsupported strings still produce a valid entry without dropped text.
+- No new Java integration tests are required for this task if the Python-unit coverage directly exercises the real ToX HTML generation helper used by export.
+
+## Decisions / Open Questions
+
+- Decision: implement the split in `html_to_pdf_convert_with_weasyprint.py`, not in `html_markup_processing.py`, because ToX pages are generated from WeasyPrint bookmarks after the main document render.
+- Decision: keep the new contract additive by introducing dedicated ToX prefix/title spans while preserving the existing surrounding template structure.
+- Decision: keep the split rules narrow and deterministic for ToC, ToF, and ToT only; do not attempt a generic NLP-like parser for arbitrary bookmark titles.
+- Open question: none for the current scope. If product later wants independent styling for deeper semantic fragments inside captions, that should be a separate feature.</script>
+<script type="text/plain" id="art-plan"># ES-3772 Implementation Plan
+
+## Strategy
+
+Deliver the feature in three stages: first lock the desired runtime behavior in Python unit tests, then extend the PDF ToX generation path to emit separate prefix/title nodes, and finally expose the new contract through the default ToX templates and CSS. This order keeps the change scoped to the real PDF runtime path described in `implementation-spec.md` and minimizes the risk of changing unrelated export behavior.
+
+Commit grouping should follow the same order: tests, runtime split logic, template/CSS contract.
+
+## Stages
+
+### Stage 1: Lock the ToX split contract with regression tests
+
+**Goal**
+
+Define executable coverage for the bookmark prefix/title split rules from `implementation-spec.md -> Contracts` and `implementation-spec.md -> Test Contract`.
+
+**Affected modules and new packages**
+
+- Modify: `dev_setup/docker/processing-app/tests/test_html_to_pdf_convert_with_weasyprint.py`
+
+**New classes/interfaces**
+
+- No new production classes.
+- Add new Python `unittest.TestCase` coverage for ToX split behavior.
+
+**Implementation steps**
+
+1. Import the real ToX helper module already loaded by the test file.
+2. Add unit tests for the raw split helper behavior:
+   - ToC `1 Introduction` -> prefix `1`, title `Introduction`
+   - ToF `Figure 4: Message flow` -> prefix `Figure 4:`, title `Message flow`
+   - ToT `Table 7 Message fields` -> prefix `Table 7`, title `Message fields`
+   - unsupported `Appendix` -> no prefix, title `Appendix`
+3. Add a generated-outline assertion that exercises `generateOutlineStr(...)` or the extracted helper path and verifies separate prefix/title spans exist in the resulting HTML for supported split cases.
+
+**Test plan**
+
+- Run the Python unit test file directly.
+- Confirm the new tests fail before implementation because the split helper or output placeholders do not yet exist.
+
+**Definition of Done**
+
+- Tests express the required split rules and fail for the expected missing-behavior reason.
+
+### Stage 2: Implement structured ToX prefix/title generation
+
+**Goal**
+
+Extend PDF outline generation so ToC/ToF/ToT entries expose a stable prefix/title split according to `implementation-spec.md -> Target Solution` and `Business Logic`.
+
+**Affected modules and new packages**
+
+- Modify: `dev_setup/docker/processing-app/html_to_pdf_convert_with_weasyprint.py`
+
+**New classes/interfaces**
+
+- No new files.
+- Add small helper functions in the existing Python module for ToX label splitting and HTML escaping.
+
+**Implementation steps**
+
+1. Add a helper that receives bookmark title plus `anchorIdPrefix` and returns `prefix` and `title` according to ToC/ToF/ToT rules.
+2. Keep unsupported values and malformed prefix-only values unsplit so no entry loses content.
+3. Update `generateOutlineStr(...)` to pass both legacy-safe title text and new structured placeholders into the HTML templates.
+4. Ensure all dynamic text injected into template placeholders is escaped consistently for HTML safety.
+
+**Test plan**
+
+- Re-run the Python unit tests from Stage 1.
+- Add or keep assertions around generated HTML to verify supported split cases now render separate nodes.
+
+**Definition of Done**
+
+- ToX outline generation emits structured prefix/title placeholders and the Stage 1 tests pass.
+
+### Stage 3: Expose the template contract in default ToX assets
+
+**Goal**
+
+Make the new runtime structure configurable by default-template CSS according to `implementation-spec.md -> Template Contract`.
+
+**Affected modules and new packages**
+
+- Modify: `services/application-service/src/main/resources/conversion/default_templates/pdf/custom/templates/toc_template.html`
+- Modify: `services/application-service/src/main/resources/conversion/default_templates/pdf/custom/templates/tof_template.html`
+- Modify: `services/application-service/src/main/resources/conversion/default_templates/pdf/custom/templates/tot_template.html`
+- Modify: `services/application-service/src/main/resources/conversion/default_templates/pdf/custom/styles_toc.css`
+- Modify: `services/application-service/src/main/resources/conversion/default_templates/pdf/custom/styles_tof.css`
+- Modify: `services/application-service/src/main/resources/conversion/default_templates/pdf/custom/styles_tot.css`
+
+**New classes/interfaces**
+
+- No new classes.
+
+**Implementation steps**
+
+1. Update each ToX template so the clickable text block contains separate prefix/title spans inside the existing `.text-inner` wrapper.
+2. Preserve existing outer wrappers, indentation placeholder, and page-number markup to avoid layout regressions.
+3. Add additive CSS selectors for the new prefix elements with right-margin spacing and keep title elements inline.
+4. Avoid removing or renaming existing selectors that current templates may still depend on.
+
+**Test plan**
+
+- Re-run the Python unit tests to ensure the updated template placeholders still match the generated HTML contract.
+- Manually inspect the final template files for consistent class naming across ToC/ToF/ToT.
+
+**Definition of Done**
+
+- Default ToX templates render separate prefix/title nodes and CSS exposes spacing control without changing outer layout structure.
+
+## Risks and Mitigation
+
+- Risk: ToF/ToT bookmark labels may vary between `Figure 1 Caption` and `Figure 1: Caption`.
+  - Mitigation: support both formats in the split helper and keep unmatched labels unsplit.
+- Risk: injecting new placeholders into old templates could break export if escaping or placeholder naming is inconsistent.
+  - Mitigation: keep placeholder generation centralized in one helper path and cover resulting HTML in Python tests.
+- Risk: CSS changes may unintentionally shift existing ToX line wrapping.
+  - Mitigation: keep existing wrappers untouched and add only inline prefix/title selectors with minimal spacing rules.
+
+## Milestones
+
+- Milestone 1: Python regression tests fail on missing ToX split behavior.
+- Milestone 2: Python regression tests pass after `html_to_pdf_convert_with_weasyprint.py` emits structured prefix/title placeholders.
+- Milestone 3: Default ToX templates and CSS expose the new styling contract and all targeted tests still pass.</script>
+<script type="text/plain" id="art-replay"># Export-Debug WSL Replay For ES-3772
+
+## Capture checklist
+
+1. Export the minimal document from `.tasks/es-3772-pdf-template-ability-to-increase-space-between-c-in-toc/export-debug-minimal-document.md` to PDF.
+2. Use a PDF template where ToC, ToF, and ToT are enabled.
+3. Make the spacing change obvious in:
+   - `styles_toc.css`
+   - `styles_tof.css`
+   - `styles_tot.css`
+4. Keep `S_BOX_EXPORT_DEBUG_SNAPSHOT_ENABLED=true` in the processing app environment so the snapshot is saved.
+
+## Snapshot files to inspect first
+
+- `export-debug-snapshots/<latest>/command.sh`
+- `export-debug-snapshots/<latest>/manifest.properties`
+- `export-debug-snapshots/<latest>/workspace/input.md`
+- `export-debug-snapshots/<latest>/workspace/styles_toc.css`
+- `export-debug-snapshots/<latest>/workspace/styles_tof.css`
+- `export-debug-snapshots/<latest>/workspace/styles_tot.css`
+
+## WSL preparation
+
+Processing utilities are expected in `/conversion_utils`.
+
+They were synced with:
+
+`powershell -NoProfile -ExecutionPolicy Bypass -File dev_setup/docker/processing-app/sync-processing-utils-to-wsl.ps1`
+
+## Recommended replay order
+
+1. Generate `main.html` from `workspace/input.md` with the snapshot `command.sh`.
+2. Run `/conversion_utils/html_markup_processing.py` on `main.html`.
+3. Run `/conversion_utils/html_to_pdf_convert_with_weasyprint.py` only after the HTML stages look correct.
+
+## What to check for this task
+
+- In the final generated ToC HTML, chapter entries should render separate number/title spans.
+- In the final generated ToF HTML, figure entries should render separate prefix/title spans.
+- In the final generated ToT HTML, table entries should render separate prefix/title spans.
+- Spacing should come from CSS margins, not from literal hard-coded spaces in one text node.</script>
+<script type="text/plain" id="art-mindoc"># Minimal Export-Debug Document For ES-3772
+
+Use this document to capture a PDF export-debug snapshot that exercises all three affected surfaces:
+
+- ToC spacing for numbered headings
+- ToF spacing for figure captions
+- ToT spacing for table captions
+
+Prefer an uploaded local image or a PlantUML diagram instead of a remote URL if you want the replay to stay independent from network availability.
+
+## Recommended Markdown
+
+```md
+# Introduction and overview with a deliberately long chapter heading
+
+This paragraph exists only to make the chapter visible in the main body and the Table of Contents.
+
+## Context and purpose with a deliberately long subheading
+
+This subheading helps confirm that normal outline nesting still works after the ToC split.
+
+| Column | Value |
+| --- | --- |
+| Alpha | One |
+| Beta | Two |
+
+Table: Message field mapping with a deliberately long table caption for spacing verification {#tbl:message-field-mapping}
+
+$$plantuml
+@startuml
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+@enduml
+$$
+
+::Authentication sequence diagram with a deliberately long figure caption for spacing verification {#fig:auth-sequence}
+
+# Second chapter with another deliberately long heading
+
+This second top-level heading makes the ToC check clearer because it produces at least two chapter entries.
+```
+
+## Why this fixture is enough
+
+- It creates at least two top-level chapter entries for ToC.
+- It creates one numbered table entry for ToT.
+- It creates one numbered figure entry for ToF.
+- The headings and captions are intentionally long, so spacing and line-wrap behavior are easy to see.
+
+## What to verify in the captured workspace
+
+- `workspace/styles_toc.css` contains the template CSS you exported with.
+- `workspace/styles_tof.css` contains the template CSS you exported with.
+- `workspace/styles_tot.css` contains the template CSS you exported with.
+- `workspace/templates/toc_template.html` uses separate number/title placeholders.
+- `workspace/templates/tof_template.html` uses separate number/title placeholders.
+- `workspace/templates/tot_template.html` uses separate number/title placeholders.</script>
+<script type="text/plain" id="art-testing"># ES-3772 Testing Report
+
+## Purpose
+
+This report is for the testing team. It explains what changed in PDF export for ToC/ToF/ToT, which scenarios must be checked, and what result is now expected.
+
+## Feature Summary
+
+The PDF export pipeline now preserves number/prefix and title text as separate runtime fragments for:
+
+- Table of Contents
+- Table of Figures
+- Table of Tables
+
+This allows template authors to control the spacing between the numbering prefix and the remaining title text through CSS.
+
+The change also includes a backward-compatibility fallback for old user templates that do not define the new CSS selectors. In those templates, the number and title must still remain visibly separated and must not collapse into one glued string such as `1Introduction` or `Figure 1Caption`.
+
+## What Changed Functionally
+
+### Positive behavior
+
+If the PDF template defines the new ToC/ToF/ToT selectors, the gap between number/prefix and title can now be increased through CSS.
+
+Examples:
+
+- ToC: `1` and `Introduction`
+- ToF: `Figure 1:` and `Authentication sequence diagram`
+- ToT: `Table 1:` and `Message field mapping`
+
+### Regression-safe behavior
+
+If the PDF template does not define the new selectors, export must still produce a readable separator between number/prefix and title.
+
+Examples of correct fallback output:
+
+- `1 Introduction`
+- `2.1 Context and purpose`
+- `Figure 1: Diagram caption`
+- `Table 1: Table caption`
+
+Examples of incorrect output:
+
+- `1Introduction`
+- `2.1Context and purpose`
+- `Figure 1:Diagram caption`
+- `Table 1:Table caption`
+
+## Test Inputs
+
+Use a document that contains all three surfaces:
+
+- at least two top-level chapter headings for ToC
+- at least one table with caption for ToT
+- at least one figure or PlantUML diagram with caption for ToF
+
+The task folder already contains a suitable fixture draft:
+
+- `.tasks/es-3772-pdf-template-ability-to-increase-space-between-c-in-toc/export-debug-minimal-document.md`
+
+The final test document should use only the actual content under `Recommended Markdown`, without explanatory sections if a clean ToC is preferred.
+
+## Template Variants To Test
+
+### Variant 1: Positive ToC spacing case
+
+Template:
+
+- `.tasks/es-3772-pdf-template-ability-to-increase-space-between-c-in-toc/template`
+
+Important property:
+
+- `styles_toc.css` sets a visibly larger `margin-right` for `.toc-section-number`
+
+Expected effect:
+
+- ToC chapter number and chapter title have a clearly increased gap
+- ToF and ToT remain functional
+
+### Variant 2: Positive ToF spacing case
+
+Template:
+
+- `.tasks/es-3772-pdf-template-ability-to-increase-space-between-c-in-toc/template`
+
+Important property:
+
+- `styles_tof.css` sets a visibly larger `margin-right` for `.tof-item-number`
+
+Expected effect:
+
+- ToF figure prefix and figure caption text have a clearly increased gap
+
+### Variant 3: Regression case without ToF properties
+
+Template:
+
+- `.tasks/es-3772-pdf-template-ability-to-increase-space-between-c-in-toc/template-regression-no-tof-properties`
+
+Important difference:
+
+- `styles_tof.css` does not contain the new `.tof-item-number` and `.tof-item-title` selectors
+
+Expected effect:
+
+- ToF still shows a visible separator between figure prefix and title
+- The text must not collapse into a glued string
+- The gap may be smaller than in the styled positive case, but readability must be preserved
+
+## Recommended Test Procedure
+
+1. Export the same document with the positive template.
+2. Check ToC, ToF, and ToT in the produced PDF.
+3. Confirm that the intended larger gap is visible where the template defines it.
+4. Export the same document with the regression template that removes the new ToF properties.
+5. Confirm that ToF still keeps prefix and title separated even without the new selectors.
+6. If needed, capture an export-debug snapshot and verify the generated workspace contains the expected template files and styles.
+
+## Expected Results By Surface
+
+### Table of Contents
+
+- With the styled template, chapter numbers and titles have an intentionally larger gap.
+- Without relying on CSS, number and title must still remain separated.
+- Numbered subheadings such as `1.1` and `2.1` must also remain separated from their titles.
+
+### Table of Figures
+
+- With the styled template, `Figure N` and the caption text have an intentionally larger gap.
+- With the regression template, the gap may fall back to the minimum readable separator, but the text must not merge.
+
+### Table of Tables
+
+- `Table N` and the caption text must remain separated.
+- The behavior should match the same runtime contract used for ToC/ToF.
+
+## Export-Debug Snapshot Checks
+
+If a snapshot is captured, verify:
+
+- `workspace/templates/toc_template.html` uses `%(numberHtml)s%(titleHtml)s`
+- `workspace/templates/tof_template.html` uses `%(numberHtml)s%(titleHtml)s`
+- `workspace/templates/tot_template.html` uses `%(numberHtml)s%(titleHtml)s`
+- `workspace/styles_toc.css`, `styles_tof.css`, and `styles_tot.css` match the template variant used for the test
+
+## Final Acceptance
+
+The feature should be considered verified when:
+
+- styled templates visibly increase the gap where expected
+- old-style templates without the new properties still keep number/prefix and title text separated
+- no surface shows merged strings like `1Introduction` or `Figure 1Caption`</script>
+<script type="text/plain" id="art-diary"># Дневник одной агентской сессии: ES-3772
+
+Ниже черновик в формате "дневник сессии". Я пишу от первого лица агента, но оставляю человека как активного участника, потому что именно в таких сессиях хорошо видно, что агентская разработка не автономная магия, а итеративная связка "человек + инструменты + репозиторий + проверки".
+
+## 1. Входная точка
+
+Пользователь пришел с задачей:
+
+> Загрузи issue `ES-3772`, изучи и предложи вариант реализации. Эта фича связана с `.tasks/es-2676-pdf-template-ability-to-increase-space-between-c`
+
+Я начал не с кода. Сначала мне нужно было понять контекст: что за Jira issue, что уже известно по связанной задаче, и где в репозитории живет PDF export pipeline.
+
+Я активировал скилл `jira-issue`, потому что пользователь дал ссылку на Jira. Это важный момент: я не стал вручную пересказывать URL или гадать по названию, а использовал уже существующий локальный рабочий процесс для загрузки issue. Параллельно я прочитал старые task-документы по `ES-2676`.
+
+Из старой задачи быстро стало ясно: `ES-2676` была про spacing между номером главы и заголовком в теле PDF и running headers. Там уже был важный архитектурный вывод: номер и title нельзя оставлять одной строкой, их нужно разделять в DOM, чтобы CSS мог управлять spacing.
+
+Но `ES-3772` оказалась другой поверхностью. Формулировка Jira говорила:
+
+> Add the ability to control space between the heading chapter number and title in:
+> `styles_toc.css`, `styles_tof.css`, `styles_tot.css`
+
+То есть задача не про body headings, а про generated outline pages: Table of Contents, Table of Figures, Table of Tables.
+
+[Саморефлексия: здесь хорошо сработала связка Jira + `.tasks`. Без старой задачи можно было бы начать менять не тот слой пайплайна.]
+
+## 2. Исследование пайплайна
+
+Я пошел смотреть код PDF export. Ключевой файл оказался:
+
+`dev_setup/docker/processing-app/html_to_pdf_convert_with_weasyprint.py`
+
+В нем есть генерация ToC/ToF/ToT через `generateOutlineStr(...)`. Эта функция берет `page.bookmarks` из WeasyPrint и подставляет один плоский `linkText` в HTML templates:
+
+```text
+%(indent)s%(linkText)s
+```
+
+Это и было ядро проблемы. Даже если Pandoc или body HTML где-то содержит отдельный `span.header-section-number`, ToC/ToF/ToT строятся позже, уже из bookmark labels. На этой стадии number/title снова превращались в одну строку.
+
+Я прочитал шаблоны:
+
+- `toc_template.html`
+- `tof_template.html`
+- `tot_template.html`
+
+И соответствующие CSS:
+
+- `styles_toc.css`
+- `styles_tof.css`
+- `styles_tot.css`
+
+Везде был один текстовый placeholder. Значит template author физически не мог настроить spacing между номером и текстом отдельно, потому что в DOM не было двух элементов.
+
+[Саморефлексия: это хороший пример, почему агенту нужно смотреть реальный runtime path, а не только "логически похожий" код. Старый фикс для `h1` уже существовал, но ToC генерировался другим путем.]
+
+## 3. Проектирование через локальные документы
+
+Пользователь сказал:
+
+> Да, сделай локальные документы и реализуй
+
+Я использовал скиллы `implementation-spec` и `implementation-plan`. В этом репозитории есть привычка фиксировать задачу в `.tasks`, поэтому я создал локальную папку:
+
+`.tasks/es-3772-pdf-template-ability-to-increase-space-between-c-in-toc/`
+
+Туда легли:
+
+- `task.md`
+- `implementation-spec.md`
+- `implementation-plan.md`
+
+В spec я зафиксировал главную архитектурную идею:
+
+PDF ToX generation должен передавать в шаблоны не только `linkText`, а структурированные placeholders:
+
+- `numberHtml`
+- `titleHtml`
+
+Для ToC split должен работать по heading number:
+
+```text
+1 Introduction
+1.2 Context
+```
+
+Для ToF:
+
+```text
+Figure 1: Diagram caption
+```
+
+Для ToT:
+
+```text
+Table 1: Mapping caption
+```
+
+План был простой: сначала тесты, потом runtime helper, потом шаблоны и CSS.
+
+[Саморефлексия: documentation-first здесь не бюрократия. Это помогло удержать границы задачи: не менять API, не менять storage, не трогать HTML/DOCX export.]
+
+## 4. Реализация и первый зеленый тест
+
+Перед production-кодом я добавил Python unit tests в существующий test-файл для processing script.
+
+Тесты проверяли:
+
+- `1.2 Introduction and Scope` split на `1.2` и `Introduction and Scope`
+- `Figure 4: Message flow` split на `Figure 4:` и `Message flow`
+- `Table 7 Message fields` split на `Table 7` и `Message fields`
+- unsupported value остается без split
+- generated outline HTML содержит отдельные spans
+
+Сначала тесты упали ожидаемо: helper `split_outline_title` еще не существовал.
+
+Потом я добавил реализацию:
+
+- `split_outline_title(...)`
+- `split_caption_outline_title(...)`
+- `build_outline_number_html(...)`
+- `build_outline_title_html(...)`
+- class-name helpers для ToC/ToF/ToT
+
+После этого тесты прошли.
+
+Дальше я обновил templates:
+
+```text
+%(indent)s%(numberHtml)s%(titleHtml)s
+```
+
+И CSS добавил selectors вроде:
+
+```css
+.book-toc-item-title .toc-section-number {
+    display: inline;
+    margin-right: 0.45em;
+}
+
+.book-toc-item-title .toc-section-title {
+    display: inline;
+}
+```
+
+То же самое для ToF и ToT.
+
+[Саморефлексия: тут можно было бы иметь генератор "template contract test", который автоматически проверяет, что все default templates используют новые placeholders.]
+
+## 5. Первый ручной export и задача для QA
+
+Мы решили проверить через `export-debug-snapshot`. Для этого я использовал скилл `export-debug-wsl`.
+
+Я синхронизировал processing scripts в WSL:
+
+```text
+/conversion_utils/html_markup_processing.py
+/conversion_utils/html_to_pdf_convert_with_weasyprint.py
+```
+
+Потом подготовил минимальный markdown-документ для проверки всех трех поверхностей:
+
+- несколько `#` и `##` headings для ToC
+- таблица с caption для ToT
+- PlantUML или image с caption для ToF
+
+Я также сделал шаблон в `.tasks/.../template`, где для первого кейса ToC gap был увеличен:
+
+```css
+.toc-section-number {
+    margin-right: 1.2em;
+}
+```
+
+Пользователь прогнал export и сказал:
+
+> первый экспорт прошел
+
+Потом:
+
+> pdf выглядит хорошо. проверь последний снапшот
+
+Я проверил snapshot. В workspace действительно были:
+
+- `styles_toc.css` с `margin-right: 1.2em`
+- `toc_template.html` с `%(numberHtml)s%(titleHtml)s`
+
+Первый positive case был подтвержден.
+
+[Саморефлексия: export-debug snapshot - очень сильная техника. Он позволяет проверить не только "PDF выглядит хорошо", но и что именно попало в runtime workspace.]
+
+## 6. Backward compatibility: первая пойманная регрессия
+
+Пользователь заметил важную вещь:
+
+> сейчас в toc если не задать стили то номер сливается с текстом. Это ломает старые шаблоны пользователей.
+
+Это был правильный product-level риск. Новая DOM-структура сама по себе не гарантировала spacing, если старый пользовательский CSS не знает про новые selectors.
+
+Я добавил fallback: если split произошел, title fragment должен начинаться с separator. Сначала я поставил обычный пробел:
+
+```html
+<span class="toc-section-title"> Introduction</span>
+```
+
+Тесты прошли, но позже реальный PDF показал, что этого недостаточно. HTML/CSS rendering может схлопнуть обычный пробел.
+
+Тогда я заменил fallback на `&nbsp;`:
+
+```html
+<span class="toc-section-title">&nbsp;Introduction</span>
+```
+
+И обновил тесты.
+
+[Саморефлексия: тут важный урок для агентской разработки: unit test может подтвердить строку, но browser/PDF renderer может вести себя иначе. Для layout-регрессий нужен runtime/snapshot feedback.]
+
+## 7. Второй кейс и regression template
+
+Пользователь попросил проверить второй кейс. Сначала я неправильно понял и усилил ToF positive case:
+
+```css
+.tof-item-number {
+    margin-right: 1.2em;
+}
+```
+
+Пользователь уточнил:
+
+> Но я имел ввиду проверить регрессию если свойств нет
+
+Это поменяло задачу. Нужно было не увеличить spacing, а симулировать старый пользовательский шаблон, где новых selectors вообще нет.
+
+Я сделал отдельный regression-template:
+
+`template-regression-no-tof-properties`
+
+В нем удалил из `styles_tof.css` новые selectors:
+
+- `.tof-item-number`
+- `.tof-item-title`
+
+И оставил runtime fallback как единственный механизм разделения.
+
+[Саморефлексия: здесь можно было бы иметь отдельный skill "make regression template", который создает копию template bundle и удаляет заданные selectors для backward compatibility проверки.]
+
+## 8. Вторая пойманная регрессия: WeasyPrint bookmark без пробела
+
+Пользователь прислал screenshot:
+
+> Снова плохо. Выглядит так: `1Minimal Export-Debug Document For ES-3772`
+
+На первый взгляд это выглядело так, будто `&nbsp;` fallback не сработал. Я проверил snapshot:
+
+- `styles_toc.css` был правильный
+- `toc_template.html` был правильный
+- `/conversion_utils/html_to_pdf_convert_with_weasyprint.py` уже содержал `&nbsp;`
+
+Значит проблема была глубже.
+
+Я сделал replay snapshot pipeline в WSL и вывел фактический generated ToC HTML. Там обнаружилось:
+
+```html
+<span class='toc-section-title'>1Minimal Export-Debug Document For ES-3772</span>
+```
+
+То есть split вообще не сработал для top-level headings.
+
+Причина: WeasyPrint bookmark для `h1` отдавал не:
+
+```text
+1 Minimal Export-Debug Document
+```
+
+а:
+
+```text
+1Minimal Export-Debug Document
+```
+
+А мой parser ждал пробел после номера. Для `h2` он работал, потому что там было `1.1 Recommended Markdown`, а для `h1` нет.
+
+Я добавил тест:
+
+```text
+2Introduction and Scope
+```
+
+И изменил ToC split так, чтобы он поддерживал обе формы:
+
+- `1 Introduction`
+- `1Introduction`
+- `1.2 Introduction`
+
+После этого тесты снова прошли, скрипт был залит в WSL, пользователь сделал новый export и сказал:
+
+> готово. выглядит хорошо
+
+[Саморефлексия: это самый важный момент кейса. Агент не должен "доказывать", что код правильный, если PDF показывает обратное. Нужно дойти до фактического HTML, который попал в renderer.]
+
+## 9. Отчет для QA
+
+Пользователь попросил:
+
+> Мне нужен отчет для команды тестирования о том что и как проверить, какой теперь эффект ожидается
+
+Я создал `testing-report.md` в task folder. В нем описал:
+
+- что изменилось функционально
+- positive behavior
+- regression-safe behavior
+- какие template variants проверить
+- какие outputs считаются правильными
+- какие outputs считаются регрессией
+
+Потом пользователь попросил короткий Jira comment без ссылок на локальные файлы. Я подготовил текст для Jira.
+
+Основные acceptance criteria:
+
+- styled templates visibly increase spacing
+- old templates without new properties still produce readable output
+- no ToC/ToF/ToT entry merges number/prefix with title text
+
+[Саморефлексия: генерация QA-коммента из task-local testing report - хороший кандидат на автоматизацию. Можно сделать skill, который берет `implementation-spec`, `testing-report`, git diff и выдает Jira-ready comment.]
+
+## 10. Commit и push
+
+В конце пользователь сказал:
+
+> Теперь коммит с коротким сообщением, начинающимся с `[task-id]` и пуш
+
+Я проверил `git status`. В рабочем дереве были посторонние изменения:
+
+- `DictionaryStorageTest.kt`
+- `agents-workflow/`
+
+Я не стал их трогать. В commit попали только файлы, относящиеся к ES-3772:
+
+- Python processing script
+- Python regression tests
+- default PDF ToC/ToF/ToT templates
+- default PDF ToC/ToF/ToT CSS
+
+Commit:
+
+```text
+[ES-3772] Fix PDF ToX spacing
+```
+
+Hash:
+
+```text
+6b8b91806
+```
+
+Push ушел в:
+
+```text
+origin/development
+```
+
+[Саморефлексия: dirty worktree - нормальное состояние реальной разработки. Агент должен уметь коммитить только свой scope, не "убирая" чужие изменения.]
+
+## 11. QA issue после push: старый `%(linkText)s`
+
+После push работа не закончилась. Пользователь вернулся с новым QA-сценарием:
+
+> Я загрузил кастомный шаблон с qa `.tasks/es-3772-pdf-template-ability-to-increase-space-between-c-in-toc/PDF-Template-NASDAQ-20260430 - SGX Iris-ST (1)` и сделал экспорт. Результат: текст toc снова слит `1Minimal Export-Debug Document For ES-3772`.
+
+На этот раз проблема была не в default template и не в `numberHtml/titleHtml`. Я снова пошел через `systematic-debugging` и `export-debug-wsl`: сначала проверил свежий snapshot, потом сам QA template.
+
+Ключевая находка была в `toc_template.html` кастомного NASDAQ-шаблона:
+
+```text
+%(indent)s%(linkText)s
+```
+
+Это был старый template contract. Он вообще не использовал новые placeholders:
+
+```text
+%(numberHtml)s%(titleHtml)s
+```
+
+Значит наш предыдущий fallback внутри `titleHtml` не мог помочь: старый шаблон обходил новый DOM-контракт полностью и продолжал получать legacy `linkText`.
+
+Я добавил регрессионный тест ровно на этот сценарий:
+
+```text
+template = "<li><a href='%(refAddr)s'>%(linkText)s</a></li>"
+bookmark = "1Introduction"
+expected = "1&nbsp;Introduction"
+```
+
+Тест сначала упал:
+
+```text
+AssertionError: '>1&nbsp;Introduction</a>' not found in "<li><a href='#intro'>1Introduction</a></li>"
+```
+
+Это было хорошее падение: оно точно воспроизводило QA issue.
+
+После этого я изменил `generateOutlineStr(...)`: legacy `linkText` теперь тоже строится через тот же split, что и новый structured output. Для старых шаблонов это означает:
+
+```html
+1&nbsp;Minimal Export-Debug Document For ES-3772
+```
+
+А для новых шаблонов по-прежнему доступны отдельные:
+
+```text
+numberHtml
+titleHtml
+```
+
+Я прогнал Python tests:
+
+```text
+Ran 9 tests ... OK
+```
+
+Потом синхронизировал исправленный processing script в WSL `/conversion_utils` и сделал replay последнего QA snapshot. Replay показал фактический HTML:
+
+```html
+1&nbsp;Minimal Export-Debug Document For ES-3772
+```
+
+После ручного экспорта пользователь подтвердил:
+
+> вроде ок
+
+Я сделал второй scoped commit:
+
+```text
+[ES-3772] Preserve legacy ToC spacing
+```
+
+Hash:
+
+```text
+d4c77cb57
+```
+
+И запушил его в `origin/development`.
+
+[Саморефлексия: первая версия backward compatibility покрывала "старый CSS с новым template", но не "старый template с legacy placeholder". Это полезное различие: совместимость нужно проверять не только на уровне CSS-свойств, но и на уровне template placeholders.]
+
+## 12. Что эта сессия показывает про агентскую разработку
+
+Это был не линейный сценарий "получил задачу - написал код - готово".
+
+Было несколько циклов:
+
+1. Jira и старая task-документация помогли быстро определить домен.
+2. Код показал, что настоящая точка изменения не там, где похожая старая задача.
+3. Implementation spec и plan зафиксировали границы.
+4. Unit tests поймали базовую логику split.
+5. Export-debug snapshot проверил реальный runtime.
+6. Пользовательская визуальная проверка поймала backward compatibility проблему.
+7. Replay snapshot в WSL показал фактический generated HTML.
+8. Второй фикс учел особенность WeasyPrint bookmark labels.
+9. QA report и Jira comment превратили техническую работу в проверяемый процесс.
+10. Первый commit был scoped, с учетом грязного рабочего дерева.
+11. QA template после push показал еще один compatibility gap: старый `%(linkText)s`.
+12. Новый regression test закрепил старый template contract, а второй commit закрыл этот сценарий.
+
+Главный вывод: агентская разработка сильна не потому, что агент "сам все сделал", а потому что он может удерживать много контекста одновременно: Jira, локальные docs, code path, тесты, WSL tooling, export snapshots, пользовательскую обратную связь и git hygiene.
+
+Но качество появилось только там, где были проверки. Визуальная обратная связь пользователя была такой же важной частью системы, как unit tests и snapshot replay.
+
+## 13. Внешняя рефлексия: взгляд второго агента
+
+Этот раздел написан другим агентом, который не участвовал в сессии, а читал ее артефакты снаружи. Саморефлексия внутри сессии видит тактические улучшения; некоторые системные вещи видны только при взгляде со стороны. Все наблюдения ниже — про улучшение связки "человек + агент", и каждое сформулировано так, чтобы его можно было превратить в скилл или инструкцию.
+
+### У двух регрессий общий корень
+
+"Старый CSS без новых селекторов" и "старый шаблон с `%(linkText)s`" — один класс ошибки: compatibility contract в спеке был сформулирован абстрактно ("existing templates must still export successfully"), но проверка шла на синтетических шаблонах, которые агент сделал сам. Обе регрессии — варианты легаси, которых не было в проверочном наборе.
+
+Улучшение процесса: к задаче, затрагивающей пользовательские шаблоны, прикреплять реальные шаблоны, на которых проходила проверка, — как артефакт в task folder. Тогда regression-проверка идет не по придуманным агентом вариантам, а по фактическим. QA-инцидент после push был бы пойман локально.
+
+Кандидат в инструкцию: перед push template-facing изменения прогнать проверку на реальных шаблонах, приложенных к задаче.
+
+### Фикстуры, придуманные агентом, кодируют допущения агента
+
+Парсер ждал пробел после номера, потому что тестовые примеры (`1 Introduction`, `1.2 Context`) агент написал сам. WeasyPrint отдавал `1Minimal` — это вскрылось только через replay.
+
+Кандидат в инструкцию: перед написанием parsing/split-тестов снять реальные runtime-данные (в этом случае — фактические bookmark labels из одного снапшота) и строить тесты от них, а не от воображаемых примеров.
+
+### Финальный фикс нарушил собственный spec, и spec не обновили
+
+В Validation Contract написано: "spacing must be controlled by DOM structure and CSS, not by hard-coded literal spaces". Итоговый fallback — ровно hard-coded `&nbsp;` в строке. Решение правильное, реальность заставила — но spec теперь врет следующему читателю. Documentation-first работает, только если документы догоняют отклонения.
+
+Кандидат в инструкцию: если реализация отклонилась от контракта в spec — обновить spec в том же цикле, что и код.
+
+### Саморефлексии не должны умирать в квадратных скобках
+
+Агент сгенерировал десять наблюдений и несколько идей скиллов — но они остались текстом внутри дневника. Цикл "сессия -> рефлексия -> новый скилл -> следующая сессия дешевле" замыкается, только если есть шаг превращения рефлексий в скиллы или инструкции.
+
+Улучшение процесса: после сессии собирать блоки саморефлексии и явно решать по каждому — становится скиллом, становится инструкцией или отбрасывается. Хорошо, если агент сам предлагает такие улучшения по итогам рефлексии.
+
+### Успех не задокументирован так же, как провал
+
+В артефактах есть скриншот сломанного ToC, но нет эталонного скриншота правильного результата. QA получил описание словами ("clearly increased gap"). Финальное "вроде ок" от человека — самое слабое подтверждение во всей сессии, контрастирующее со строгостью остальных проверок.
+
+Кандидат в инструкцию: при визуальных проверках сохранять в task folder не только провальные, но и эталонные снимки — отчет для QA тогда становится сравнением с эталоном.
+
+### Вывод второго уровня
+
+Агент внутри сессии видит, где не хватило скилла. Снаружи видно другое: где проверочный набор был синтетическим, где документы разошлись с кодом, куда деваются сами рефлексии. Поэтому рефлексия над сессией — тоже часть процесса "человек + агент": она дешевая, делается другим агентом по готовым артефактам и возвращает улучшения в скиллы и инструкции.</script>
+
+<script>
+(function(){
+  /* ---------- минимальный markdown-рендер для артефактов ---------- */
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function inline(s){
+    return s
+      .replace(/`([^`]+)`/g,function(_,c){return '<code>'+c+'</code>';})
+      .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  }
+  function renderMd(src){
+    var lines=src.replace(/\r\n/g,'\n').split('\n');
+    var out=[],i=0,inFence=false,fence=[],list=null;
+    function closeList(){if(list){out.push('</'+list+'>');list=null;}}
+    for(i=0;i<lines.length;i++){
+      var L=lines[i];
+      if(/^```/.test(L)){
+        if(inFence){out.push('<pre><code>'+esc(fence.join('\n'))+'</code></pre>');fence=[];inFence=false;}
+        else{closeList();inFence=true;}
+        continue;
+      }
+      if(inFence){fence.push(L);continue;}
+      var m;
+      if((m=L.match(/^(#{1,4})\s+(.*)$/))){closeList();var h=m[1].length;out.push('<h'+h+' data-h="'+esc(m[2])+'">'+inline(esc(m[2]))+'</h'+h+'>');continue;}
+      if(/^---+\s*$/.test(L)){closeList();out.push('<hr>');continue;}
+      if((m=L.match(/^>\s?(.*)$/))){closeList();out.push('<blockquote><p>'+inline(esc(m[1]))+'</p></blockquote>');continue;}
+      if((m=L.match(/^[-*]\s+(.*)$/))){if(list!=='ul'){closeList();out.push('<ul>');list='ul';}out.push('<li>'+inline(esc(m[1]))+'</li>');continue;}
+      if((m=L.match(/^\d+\.\s+(.*)$/))){if(list!=='ol'){closeList();out.push('<ol>');list='ol';}out.push('<li>'+inline(esc(m[1]))+'</li>');continue;}
+      if(/^\s*$/.test(L)){closeList();continue;}
+      closeList();out.push('<p>'+inline(esc(L.replace(/^!\[[^\]]*\]\([^)]*\)$/,'[изображение: вложение Jira]')))+'</p>');
+    }
+    if(inFence&&fence.length){out.push('<pre><code>'+esc(fence.join('\n'))+'</code></pre>');}
+    closeList();
+    return out.join('\n');
+  }
+
+  /* ---------- собрать панели артефактов ---------- */
+  var panels=[].slice.call(document.querySelectorAll('.artifact'));
+  panels.forEach(function(p){
+    var srcEl=document.getElementById(p.getAttribute('data-art'));
+    if(!srcEl)return;
+    var name=p.getAttribute('data-name')||'';
+    var head=document.createElement('div');head.className='ahead';
+    head.innerHTML='<span class="adot"></span><span class="aname">'+name+'</span><span class="alab">артефакт сессии</span>';
+    var body=document.createElement('div');body.className='abody';
+    var md=document.createElement('div');md.className='md';
+    md.innerHTML=renderMd(srcEl.textContent.trim());
+    body.appendChild(md);
+    var hint=document.createElement('div');hint.className='ahint';
+    hint.textContent='оригинал без купюр · скролл внутри панели';
+    p.appendChild(head);p.appendChild(body);p.appendChild(hint);
+  });
+
+  /* автопрокрутка к якорю-разделу при активации слайда (слайд внешней рефлексии) */
+  function applyAnchors(slideEl){
+    [].forEach.call(slideEl.querySelectorAll('.artifact[data-anchor]'),function(p){
+      if(p.getAttribute('data-scrolled'))return;
+      var body=p.querySelector('.abody');if(!body)return;
+      var anchor=p.getAttribute('data-anchor');
+      var hs=body.querySelectorAll('h2');
+      for(var k=0;k<hs.length;k++){
+        if(hs[k].getAttribute('data-h')&&hs[k].getAttribute('data-h').indexOf(anchor)===0){
+          body.scrollTop=Math.max(0,hs[k].offsetTop-12);
+          p.setAttribute('data-scrolled','1');
+          break;
+        }
+      }
+    });
+  }
+
+  /* ---------- навигация по деку ---------- */
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var n=slides.length, i=0;
+  var bar=document.getElementById('bar'), cnt=document.getElementById('cnt'), dots=document.getElementById('dots');
+  slides.forEach(function(_,k){var b=document.createElement('b');b.onclick=function(){go(k);};dots.appendChild(b);});
+  var dotEls=[].slice.call(dots.children);
+  function pad(x){return (x+1<10?'0':'')+(x+1);}
+  function go(k){
+    i=Math.max(0,Math.min(n-1,k));
+    slides.forEach(function(s,j){s.classList.toggle('active',j===i);});
+    dotEls.forEach(function(d,j){d.classList.toggle('on',j===i);});
+    bar.style.width=((i+1)/n*100)+'%';
+    cnt.textContent=pad(i)+' / '+n;
+    var dark=slides[i].classList.contains('dark');
+    document.getElementById('hud').style.color=dark?'rgba(255,255,255,.55)':'';
+    document.querySelector('#hud .logo').style.color=dark?'#fff':'';
+    applyAnchors(slides[i]);
+    if(history.replaceState)history.replaceState(null,'','#'+(i+1));
+  }
+  function next(){go(i+1);} function prev(){go(i-1);}
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}
+    else if(e.key==='Home'){go(0);} else if(e.key==='End'){go(n-1);}
+    else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+  });
+  document.addEventListener('click',function(e){
+    if(e.target.closest('#dots')||e.target.closest('#hud')||e.target.closest('.artifact'))return;
+    if(e.clientX < window.innerWidth*0.32) prev(); else next();
+  });
+  window.addEventListener('hashchange',function(){
+    var h=parseInt((location.hash||'').replace('#',''),10);
+    if(!isNaN(h)&&h-1!==i)go(h-1);
+  });
+  var h=parseInt((location.hash||'').replace('#',''),10);
+  go(isNaN(h)?0:h-1);
+})();
+</script>
+</body>
+</html>

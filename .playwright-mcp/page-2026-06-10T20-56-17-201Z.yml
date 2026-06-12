@@ -1,0 +1,18 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e7]: /AI ASSISTANT
+      - generic [ref=e8]: / Дополнение к докладу об AI-агентах · SDD
+      - 'heading "Spec-Driven: качество — это новая скорость" [level=1] [ref=e9]':
+        - text: "Spec-Driven:"
+        - text: качество — это
+        - text: новая скорость
+      - paragraph [ref=e11]: Код подешевел. Узкое место переехало в планирование и валидацию — как с этим жить и выигрывать.
+      - generic [ref=e12]: По мотивам доклада Миши Дружинина «Когда код подешевел» · Podlodka AI Crew · июнь 2026
+    - text: / / / / / / / / / / / / / / / / / / / / / / / / / / /
+  - generic [ref=e38]:
+    - generic [ref=e39]:
+      - generic [ref=e40]: /
+      - text: AI ASSISTANT
+    - generic [ref=e41]: 01 / 24
+  - generic [ref=e42]: ← → · Space · Home/End · F — fullscreen
