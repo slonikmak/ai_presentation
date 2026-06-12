@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Дневник одной агентской сессии — /AI ASSISTANT</title>
 <!-- Дополнительная презентация к докладу «AI-агенты как ежедневный инструмент команды».
      Разбор реальной агентской сессии ES-3772 по артефактам из docs/diary/.
@@ -222,6 +222,51 @@ table.mon td .mono{font-size:12.5px;}
 @media (prefers-reduced-motion:reduce){.slide.active{animation:none;}}
 .eyetop{position:absolute;top:38px;left:clamp(48px,7vw,120px);font-family:var(--font-mono);font-size:12px;color:var(--slate-mut);letter-spacing:.04em;z-index:3;}
 .dark .eyetop{color:var(--on-dark-3);}
+
+/* ---------- MOBILE ---------- */
+#mtop,#mnav{display:none;}
+@media (max-width:768px){
+  /* шапка: всегда видна, тёмная плашка — читаема на любом слайде */
+  #mtop{display:flex;position:fixed;top:0;left:0;right:0;z-index:60;align-items:center;justify-content:space-between;gap:12px;
+    height:calc(44px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 16px 0;
+    background:var(--slate-deep);box-shadow:0 1px 0 rgba(255,255,255,0.08);}
+  #mtop a.back-link{color:var(--on-dark-2);text-decoration:none;font-family:var(--font-mono);font-size:13px;font-weight:600;padding:6px 0;}
+  #mtop .logo{font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.04em;color:#fff;}
+  #mtop .logo span{color:var(--accent-bright);}
+  #bar{top:calc(44px + env(safe-area-inset-top));z-index:61;}
+  /* подвал: кнопки навигации + счётчик */
+  #mnav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:60;align-items:center;justify-content:space-between;gap:12px;
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--slate-deep);box-shadow:0 -1px 0 rgba(255,255,255,0.08);}
+  #mnav button{width:88px;height:42px;background:transparent;border:1px solid rgba(255,255,255,0.3);border-radius:var(--r-sm);
+    color:#fff;font-family:var(--font-mono);font-size:18px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  #mnav button:active{background:var(--accent);border-color:var(--accent);}
+  #mnav #mcnt{font-family:var(--font-mono);font-size:13px;color:var(--on-dark-2);letter-spacing:.06em;}
+  /* деск между шапкой и подвалом; слайд скроллится по вертикали */
+  #deck{top:calc(47px + env(safe-area-inset-top));bottom:calc(62px + env(safe-area-inset-bottom));}
+  .slide{padding:22px 18px 32px;justify-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .inner{margin:auto 0;}
+  .eyetop{position:static;order:-1;margin-bottom:14px;flex:none;}
+  #hud,#dots,.navhint{display:none;}
+  /* сетки в одну колонку (включая инлайновые двухколоночные гриды слайдов;
+     разделители с auto 1fr не трогаем) */
+  .g2,.g3,.g4{grid-template-columns:1fr;}
+  [style*="grid-template-columns:1"],[style*="grid-template-columns:repeat"],
+  [style*="grid-template-columns:46"],[style*="grid-template-columns:minmax"]{grid-template-columns:1fr !important;gap:20px !important;}
+  .ba{grid-template-columns:1fr;gap:8px;}
+  .ba .arrow{transform:rotate(90deg);justify-self:start;font-size:18px;}
+  h1.display{font-size:clamp(30px,8.5vw,40px);}
+  h2{font-size:clamp(22px,6.4vw,30px);}
+  .divnum{font-size:clamp(44px,14vw,80px);}
+  /* сплит с артефактом: в столбик, артефакт с ограниченной высотой и скроллом внутри */
+  .split{grid-template-columns:1fr;height:auto;gap:20px;}
+  .split .left{justify-content:flex-start;}
+  .slide.has-art{padding-top:22px;padding-bottom:32px;}
+  .artifact{max-height:70vh;}
+  table.mon td.role{white-space:normal;}
+  table.mon td,table.mon th{padding:8px 8px;}
+  table.mon td.act{font-size:13px;}
+  table.mon td .mono{font-size:11.5px;word-break:break-all;}
+}
 </style>
 </head>
 <body>
@@ -700,6 +745,8 @@ table.mon td .mono{font-size:12.5px;}
 <div id="dots"></div>
 <div id="hud"><a href="../index.html" class="back-link">← К списку</a><span class="sep">|</span><span class="logo"><span>/</span>AI ASSISTANT</span><span id="cnt">01 / 24</span></div>
 <div class="navhint">← → · Space · Home/End · F — fullscreen · артефакты скроллятся</div>
+<div id="mtop"><a href="../index.html" class="back-link">← К списку</a><span class="logo"><span>/</span>AI ASSISTANT</span></div>
+<div id="mnav"><button id="mprev" aria-label="Предыдущий слайд">←</button><span id="mcnt">01 / 24</span><button id="mnext" aria-label="Следующий слайд">→</button></div>
 
 <!-- ===== АРТЕФАКТЫ СЕССИИ (инлайн, оригиналы из docs/diary/) ===== -->
 <script type="text/plain" id="art-task"># ES-3772: PDF Template: Ability to increase space between chapter number and title in ToC (BE)
@@ -1808,6 +1855,8 @@ d4c77cb57
   var slides=[].slice.call(document.querySelectorAll('.slide'));
   var n=slides.length, i=0;
   var bar=document.getElementById('bar'), cnt=document.getElementById('cnt'), dots=document.getElementById('dots');
+  var mcnt=document.getElementById('mcnt');
+  var mobile=window.matchMedia('(max-width:768px)');
   slides.forEach(function(_,k){var b=document.createElement('b');b.onclick=function(){go(k);};dots.appendChild(b);});
   var dotEls=[].slice.call(dots.children);
   function pad(x){return (x+1<10?'0':'')+(x+1);}
@@ -1817,6 +1866,8 @@ d4c77cb57
     dotEls.forEach(function(d,j){d.classList.toggle('on',j===i);});
     bar.style.width=((i+1)/n*100)+'%';
     cnt.textContent=pad(i)+' / '+n;
+    mcnt.textContent=pad(i)+' / '+n;
+    slides[i].scrollTop=0;
     var dark=slides[i].classList.contains('dark');
     document.getElementById('hud').style.color=dark?'rgba(255,255,255,.55)':'';
     document.querySelector('#hud .logo').style.color=dark?'#fff':'';
@@ -1824,6 +1875,15 @@ d4c77cb57
     if(history.replaceState)history.replaceState(null,'','#'+(i+1));
   }
   function next(){go(i+1);} function prev(){go(i-1);}
+  document.getElementById('mprev').onclick=prev;
+  document.getElementById('mnext').onclick=next;
+  var tx=0,ty=0;
+  document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(e.target.closest('.artifact'))return;
+    var dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>70 && Math.abs(dx)>Math.abs(dy)*1.6){dx<0?next():prev();}
+  },{passive:true});
   document.addEventListener('keydown',function(e){
     if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}
     else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}
@@ -1831,6 +1891,7 @@ d4c77cb57
     else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
   });
   document.addEventListener('click',function(e){
+    if(mobile.matches)return;
     if(e.target.closest('#dots')||e.target.closest('#hud')||e.target.closest('.artifact'))return;
     if(e.clientX < window.innerWidth*0.32) prev(); else next();
   });
